@@ -1,0 +1,86 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	background-attachment: fixed;
+	background-position: 50% 50%;
+	background-size: cover;
+}
+a {
+	text-decoration: underline;
+}
+a:hover {
+	text-decoration: none;
+}
+
+.bi { transition: color 0.3s ease-in-out; }
+.bi-eye:hover { color: #0056b3; } /* Darker blue */
+.bi-pencil-square:hover { color: #1e7e34; } /* Darker green */
+.bi-trash:hover { color: #a71d2a; } /* Darker red */
+
+.bg-r1 {
+	background-image: url(../images/r1.jpeg);
+}
+.bg-orange {
+	background-image: url(../img/bg-orange.jpg);
+}
+.bg-yellow {
+	background-image: url(../img/bg-yellow.jpg);
+}
+.bg-green {
+	background-image: url(../img/bg-green.jpg);
+}
+.bg-cyan {
+	background-image: url(../img/bg-cyan.jpg);
+}
+.bg-blue {
+	background-image: url(../images/bg-blue_1.jpg);
+}
+.bg-purple {
+	background-image: url(../img/bg-purple.jpg);
+}
+.bg-pink {
+	background-image: url(../img/bg-pink.jpg);
+}
+.bg-black {
+	background-image: url(../img/bg-black.jpg);
+}
+
+.body {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 40px;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+}
+.body-s {
+	max-width: 400px;
+}
+.modal {
+	padding: 25px 30px;
+	background: rgba(255,255,255,0.9);
+	font: 13px/1.55 'Open Sans', Helvetica, Arial, sans-serif;
+	color: #666;
+}
+.modal a {
+	color: #2da5da;
+}
+
+.ubuntu-bold-14-negro {
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    color: #000;
+}
+
+.ubuntu-bold-20-negro {
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    color: #000;
+    text-align: center;
+}
+@media screen and (max-width: 600px) {
+	.body {
+		padding: 20px;
+	}
+}
