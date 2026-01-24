@@ -7,10 +7,14 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+
 use Illuminate\Database\Eloquent\Collection;
+
 use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+
+use Illuminate\Support\Str;
 
 
 /**
@@ -54,6 +58,10 @@ class Userrole extends Model
         'is_active' => 'boolean',
     ];
 
+    public function nominationDirectory(): string
+    {
+        return Str::slug($this->code) . '/' . now()->year;
+    }
 
 	public function auditores()
 	{

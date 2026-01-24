@@ -1,64 +1,79 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Models\Nomination;
 
 use App\Livewire\Public\Welcome;
 
-use App\Livewire\Operacion\Home as OperacionHome;
+use Illuminate\Support\Facades\{Auth, Route, Storage, Response};
+
+
+use App\Livewire\Admin\Home as AdminHome;
+
 
 use App\Livewire\Dashboard\Home as DashboardHome;
 
-use App\Livewire\Admin\Home as AdminHome;
-use App\Livewire\Admin\Panel;
+use App\Livewire\Operacion\Home as OperacionHome;
+
+use App\Livewire\Operacion\Simple as OperacionSimple;
+
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+
+Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('general.info');
+    }
+    return view('welcome');
+});
 
 
-Route::get('/', Welcome::class)->name('welcome');
+
+Route::get('/descargar-documento/{path}', function ($path) {
+    return Storage::download($path);
+})->where('path', '.*')->name('descargar-documento');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/info', Welcome::class)->name('general.info');
+});
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/operacion/home', OperacionHome::class)->name('operacion.home');
+    Route::get('/operacion/simple', OperacionSimple::class)->name('operacion.simple');
     Route::get('/dashboard/home', DashboardHome::class)->name('dashboard.home');
     Route::get('/admin/home', AdminHome::class)->middleware('can:admin-access')->name('admin.home');
 });
 
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::middleware('auth')->group(function () {
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+        ->name('logout');
+});
 
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+});
 
-    Route::prefix('barrios')->group(function () {
-        Route::get('/', \App\Livewire\Admin\Barrios\Index::class)->name('barrios.index');
-        Route::get('/create', \App\Livewire\Admin\Barrios\Create::class)->name('barrios.create');
-        Route::get('/{barrios}/edit', \App\Livewire\Admin\Barrios\Edit::class)->name('barrios.edit');
-        Route::get('/{barrios}', \App\Livewire\Admin\Barrios\Show::class)->name('barrios.show');
-    });
+Route::get('/ver-documento/{path}', function ($path) {
+    $decodedPath = base64_decode($path);
+    $fullPath = storage_path('app/nominations/' . $decodedPath);
 
-    Route::prefix('ordenanzas')->group(function () {
-        Route::get('/', \App\Livewire\Admin\Ordenanzas\Index::class)->name('ordenanzas.index');
-        Route::get('/create', \App\Livewire\Admin\Ordenanzas\Create::class)->name('ordenanzas.create');
-        Route::get('/{ordenanzas}/edit', \App\Livewire\Admin\Ordenanzas\Edit::class)->name('ordenanzas.edit');
-        Route::get('/{ordenanzas}', \App\Livewire\Admin\Ordenanzas\Show::class)->name('ordenanzas.show');
-    });    
+    // Verificación de seguridad
+    if (!file_exists($fullPath)) {
+        abort(404, 'El archivo físico no existe.');
+    }
 
-    Route::prefix('salarios')->group(function () {
-        Route::get('/', \App\Livewire\Admin\Salarios\Index::class)->name('salarios.index');
-        Route::get('/create', \App\Livewire\Admin\Salarios\Create::class)->name('salarios.create');
-        Route::get('/{salarios}/edit', \App\Livewire\Admin\Salarios\Edit::class)->name('salarios.edit');
-        Route::get('/{salarios}', \App\Livewire\Admin\Salarios\Show::class)->name('salarios.show');
-    });    
-
-    Route::prefix('porcentajes')->group(function () {
-        Route::get('/', \App\Livewire\Admin\Porcentajes\Index::class)->name('porcentajes.index');
-        Route::get('/create', \App\Livewire\Admin\Porcentajes\Create::class)->name('porcentajes.create');
-        Route::get('/{porcentajes}/edit', \App\Livewire\Admin\Porcentajes\Edit::class)->name('porcentajes.edit');
-        Route::get('/{porcentajes}', \App\Livewire\Admin\Porcentajes\Show::class)->name('porcentajes.show');
-    });    
-
-
-
-require __DIR__.'/auth.php';
-
-
+    // Retornar el archivo para visualizar
+    return Response::file($fullPath, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="nominacion.pdf"',
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'Pragma' => 'no-cache',
+        'Expires' => '0',
+    ]);
+})->name('ver.documento')->middleware('auth');

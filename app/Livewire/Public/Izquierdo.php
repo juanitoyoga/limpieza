@@ -15,20 +15,27 @@ class Izquierdo extends Component
     {
         $this->roleMenuService = $roleMenuService;
 
-        if (Auth::check()) {
-            $userId = Auth::id();
-            try {
-                $this->menuItems = $this->roleMenuService->getMenuByUserId($userId);
-            } catch (\Exception $e) {
-                // Maneja el error según tus necesidades
-                // Puedes lanzar una excepción personalizada o asignar un valor por defecto a $this->menuItems
-                $this->menuItems = [];
-            }
+if (Auth::check()) {
+    $user = Auth::user();
+    $userId = $user->id;
+
+    try {
+        // Si el usuario es admin, no mostrar menú de operaciones
+        if ($user->role === 'Admin') {
+            $this->menuItems = []; 
         } else {
-            // Maneja el caso en que el usuario no está autenticado
-            // Puedes redirigir al usuario a la página de inicio de sesión o asignar un valor por defecto a $this->menuItems
-            $this->menuItems = [];
+            // Para otros roles, sí cargar menú de operaciones
+            $this->menuItems = $this->roleMenuService->getMenuByUserId($userId);
         }
+    } catch (\Exception $e) {
+        // Maneja el error según tus necesidades
+        $this->menuItems = [];
+    }
+} else {
+    // Usuario no autenticado
+    $this->menuItems = [];
+}
+
     }
 
     public function render()

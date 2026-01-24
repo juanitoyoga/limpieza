@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use App\Models\{Nomination, User};
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -41,8 +42,75 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('edit-clients', fn($user) => in_array($user->role, ['superadmin', 'admin', 'manager']));
         Gate::define('delete-clients', fn($user) => in_array($user->role, ['superadmin', 'admin']));
 
-        Gate::define('admin-access', function ($user) {
-            return $user->role; // o la condición que uses
+        Gate::define('admin-access', fn($user) =>
+            in_array($user->role_name, ['Admin', 'SuperAdmin'])
+        );
+
+        Gate::define('operations-access', fn($user) =>
+            $user->role_name !== 'user'
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Nominations
+        |--------------------------------------------------------------------------
+        */
+    
+        // Crear nominación
+        Gate::define('nominations.create', function (User $user) {
+            return in_array($user->role_name, [
+                'SuperAdmin',
+                'Funcionario',
+                'Supervisor',
+                'Auditor',
+            ]);
         });
+    
+        // Editar nominación (solo mientras esté en PROPUESTA)
+        Gate::define('nominations.edit', function (User $user, Nomination $nomination) {
+            return in_array($user->role_name, ['SuperAdmin', 'Supervisor', 'Funcionario', 'Auditor'])
+                && $nomination->estado === Nomination::ESTADO_PROPUESTA;
+        });
+    
+        // Verificar nominación
+        Gate::define('nominations.verificar', function (User $user) {
+            return in_array($user->role_name, [
+                'Supervisor',
+                'Auditor',
+                'Funcionario',
+                'SuperAdmin',
+            ]);
+        });
+    
+        // Aprobar nominación
+        Gate::define('nominations.aprobar', function (User $user) {
+            return in_array($user->role_name, [
+                'Supervisor',
+                'Auditor',
+                'Funcionario',
+                'SuperAdmin',
+            ]);
+        });
+    
+        // Rechazar nominación
+        Gate::define('nominations.rechazar', function (User $user) {
+            return in_array($user->role_name, [
+                'Supervisor',
+                'Auditor',
+                'Funcionario',
+                'SuperAdmin',
+            ]);
+        });            
+        // Ver cualquier nominación
+        Gate::define('nominations.view', function (User $user) {
+            return in_array($user->role_name, [
+                'SuperAdmin',
+                'Funcionario',
+                'Supervisor',
+                'Auditor',
+            ]);
+        });
+            
+
     }
 }

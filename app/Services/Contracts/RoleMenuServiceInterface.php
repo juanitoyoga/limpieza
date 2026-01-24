@@ -4,9 +4,9 @@ namespace App\Services\Contracts;
 
 interface RoleMenuServiceInterface
 {
-    public function getUserRoles($userId);
+    public function getUserRole(int $userId): ?array;
 
-    public function getMenuByRoleName($roleName);
+    public function getMenuByRoleName(int $roleId);
 
     public function getMenuByUserId($userId);
 }

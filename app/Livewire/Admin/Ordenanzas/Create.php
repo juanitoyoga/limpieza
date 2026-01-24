@@ -10,15 +10,13 @@ use Livewire\Attributes\Layout;
 
 
 #[Layout('layouts.admin')]
+
 class Create extends Component
 {
-
-    public $codigo;
-
-    public $tipo;
-
-    public $descripcion;
-    public $nivel_gravedad;
+    public $codigo = '';
+    public $tipo = '';
+    public $descripcion = '';
+    public $nivel_gravedad = '';
 
     protected $rules = [
         'codigo' => 'required|string|min:3|max:100',
@@ -38,9 +36,8 @@ class Create extends Component
             'nivel_gravedad' => $this->nivel_gravedad,
         ]);
 
-        session()->flash('message', 'Contravencion creada correctamente.');
+        session()->flash('message', 'Contravención creada correctamente.');
 
-        // Redirigir al listado
         return redirect()->route('ordenanzas.index');
     }
 

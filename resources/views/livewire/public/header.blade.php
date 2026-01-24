@@ -24,7 +24,16 @@
                             </li>
                             @endcan                            
 
-
+                    
+                            {{-- Opciones según el rol --}}
+                            @can('operations-access')
+                            <li>
+                                <a href="{{ route('operacion.home') }}">
+                                    <i class="fas fa-tasks" style="color: #46B2B4"></i>
+                                    <span>Operaciones</span>
+                                </a>
+                            </li>
+                            @endcan  
                         {{-- Logout --}}
                         <li>
                             <a href="#" onclick="event.preventDefault(); document.getElementById('form-id').submit();">

@@ -3,31 +3,25 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
-use App\Services\Contracts\RoleMenuServiceInterface;
-
-use App\Services\RoleMenuService;
+use App\Services\GenerarDocumentoNominacion;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
-    public function register()
+    public function register(): void
     {
-        // Auto-registered by make:repository
-
-        $this->app->bind(RoleMenuServiceInterface::class, RoleMenuService::class);
+        $this->app->singleton(GenerarDocumentoNominacion::class, function ($app) {
+            return new GenerarDocumentoNominacion();
+        });
     }
 
     /**
      * Bootstrap any application services.
      */
-
-     public function boot()
-     {
-         
-  
-     }
+    public function boot(): void
+    {
+        //
+    }
 }
-

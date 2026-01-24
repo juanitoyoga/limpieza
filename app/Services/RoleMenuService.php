@@ -2,31 +2,72 @@
 
 namespace App\Services;
 
-use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Services\Contracts\RoleMenuServiceInterface;
 
+
+
 class RoleMenuService implements RoleMenuServiceInterface
 {
-    public function getUserRoles($userId)
-    {
-        $userRoles = DB::table('users as u')
-            ->join('user_roles as ur', 'u.id', '=', 'ur.user_id')
-            ->join('roles as r', 'ur.role_id', '=', 'r.id')
-            ->select(
-                'u.id as user_id',
-                'u.first_name as user_name',
-                'r.id as role_id',
-                'r.name as role_name'
-            )
-            ->where('u.id', $userId)
-            ->get();
 
-        return $userRoles;
+
+
+        
+    public function getUserRole(int $userId): ?array
+    {
+        $user = User::find($userId);
+    
+        if (!$user || empty($user->role_name)) {
+            Log::warning('Usuario sin role_name', [
+                'user_id' => $userId
+            ]);
+            return null;
+        }
+    
+        $role = DB::table('roles')
+            ->where('name', $user->role_name)
+            ->first();
+    
+        if (!$role) {
+            Log::error('role_name no existe en tabla roles', [
+                'user_id'   => $userId,
+                'role_name' => $user->role_name
+            ]);
+            return null;
+        }
+    
+        Log::debug('Rol resuelto correctamente', [
+            'user_id'   => $user->id,
+            'role_id'   => $role->id,
+            'role_name' => $role->name
+        ]);
+    
+        return [
+            'user_id'   => $user->id,
+            'user_name' => trim("{$user->first_name} {$user->last_name}"),
+            'role_id'   => $role->id,
+            'role_name' => $role->name,
+        ];
     }
+    
+    
+    
+public function getMenuByRoleName(int $roleId)
+{
+    try {
+        // Validación del parámetro de entrada
+        if (empty($roleId) || !is_numeric($roleId)) {
+            throw new \InvalidArgumentException('El ID del rol debe ser un número válido');
+        }
+        
+        $roleId = (int) $roleId;
+        
+        if ($roleId <= 0) {
+            throw new \InvalidArgumentException('El ID del rol debe ser mayor a 0');
+        }
 
-    public function getMenuByRoleName($roleId)
-    {
         $menuByRole = DB::table('roles as r')
             ->join('menu_items as mi', 'r.id', '=', 'mi.role_id')
             ->leftJoin('menu_items as parent', 'mi.parent_id', '=', 'parent.id')
@@ -46,18 +87,107 @@ class RoleMenuService implements RoleMenuServiceInterface
             ->orderBy('mi.order', 'asc')
             ->get();
 
-        return $menuByRole;
-    }
-
-    public function getMenuByUserId($userId)
-    {
-        $userRoles = $this->getUserRoles($userId);
-        
-        foreach ($userRoles as $user) {
-            $roleId = $user->role_id;
+        // Validar si se encontraron resultados
+        if ($menuByRole->isEmpty()) {
+            Log::info("No se encontraron menús para el rol ID: {$roleId}");
+            return collect(); // Retorna colección vacía en lugar de null
         }
 
-        $menuByUser = $this->getMenuByRoleName($roleId);
-        return $menuByUser;
+        return $menuByRole;
+
+    } catch (\InvalidArgumentException $e) {
+        Log::warning('Parámetro inválido en getMenuByRoleName', [
+            'roleId' => $roleId ?? 'no definido',
+            'error' => $e->getMessage()
+        ]);
+        throw $e; // Re-lanzar para manejo superior
+
+    } catch (\Illuminate\Database\QueryException $e) {
+        // Error específico de base de datos
+        Log::error('Error de base de datos en getMenuByRoleName', [
+            'roleId' => $roleId,
+            'error' => $e->getMessage(),
+            'sql' => $e->getSql(),
+            'bindings' => $e->getBindings()
+        ]);
+
+        // Verificar tipo específico de error
+        $errorCode = $e->getCode();
+        
+        if ($e->getCode() == 2002 || str_contains($e->getMessage(), 'Connection refused')) {
+            throw new \App\Exceptions\DatabaseConnectionException(
+                'No se puede conectar a la base de datos',
+                $errorCode,
+                $e
+            );
+        }
+
+        if ($e->getCode() == 1045) {
+            throw new \App\Exceptions\DatabaseAuthException(
+                'Error de autenticación en la base de datos',
+                $errorCode,
+                $e
+            );
+        }
+
+        throw new \App\Exceptions\MenuQueryException(
+            'Error al consultar el menú del rol',
+            $errorCode,
+            $e
+        );
+
+    } catch (\PDOException $e) {
+        // Error PDO (drivers de base de datos)
+        Log::critical('Error PDO en getMenuByRoleName', [
+            'roleId' => $roleId,
+            'error' => $e->getMessage(),
+            'code' => $e->getCode()
+        ]);
+
+        throw new \App\Exceptions\DatabaseException(
+            'Error del sistema de base de datos',
+            $e->getCode(),
+            $e
+        );
+
+    } catch (\Exception $e) {
+        // Captura cualquier otra excepción no prevista
+        Log::error('Error inesperado en getMenuByRoleName', [
+            'roleId' => $roleId,
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        throw new \App\Exceptions\MenuServiceException(
+            'Error al obtener el menú del rol',
+            0,
+            $e
+        );
     }
+}
+
+public function getMenuByUserId($userId)
+{
+    try {
+        $userRole = $this->getUserRole($userId); 
+        
+        if (empty($userRole)) {
+            Log::info("Usuario {$userId} sin rol válido.");
+            return collect();
+        }
+
+        return $this->getMenuByRoleName($userRole['role_id']);
+
+    } catch (\App\Exceptions\MenuServiceException $e) {
+        Log::error("Error de negocio: " . $e->getMessage());
+        return collect();
+
+    } catch (\Exception $e) {
+        Log::critical("Fallo crítico: " . $e->getMessage());
+        throw $e; 
+    }
+}
+
 }

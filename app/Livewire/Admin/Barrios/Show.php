@@ -15,9 +15,9 @@ class Show extends Component
     public $barrio;
 
     // Laravel inyecta el modelo automáticamente
-    public function mount(Barrio $barrio)
+    public function mount($id)
     {
-        $this->barrio = $barrio;
+        $this->barrio = Barrio::findOrFail($id);
     }
 
     public function render()
