@@ -1,10 +1,8 @@
-<nav class="flex flex-col gap-2">
+<nav class="flex flex-col gap-1">
 
     {{-- Información General --}}
- 
-
     @if($menuItems->isEmpty())
-        <div class="px-3 py-2 rounded bg-red-100 text-red-700 text-center font-semibold">
+        <div class="px-2 py-1 rounded bg-red-100 text-red-700 text-center text-sm font-medium">
             Usuario sin funciones
         </div>
     @else
@@ -17,13 +15,12 @@
                 <!-- Menú principal -->
                 <div x-data="{ open: false }" class="relative">
                     <button @mouseenter="open = true" @mouseleave="open = false"
-                            class="flex items-center gap-2 w-full px-3 py-2 rounded transition"
-                            style="background-color:#60A5FA;" 
-                            onmouseover="this.style.backgroundColor='#93C5FD'"
-                            onmouseout="this.style.backgroundColor='#60A5FA'">
-                        <i class="{{ $item->menu_icon }}"></i>
-                        <span>{{ $item->menu_label }}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            class="flex items-center gap-2 w-full px-2 py-1 rounded transition text-sm text-gray-700 hover:bg-gray-100">
+                        <i class="{{ $item->menu_icon }} text-xs"></i>
+
+                        <span class="whitespace-normal break-words">{{ $item->menu_label }}</span>
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-auto text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
@@ -33,20 +30,17 @@
                     @endphp
 
                     @if($subItems->isNotEmpty())
-                        <!-- Submenú flyout animado -->
+                        <!-- Submenú flyout -->
                         <div x-show="open"
-                             x-transition:enter="transition transform ease-out duration-300"
-                             x-transition:enter-start="opacity-0 translate-x-4"
-                             x-transition:enter-end="opacity-100 translate-x-0"
-                             x-transition:leave="transition transform ease-in duration-200"
-                             x-transition:leave-start="opacity-100 translate-x-0"
-                             x-transition:leave-end="opacity-0 translate-x-4"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:leave="transition ease-in duration-150"
                              @mouseenter="open = true" @mouseleave="open = false"
-                             class="absolute left-full top-0 mt-0 w-48 bg-white shadow-md rounded border border-gray-200 z-50">
+                             class="absolute left-full top-0 mt-0 w-64 bg-white shadow-md rounded border border-gray-200 z-50">
+                        
                             
                             @foreach($subItems as $child)
                                 <a href="{{ route($child->menu_url) }}"
-                                   class="block px-4 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-900 transition">
+                                    class="block px-4 py-1 text-sm whitespace-normal break-words text-gray-700 hover:bg-gray-100 transition">
                                     {{ $child->menu_label }}
                                 </a>
 
@@ -55,12 +49,12 @@
                                 @endphp
 
                                 @if($subSubItems->isNotEmpty())
-                                    <div class="ml-4">
+                                    <div class="ml-3">
                                         @foreach($subSubItems as $subChild)
-                                            <a href="{{ route($subChild->menu_url) }}"
-                                               class="block px-4 py-1 text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition">
-                                                {{ $subChild->menu_label }}
-                                            </a>
+                                        <a href="{{ route($subChild->menu_url) }}"
+                                            class="block px-4 py-1 text-xs whitespace-normal break-words text-gray-600 hover:bg-gray-50 transition">
+                                             {{ $subChild->menu_label }}
+                                         </a>
                                         @endforeach
                                     </div>
                                 @endif

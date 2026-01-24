@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class Auditore
  * 
  * @property int $id
- * @property int $userrole_id
+ * @property string $role_name;
  * @property int $user_id
  * @property string $email
  * @property Carbon|null $email_verified_at
@@ -46,7 +46,7 @@ class Auditor extends Model
 	protected $table = 'auditores';
 
 	protected $casts = [
-		'userrole_id' => 'int',
+	
 		'user_id' => 'int',
 		'email_verified_at' => 'datetime',
 		'last_login_at' => 'datetime',
@@ -61,7 +61,7 @@ class Auditor extends Model
 	];
 
 	protected $fillable = [
-		'userrole_id',
+		'role_name',
 		'user_id',
 		'email',
 		'email_verified_at',
@@ -88,8 +88,4 @@ class Auditor extends Model
 		return $this->belongsTo(User::class);
 	}
 
-	public function userrole()
-	{
-		return $this->belongsTo(Userrole::class);
-	}
 }

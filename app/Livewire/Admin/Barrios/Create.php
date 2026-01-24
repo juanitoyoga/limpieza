@@ -31,6 +31,7 @@ class Create extends Component
     {
         $this->validate();
 
+        logger('store ejecutado');
         Barrio::create([
             'nombre' => $this->nombre,
             'id_DMQ' => $this->id_DMQ,
@@ -46,6 +47,8 @@ class Create extends Component
 
     public function render()
     {
+        logger('render ejecutado');
+        // return view('livewire.admin.barrios.create');
         return view('livewire.admin.barrios.create');
     }
 }

@@ -1,9 +1,11 @@
 
-<div>
-    <x-auth-header :title="__('Editar')" :description="__('Debajo ingrese los cambios')" />
+@section('page-title', 'Barrios')
+    
+@section('page-description', 'Actualizacion datos del Barrio')
 
-    <!-- Session Status -->
-    <x-auth-session-status class="text-center" :status="session('Estado')" />
+@section('content')
+
+<div x-data="{ scroll: true }" class="p-4 sm:p-6 bg-white shadow rounded">
 
     <div class="body">  
     <form wire:submit.prevent="update" id="sky-form" class="sky-form">

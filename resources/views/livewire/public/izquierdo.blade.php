@@ -15,45 +15,73 @@
                         <li><a href="#">Otros</a></li>
                     </ul>
                 </li>
-                <li><a href="#">Operaciones</a>
-
+                <li>
+                    <a href="#">Operaciones</a>
+                    
                     @if(empty($menuItems))
-                    <ul>
-                        <li>
-                            <span>Usuario sin Funciones</span>
-                        </li>
-                    </ul>
-
-                    @else
-                    <ul>
-                        @foreach($menuItems->where('parent_menu_id', null) as $item)
-                        <li>
-                            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-900 transition">
-                            {{ $item->menu_label }} </a>
-   
-                            @php
-                                $subItems = $menuItems->where('parent_menu_id', $item->menu_item_id);
-                            @endphp
-                                
-                            @if($subItems->isNotEmpty())
-                            <ul>
-                                @foreach($subItems as $child)
-                                <li>
-                                    <a href="{{ $child->menu_url }}"
-                                        class="block px-4 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-900 transition">
-                                        {{ $child->menu_label }}
-                                    </a>
-                                </li>
-                            @endforeach
-                            </ul>
-                                                    
-                            @endif
-                        </li>
-                        @endforeach
+                        <ul>
+                            <li>Usuario sin funciones</li>
                         </ul>
+                    @else
+                        @php
+                            $rootItems = $menuItems->where('parent_menu_id', $menuItems->first()->menu_item_id ?? null);
+                        @endphp
+                        
+                        @if($rootItems->isNotEmpty())
+                            <ul>
+                                @foreach($rootItems as $item)
+                                    @php
+                                        $subItems = $menuItems->where('parent_menu_id', $item->menu_item_id);
+                                    @endphp
+                                    
+                                    <li>
+                                        <!-- Item principal -->
+                                        <a href="{{ $item->menu_url ? route($item->menu_url) : '#' }}"
+                                           class="block px-4 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-900 transition">
+                                            {{ $item->menu_label }}
+                                        </a>
+                                        
+                                        <!-- Subitems nivel 1 -->
+                                        @if($subItems->isNotEmpty())
+                                            <ul>
+                                                @foreach($subItems as $child)
+                                                    @php
+                                                        $subSubItems = $menuItems->where('parent_menu_id', $child->menu_item_id);
+                                                    @endphp
+                                                    
+                                                    <li>
+                                                        <a href="{{ $child->menu_url ? route($child->menu_url) : '#' }}"
+                                                           class="block px-4 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-900 transition">
+                                                            {{ $child->menu_label }}
+                                                        </a>
+                                                        
+                                                        <!-- Subitems nivel 2 -->
+                                                        @if($subSubItems->isNotEmpty())
+                                                            <ul>
+                                                                @foreach($subSubItems as $subChild)
+                                                                    <li>
+                                                                        <a href="{{ $subChild->menu_url ? route($subChild->menu_url) : '#' }}"
+                                                                           class="block px-4 py-1 text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition">
+                                                                            {{ $subChild->menu_label }}
+                                                                        </a>
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        @endif
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <ul>
+                                <li>No hay funciones disponibles</li>
+                            </ul>
+                        @endif
                     @endif
                 </li>
-
             </ul>
         </div>
         <div class="col-md-4 logo-container">

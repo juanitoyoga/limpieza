@@ -22,6 +22,8 @@ class AsideMenu extends Component
 
         // Obtén las entidades (menús) para el usuario
         $this->menuItems = $this->roleMenuService->getMenuByUserId($userId);
+
+        // dd($this->menuItems);
     }
 
     public function selectEntity($entity)
@@ -31,6 +33,7 @@ class AsideMenu extends Component
 
     public function render()
     {
+        
         return view('livewire.admin.aside-menu', [
             'menuItems' => $this->menuItems,
             'selectedEntity' => $this->selectedEntity,

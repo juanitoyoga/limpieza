@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class Supervisore
  * 
  * @property int $id
- * @property int $userrole_id
+ * @property string $role_name
  * @property int $user_id
  * @property string $email
  * @property Carbon|null $email_verified_at
@@ -37,7 +37,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $referencias
  * 
  * @property User $user
- * @property Userrole $userrole
  *
  * @package App\Models
  */
@@ -46,7 +45,6 @@ class Supervisor extends Model
 	protected $table = 'supervisores';
 
 	protected $casts = [
-		'userrole_id' => 'int',
 		'user_id' => 'int',
 		'email_verified_at' => 'datetime',
 		'last_login_at' => 'datetime',
@@ -61,7 +59,7 @@ class Supervisor extends Model
 	];
 
 	protected $fillable = [
-		'userrole_id',
+		'role_name',
 		'user_id',
 		'email',
 		'email_verified_at',
@@ -88,8 +86,4 @@ class Supervisor extends Model
 		return $this->belongsTo(User::class);
 	}
 
-	public function userrole()
-	{
-		return $this->belongsTo(Userrole::class);
-	}
 }

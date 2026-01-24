@@ -13,10 +13,10 @@ use Illuminate\Database\Eloquent\Model;
  * Class Funcionario
  * 
  * @property int $id
- * @property int $userrole_id
+ * @property string $user_role
  * @property int $user_id
  * @property string $email
- * @property Carbon|null $email_verified_at
+ * @property int $nomination_id
  * @property string $password
  * @property string|null $phone
  * @property string $timezone
@@ -37,7 +37,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $referencias
  * 
  * @property User $user
- * @property Userrole $userrole
  *
  * @package App\Models
  */
@@ -46,7 +45,7 @@ class Funcionario extends Model
 	protected $table = 'funcionarios';
 
 	protected $casts = [
-		'userrole_id' => 'int',
+	
 		'user_id' => 'int',
 		'email_verified_at' => 'datetime',
 		'last_login_at' => 'datetime',
@@ -61,7 +60,7 @@ class Funcionario extends Model
 	];
 
 	protected $fillable = [
-		'userrole_id',
+		'user_role',
 		'user_id',
 		'email',
 		'email_verified_at',
@@ -88,8 +87,5 @@ class Funcionario extends Model
 		return $this->belongsTo(User::class);
 	}
 
-	public function userrole()
-	{
-		return $this->belongsTo(Userrole::class);
-	}
+
 }

@@ -9,7 +9,7 @@
  use Illuminate\Database\Eloquent\Collection;
  use Illuminate\Database\Eloquent\Model;
  use App\Models\MenuItem;
- use App\Models\Userrole;
+ use Illuminate\Database\Eloquent\Relations\HasMany;
  
  /**
   * Class Role
@@ -32,8 +32,17 @@
 		 'name',
 		 'guard_name'
 	 ];
+    /**
+     * Un rol tiene muchos usuarios
+     */
+    public function users(): HasMany
+    {
+        
+    	return $this->hasMany(User::class, 'role_name', 'name');
+		
+    }
  
-	 public function menuItems()
+	  public function menuItems()
 	 {
 		 return $this->hasMany(MenuItem::class);
 	 }
@@ -58,8 +67,4 @@
 		 return $this->menuItems()->count() > 0;
 	 }
 
-	 public function userRoles()
-	 {
-		 return $this->hasMany(UserRole::class, 'role_id');
-	 }
  }
