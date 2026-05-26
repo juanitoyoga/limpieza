@@ -9,10 +9,11 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     protected $table = 'users';
     protected $primaryKey = 'id';
@@ -63,16 +64,28 @@ class User extends Authenticatable
     }
 
     // 🔎 Scopes
-    public function scopeActive($query) { return $query->where('is_active', true); }
-    public function scopeByEmail($query, string $email) { return $query->where('email', $email); }
-    public function scopeByNroId($query, string $nroId) { return $query->where('nro_id', $nroId); }
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+    public function scopeByEmail($query, string $email)
+    {
+        return $query->where('email', $email);
+    }
+    public function scopeByNroId($query, string $nroId)
+    {
+        return $query->where('nro_id', $nroId);
+    }
     public function scopeByName($query, string $lastName, string $firstName = null)
     {
         $query->where('last_name', $lastName);
         if ($firstName) $query->where('first_name', $firstName);
         return $query;
     }
-    public function scopeCreatedRecently($query) { return $query->orderBy('created_at', 'desc'); }
+    public function scopeCreatedRecently($query)
+    {
+        return $query->orderBy('created_at', 'desc');
+    }
 
     // Accessors
     public function getFullNameAttribute(): string
@@ -84,14 +97,14 @@ class User extends Authenticatable
     {
         return Str::of($this->first_name . ' ' . $this->last_name)
             ->explode(' ')
-            ->map(fn (string $name) => Str::substr($name, 0, 1))
+            ->map(fn(string $name) => Str::substr($name, 0, 1))
             ->implode('');
     }
 
     protected function password(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => Hash::needsRehash($value)
+            set: fn($value) => Hash::needsRehash($value)
                 ? Hash::make($value)
                 : $value
         );
@@ -115,22 +128,40 @@ class User extends Authenticatable
     /**
      * Un usuario pertenece a un rol
      */
-// app/Models/User.php
-public function getRole(): BelongsTo
-{
-    return $this->belongsTo(
-        Role::class,
-        'role_name', // users.role_name
-        'name'       // roles.name
-    );
-}
+    // app/Models/User.php
+    public function getRole(): BelongsTo
+    {
+        return $this->belongsTo(
+            Role::class,
+            'role_name', // users.role_name
+            'name'       // roles.name
+        );
+    }
 
 
-    public function auditor() { return $this->hasOne(Auditor::class); }
-    public function dirigente() { return $this->hasOne(Dirigente::class); }
-    public function funcionario() { return $this->hasOne(Funcionario::class); }
-    public function presidente() { return $this->hasOne(Presidente::class); }
-    public function supervisor() { return $this->hasOne(Supervisor::class); }
+    public function auditor()
+    {
+        return $this->hasOne(Auditor::class);
+    }
+    public function dirigente()
+    {
+        return $this->hasOne(Dirigente::class);
+    }
+    public function funcionario()
+    {
+        return $this->hasOne(Funcionario::class);
+    }
+    public function presidente()
+    {
+        return $this->hasOne(Presidente::class);
+    }
+    public function supervisor()
+    {
+        return $this->hasOne(Supervisor::class);
+    }
 
-    public function vecino() { return $this->hasOne(Vecino::class); }
+    public function vecino()
+    {
+        return $this->hasOne(Vecino::class);
+    }
 }

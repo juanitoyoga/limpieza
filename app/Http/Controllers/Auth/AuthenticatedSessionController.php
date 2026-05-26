@@ -28,7 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('welcome', absolute: false));
+        // return redirect()->intended(route('welcome', absolute: false));
+        // ✅ Ahora — ruta correcta
+        return redirect()->route('general.info');
     }
 
     /**

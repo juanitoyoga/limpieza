@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AuditEvent extends Model
 {
@@ -17,7 +18,8 @@ class AuditEvent extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'nomination_id',
+        'auditable_id',       // ← reemplaza nomination_id
+        'auditable_type',     // ← nuevo
         'user_id',
         'event_type',
         'details',
@@ -66,13 +68,15 @@ class AuditEvent extends Model
 
     const EVENT_DOCUMENT_UPLOADED = 'PDF cargado';
 
+    const EVENT_BLOCKCHAIN_REGISTERED = 'Proceso_Blockchain_Registrado';
+
 
     /**
-     * Get the nomination related to this audit event.
+     * Relación polimórfica — puede ser Nomination, Contrato, Obra, Fondo, etc.
      */
-    public function nomination(): BelongsTo
+    public function auditable(): MorphTo
     {
-        return $this->belongsTo(Nomination::class);
+        return $this->morphTo();
     }
 
     /**
@@ -90,7 +94,8 @@ class AuditEvent extends Model
     {
         return $query->where('event_type', [
             self::EVENT_DOCUMENT_UPLOADED,
-            self::EVENT_NOMINATION_CREATED]);
+            self::EVENT_NOMINATION_CREATED
+        ]);
     }
 
     /**
@@ -126,14 +131,19 @@ class AuditEvent extends Model
         ]);
     }
 
-    /**
-     * Scope a query to only include events for specific nomination.
-     */
+    // Antes usaban nomination_id — actualizarlos
     public function scopeForNomination($query, $nominationId)
     {
-        return $query->where('nomination_id', $nominationId);
+        return $query->where('auditable_type', Nomination::class)
+            ->where('auditable_id', $nominationId);
     }
 
+    // Nuevo scope genérico — más útil
+    public function scopeForModel($query, Model $model)
+    {
+        return $query->where('auditable_type', get_class($model))
+            ->where('auditable_id', $model->id);
+    }
     /**
      * Scope a query to only include events by specific user.
      */
@@ -242,7 +252,7 @@ class AuditEvent extends Model
      */
     public function getEventTypeNameAttribute(): string
     {
-        return match($this->event_type) {
+        return match ($this->event_type) {
             self::EVENT_NOMINATION_CREATED => 'Nominación Creada',
             self::EVENT_VERIFICATION_STARTED => 'Verificación Iniciada',
             self::EVENT_VERIFICATION_COMPLETED => 'Verificación Completada',
@@ -261,10 +271,10 @@ class AuditEvent extends Model
      */
     public function getEventCategoryAttribute(): string
     {
-        return match($this->event_type) {
+        return match ($this->event_type) {
             self::EVENT_NOMINATION_CREATED => 'creation',
             self::EVENT_VERIFICATION_STARTED, self::EVENT_VERIFICATION_COMPLETED => 'verification',
-            self::EVENT_APPROVAL_GRANTED => 'approval', 
+            self::EVENT_APPROVAL_GRANTED => 'approval',
             self::EVENT_APPROVAL_REJECTED => 'rejected',
             self::EVENT_ASSIGNMENT_CREATED, self::EVENT_ASSIGNMENT_COMPLETED => 'assignment',
             self::EVENT_DOCUMENT_UPLOADED => 'document uploaded',
@@ -278,7 +288,7 @@ class AuditEvent extends Model
      */
     public function getEventIconAttribute(): string
     {
-        return match($this->event_type) {
+        return match ($this->event_type) {
             self::EVENT_NOMINATION_CREATED => '📝',
             self::EVENT_VERIFICATION_STARTED => '🔍',
             self::EVENT_VERIFICATION_COMPLETED => '✅',
@@ -317,8 +327,8 @@ class AuditEvent extends Model
     protected function blockchainHashDisplay(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->blockchain_hash ? 
-                substr($this->blockchain_hash, 0, 8) . '...' . substr($this->blockchain_hash, -8) : 
+            get: fn() => $this->blockchain_hash ?
+                substr($this->blockchain_hash, 0, 8) . '...' . substr($this->blockchain_hash, -8) :
                 null,
         );
     }
@@ -329,45 +339,44 @@ class AuditEvent extends Model
     protected function txHashDisplay(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->tx_hash ? 
-                substr($this->tx_hash, 0, 8) . '...' . substr($this->tx_hash, -8) : 
+            get: fn() => $this->tx_hash ?
+                substr($this->tx_hash, 0, 8) . '...' . substr($this->tx_hash, -8) :
                 null,
         );
     }
 
-    /**
-     * Create a new audit event.
-     */
     public static function logEvent(
-        int $nominationId,
+        Model $auditable,      // ← cualquier modelo: Contrato, Nomination, Obra...
         int $userId,
         string $eventType,
         ?array $details = null
     ): self {
-        $previous = self::where('nomination_id', $nominationId)
+        $previous = self::where('auditable_id',   $auditable->id)
+            ->where('auditable_type', get_class($auditable))
             ->orderByDesc('event_at')
             ->first();
-    
+
         $payload = [
-            'nomination_id' => $nominationId,
-            'user_id' => $userId,
-            'event_type' => $eventType,
-            'details' => $details,
-            'previous_hash' => $previous?->event_hash,
-            'timestamp' => now()->toISOString(),
+            'auditable_id'   => $auditable->id,
+            'auditable_type' => get_class($auditable),
+            'user_id'        => $userId,
+            'event_type'     => $eventType,
+            'details'        => $details,
+            'previous_hash'  => $previous?->event_hash,
+            'timestamp'      => now()->toISOString(),
         ];
-    
+
         return self::create([
-            'nomination_id' => $nominationId,
-            'user_id' => $userId,
-            'event_type' => $eventType,
-            'details' => $details,
+            'auditable_id'        => $auditable->id,
+            'auditable_type'      => get_class($auditable),
+            'user_id'             => $userId,
+            'event_type'          => $eventType,
+            'details'             => $details,
             'previous_event_hash' => $previous?->event_hash,
-            'event_hash' => hash('sha256', json_encode($payload)),
-            'event_at' => now(),
+            'event_hash'          => hash('sha256', json_encode($payload)),
+            'event_at'            => now(),
         ]);
     }
-    
 
     /**
      * Boot the model.

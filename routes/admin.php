@@ -12,7 +12,7 @@ Route::prefix('barrios')->group(function () {
     Route::get('/create', \App\Livewire\Admin\Barrios\Create::class)
         ->name('barrios.create');
 
-        
+
     Route::get('/barrios/{id}/edit', \App\Livewire\Admin\Barrios\Edit::class)
         ->name('barrios.edit');
 
@@ -68,7 +68,7 @@ Route::prefix('salarios')->group(function () {
         ->name('salarios.index');
 
     Route::get('/create', \App\Livewire\Admin\Salarios\Create::class)
-    ->name('salarios.create');
+        ->name('salarios.create');
 
     Route::get('/{salarios}/edit', \App\Livewire\Admin\Salarios\Edit::class)
         ->whereNumber('salarios')
@@ -78,7 +78,6 @@ Route::prefix('salarios')->group(function () {
         ->whereNumber('salarios')
         ->name('salarios.show');
 });
-
 
 //
 // PORCENTAJES
@@ -94,9 +93,23 @@ Route::prefix('porcentajes')->group(function () {
         ->whereNumber('porcentajes')
         ->name('porcentajes.edit');
 
-    Route::get('/{porcentajes}', \App\Livewire\Admin\Porcentajes\Show::class)
+    Route::get('/{porcentajes}/show', \App\Livewire\Admin\Porcentajes\Show::class)
         ->whereNumber('porcentajes')
         ->name('porcentajes.show');
+});
+//
+// CONTRATOS
+//
+Route::prefix('contratos')->group(function () {
+    Route::get('/index', \App\Livewire\Admin\Contratos\Index::class)
+        ->name('contratos.index');
+
+    Route::get('/create', \App\Livewire\Admin\Contratos\Create::class)
+        ->name('contratos.create');
+
+    Route::get('/{contrato}/edit', \App\Livewire\Admin\Contratos\Edit::class)
+        ->whereNumber('contrato')
+        ->name('contratos.edit');
 });
 
 

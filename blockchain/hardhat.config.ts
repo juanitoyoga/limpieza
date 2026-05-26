@@ -1,52 +1,25 @@
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
-import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
-import { configVariable, defineConfig } from "hardhat/config";
+import * as dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 
-export default defineConfig({
-  plugins: [hardhatToolboxMochaEthersPlugin],
-  
-  // 1. Configuración de rutas para integrarse con Laravel
+import "@nomicfoundation/hardhat-toolbox";
+
+export default {
   paths: {
-    artifacts: "../resources/js/artifacts", // <--- Esto permite que Livewire acceda a los contratos
+    artifacts: "../resources/js/artifacts",
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
   },
 
-  solidity: {
-    profiles: {
-      default: {
-        version: "0.8.28",
-      },
-      production: {
-        version: "0.8.28",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-          // Soporte para las últimas características de la red
-          evmVersion: "cancun" 
-        },
-      },
-    },
-  },
+  solidity: "0.8.28",
 
   networks: {
-    hardhatMainnet: {
-      type: "edr-simulated",
-      chainType: "l1",
-    },
-    hardhatOp: {
-      type: "edr-simulated",
-      chainType: "op",
+    localhost: {
+      url: "http://127.0.0.1:8545",
     },
     sepolia: {
-      type: "http",
-      chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+      url: process.env.SEPOLIA_RPC_URL,
+      accounts: [process.env.SEPOLIA_PRIVATE_KEY],
     },
   },
-});
+};

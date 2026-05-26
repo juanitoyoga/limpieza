@@ -19,6 +19,7 @@
         "vite": "^7.2.6"
     },
     "dependencies": {
+        "@tailwindcss/postcss": "^4.2.2",
         "alpinejs": "^3.15.2",
         "apexcharts": "^5.10.6",
         "bootstrap-icons": "^1.13.1",

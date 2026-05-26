@@ -1,265 +1,302 @@
 @section('page-title', 'Nuevo Barrio')
-@section('page-description', 'Complete el formulario para registrar un nuevo barrio en el sistema')
+@section('page-description', 'Complete el formulario y dibuje el área del barrio en el mapa')
 
-{{-- livewire/admin/barrios/create.blade.php --}}
-
-<div>
-    <!-- Encabezado de la página -->
-
-
-    <!-- Mensajes de sesión -->
+<div id="componente-create-barrio">
     @if(session()->has('message'))
-        <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle text-green-500 dark:text-green-400 mr-3"></i>
-                <p class="text-green-800 dark:text-green-300 font-medium">
-                    {{ session('message') }}
-                </p>
-            </div>
-        </div>
+    <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
+        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+        <p class="text-green-800 font-medium">{{ session('message') }}</p>
+    </div>
     @endif
 
-    <!-- Tarjeta principal -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-700">
-            
-            <!-- Columna del formulario -->
-            <div class="p-6 md:p-8">
-                <div class="mb-6">
-                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-                        <i class="fas fa-edit mr-2 text-blue-500"></i>
-                        Información del Barrio
-                    </h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Todos los campos son obligatorios
-                    </p>
-                </div>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-                <form wire:submit.prevent="store" class="space-y-6">
-                    <!-- Campo: Identificación GeoPis -->
-                    <div>
-                        <label for="id_DMQ" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <span class="text-red-500">*</span> Identificación GeoPis
-                        </label>
-                        <input
-                            id="id_DMQ"
-                            wire:model="id_DMQ"
-                            type="text"
-                            placeholder="Ej: DMQ-001"
-                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 transition duration-200 placeholder-gray-500 dark:placeholder-gray-400"
-                        />
-                        @error('id_DMQ')
-                            <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
-                    </div>
+        {{-- ── FORMULARIO ── --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
 
-                    <!-- Campo: Nombre del Barrio -->
-                    <div>
-                        <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <span class="text-red-500">*</span> Nombre del Barrio
-                        </label>
-                        <input
-                            id="nombre"
-                            wire:model="nombre"
-                            type="text"
-                            placeholder="Ej: Centro Histórico"
-                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 transition duration-200 placeholder-gray-500 dark:placeholder-gray-400"
-                        />
-                        @error('nombre')
-                            <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
-                    </div>
-
-                    <!-- Campo: Sector -->
-                    <div>
-                        <label for="sector" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <span class="text-red-500">*</span> Sector
-                        </label>
-                        <input
-                            id="sector"
-                            wire:model="sector"
-                            type="text"
-                            placeholder="Ej: Norte"
-                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 transition duration-200 placeholder-gray-500 dark:placeholder-gray-400"
-                        />
-                        @error('sector')
-                            <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
-                    </div>
-
-                    <!-- Campo: Parroquia -->
-                    <div>
-                        <label for="parroquia" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <span class="text-red-500">*</span> Parroquia
-                        </label>
-                        <input
-                            id="parroquia"
-                            wire:model="parroquia"
-                            type="text"
-                            placeholder="Ej: San Sebastián"
-                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 transition duration-200 placeholder-gray-500 dark:placeholder-gray-400"
-                        />
-                        @error('parroquia')
-                            <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
-                    </div>
-
-                    <!-- Botón de envío -->
-                    <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <button
-                            type="submit"
-                            wire:loading.attr="disabled"
-                            wire:target="store"
-                            class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <span wire:loading.remove wire:target="store">
-                                <i class="fas fa-save mr-2"></i>
-                                Registrar Barrio
-                            </span>
-                            <span wire:loading wire:target="store">
-                                <i class="fas fa-spinner fa-spin mr-2"></i>
-                                Procesando...
-                            </span>
-                        </button>
-                    </div>
-                </form>
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-1">
+                    <i class="fas fa-edit mr-2 text-blue-500"></i>Información del Barrio
+                </h2>
+                <p class="text-sm text-gray-500">Los campos marcados con * son obligatorios</p>
             </div>
 
-            <!-- Columna informativa -->
-            <div class="p-6 md:p-8 bg-gray-50 dark:bg-gray-900/50">
-                <div class="h-full flex flex-col justify-center">
-                    <div class="mb-8 text-center">
-                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-4">
-                            <i class="fas fa-city text-3xl text-blue-600 dark:text-blue-400"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">
-                            Sistema de Barrios
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400">
-                            Los barrios son la unidad básica de organización territorial en el sistema.
-                        </p>
+            <form wire:submit="store" class="space-y-5">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <span class="text-red-500">*</span> Identificación GeoPis
+                    </label>
+                    <input wire:model="id_DMQ" type="text" placeholder="Ej: DMQ-001"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition" />
+                    @error('id_DMQ')
+                    <p class="mt-1 text-sm text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <span class="text-red-500">*</span> Nombre del Barrio
+                    </label>
+                    <input wire:model="nombre" type="text" placeholder="Ej: Centro Histórico"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition" />
+                    @error('nombre')
+                    <p class="mt-1 text-sm text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <span class="text-red-500">*</span> Sector
+                    </label>
+                    <input wire:model="sector" type="text" placeholder="Ej: Norte"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition" />
+                    @error('sector')
+                    <p class="mt-1 text-sm text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <span class="text-red-500">*</span> Parroquia
+                    </label>
+                    <input wire:model="parroquia" type="text" placeholder="Ej: San Sebastián"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition" />
+                    @error('parroquia')
+                    <p class="mt-1 text-sm text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Coordenadas (solo lectura, se llenan desde el mapa) --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-map-marker-alt text-blue-500 mr-1"></i> Latitud
+                        </label>
+                        <input wire:model="lat" type="text" readonly placeholder="Click derecho en mapa"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-700 cursor-not-allowed text-sm" />
                     </div>
-
-                    <div class="space-y-4">
-                        <!-- Información 1 -->
-                        <div class="flex items-start p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                            <div class="flex-shrink-0 mt-1">
-                                <i class="fas fa-info-circle text-blue-500 dark:text-blue-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-800 dark:text-white">Código único</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    La identificación GeoPis debe ser única para cada barrio registrado.
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Información 2 -->
-                        <div class="flex items-start p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                            <div class="flex-shrink-0 mt-1">
-                                <i class="fas fa-shield-alt text-green-500 dark:text-green-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-800 dark:text-white">Datos seguros</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    Toda la información se almacena de forma segura en la base de datos.
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Información 3 -->
-                        <div class="flex items-start p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                            <div class="flex-shrink-0 mt-1">
-                                <i class="fas fa-sync-alt text-purple-500 dark:text-purple-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-800 dark:text-white">Actualización inmediata</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    Los cambios se reflejan instantáneamente en el sistema.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contador o información adicional -->
-                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-500 dark:text-gray-400">
-                                <i class="fas fa-database mr-2"></i>
-                                Total de barrios
-                            </span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-full font-medium">
-                                {{ App\Models\Barrio::count() }}
-                            </span>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-map-marker-alt text-blue-500 mr-1"></i> Longitud
+                        </label>
+                        <input wire:model="lng" type="text" readonly placeholder="Click derecho en mapa"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-700 cursor-not-allowed text-sm" />
                     </div>
                 </div>
+
+                {{-- Info polígono --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <i class="fas fa-draw-polygon text-green-500 mr-1"></i> Polígono
+                    </label>
+                    <div id="polygon-info-create"
+                        class="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500 text-sm min-h-[48px]">
+                        Sin polígono dibujado
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button type="submit"
+                        wire:loading.attr="disabled"
+                        wire:target="store"
+                        class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition disabled:opacity-50">
+                        <span wire:loading.remove wire:target="store">
+                            <i class="fas fa-save mr-2"></i>Registrar Barrio
+                        </span>
+                        <span wire:loading wire:target="store">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>Procesando...
+                        </span>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        {{-- ── MAPA ── --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+
+            <div class="mb-3">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-1">
+                    <i class="fas fa-map mr-2 text-green-500"></i>Mapa del Barrio
+                </h2>
+                <p class="text-sm text-gray-500 mb-3">
+                    <i class="fas fa-mouse-pointer text-blue-500"></i> Click derecho → centroide &nbsp;|&nbsp;
+                    <i class="fas fa-draw-polygon text-green-500"></i> Botón → dibujar polígono
+                </p>
             </div>
+
+            <div class="flex gap-2 mb-3">
+                <button type="button" id="btn-draw-create"
+                    class="px-3 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
+                    <i class="fas fa-draw-polygon mr-1"></i>Dibujar Polígono
+                </button>
+                <button type="button" id="btn-clear-create"
+                    class="px-3 py-2 bg-gray-500 text-white text-sm rounded-lg hover:bg-gray-600 transition">
+                    <i class="fas fa-trash mr-1"></i>Limpiar
+                </button>
+            </div>
+
+            <div id="map-create" class="w-full rounded-lg border border-gray-200" style="height: 480px;"></div>
         </div>
     </div>
 
-    <!-- Errores globales -->
     @if($errors->any())
-        <div class="mt-6">
-            <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-red-400"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800 dark:text-red-300">
-                            Por favor, corrija los siguientes errores:
-                        </h3>
-                        <div class="mt-2 text-sm text-red-700 dark:text-red-400">
-                            <ul class="list-disc pl-5 space-y-1">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+    <div class="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex">
+            <i class="fas fa-exclamation-triangle text-red-400 mt-0.5 mr-3"></i>
+            <div>
+                <h3 class="text-sm font-medium text-red-800">Por favor corrija los siguientes errores:</h3>
+                <ul class="mt-2 text-sm text-red-700 list-disc pl-5 space-y-1">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         </div>
+    </div>
     @endif
 </div>
 
-<!-- Script para mejoras de UX -->
+{{-- ── GOOGLE MAPS — Livewire 4 usa $wire (no @this) ── --}}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Focus automático en el primer campo
-    const firstInput = document.querySelector('#id_DMQ');
-    if (firstInput) {
-        setTimeout(() => {
-            firstInput.focus();
-            firstInput.select();
-        }, 300);
+    const DEFAULT_LAT_C = -0.1807;
+    const DEFAULT_LNG_C = -78.4678;
+
+    let mapCreate, drawingManagerCreate, currentPolygonCreate, centroidMarkerCreate;
+
+    // Función segura para Livewire 4 usando el ID que pusimos en el paso 1
+    function getLivewireComponent() {
+        const el = document.getElementById('componente-create-barrio');
+        if (el && window.Livewire) {
+            return window.Livewire.find(el);
+        }
+        return null;
     }
-    
-    // Prevenir envío doble del formulario
-    let formSubmitted = false;
-    const form = document.querySelector('form[wire\\:submit\\.prevent]');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            if (formSubmitted) {
-                e.preventDefault();
-                return false;
+
+    function initMapCreate() {
+        mapCreate = new google.maps.Map(document.getElementById('map-create'), {
+            center: {
+                lat: DEFAULT_LAT_C,
+                lng: DEFAULT_LNG_C
+            },
+            zoom: 13,
+            mapTypeId: 'roadmap',
+            streetViewControl: false,
+            fullscreenControl: true,
+        });
+
+        drawingManagerCreate = new google.maps.drawing.DrawingManager({
+            drawingMode: null,
+            drawingControl: false,
+            polygonOptions: {
+                fillColor: '#3B82F6',
+                fillOpacity: 0.25,
+                strokeColor: '#2563EB',
+                strokeWeight: 2,
+                editable: true,
+            },
+        });
+        drawingManagerCreate.setMap(mapCreate);
+
+        // Polígono completado
+        google.maps.event.addListener(drawingManagerCreate, 'polygoncomplete', function(polygon) {
+            if (currentPolygonCreate) currentPolygonCreate.setMap(null);
+            currentPolygonCreate = polygon;
+            drawingManagerCreate.setDrawingMode(null);
+            syncPolygonCreate(polygon);
+
+            polygon.getPath().addListener('set_at', () => syncPolygonCreate(polygon));
+            polygon.getPath().addListener('insert_at', () => syncPolygonCreate(polygon));
+            polygon.getPath().addListener('remove_at', () => syncPolygonCreate(polygon));
+        });
+
+        // Click derecho → centroide
+        mapCreate.addListener('rightclick', function(e) {
+            placeCentroidCreate(e.latLng.lat(), e.latLng.lng());
+        });
+
+        // Botón dibujar
+        document.getElementById('btn-draw-create').addEventListener('click', function() {
+            if (currentPolygonCreate) currentPolygonCreate.setMap(null);
+            currentPolygonCreate = null;
+            drawingManagerCreate.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+        });
+
+        // Botón limpiar
+        document.getElementById('btn-clear-create').addEventListener('click', function() {
+            if (currentPolygonCreate) {
+                currentPolygonCreate.setMap(null);
+                currentPolygonCreate = null;
             }
-            formSubmitted = true;
-            setTimeout(() => { formSubmitted = false; }, 3000);
+            if (centroidMarkerCreate) {
+                centroidMarkerCreate.setMap(null);
+                centroidMarkerCreate = null;
+            }
+            document.getElementById('polygon-info-create').textContent = 'Sin polígono dibujado';
+
+            const lw = getLivewireComponent();
+            if (lw) {
+                lw.call('updatePolygon', '[]');
+                lw.set('lat', null);
+                lw.set('lng', null);
+            }
         });
     }
-});
+
+    function placeCentroidCreate(lat, lng) {
+        if (centroidMarkerCreate) centroidMarkerCreate.setMap(null);
+
+        centroidMarkerCreate = new google.maps.Marker({
+            position: {
+                lat,
+                lng
+            },
+            map: mapCreate,
+            title: 'Centroide',
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: '#EF4444',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2,
+            },
+            draggable: true,
+        });
+
+        centroidMarkerCreate.addListener('dragend', function(e) {
+            const lw = getLivewireComponent();
+            if (lw) {
+                lw.call('updateCoordenadas', e.latLng.lat(), e.latLng.lng());
+            }
+        });
+
+        const lw = getLivewireComponent();
+        if (lw) {
+            lw.call('updateCoordenadas', lat, lng);
+        }
+    }
+
+    function syncPolygonCreate(polygon) {
+        const path = polygon.getPath();
+        const points = [];
+        for (let i = 0; i < path.getLength(); i++) {
+            const p = path.getAt(i);
+            points.push({
+                lat: p.lat(),
+                lng: p.lng()
+            });
+        }
+        document.getElementById('polygon-info-create').textContent = points.length + ' puntos definidos';
+
+        const lw = getLivewireComponent();
+        if (lw) {
+            lw.call('updatePolygon', JSON.stringify(points));
+        }
+    }
+</script>
+
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&libraries=drawing&callback=initMapCreate">
 </script>

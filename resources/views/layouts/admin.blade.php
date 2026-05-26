@@ -1,31 +1,33 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <title>@yield('title', config('app.name', 'LimpiaTuRincon'))</title>
-    
+
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    
+    <link rel="icon" type="image/png" href="{{ asset('images/icons/icon.png') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
-    
+
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- AlpineJS para interacciones -->
     {{-- <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
-    
+
     @livewireStyles()
     @stack('styles')
 </head>
+
 <body class="min-h-screen bg-gray-50 font-sans antialiased" x-data="{ sidebarOpen: false, userMenuOpen: false, notificationsOpen: false }">
     <!-- Barra superior fija -->
     <nav class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
@@ -37,30 +39,30 @@
                     <button @click="sidebarOpen = true" class="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                         <i class="fas fa-bars text-lg"></i>
                     </button>
-                    
+
                     <!-- Logo -->
                     <div class="flex items-center ml-2 lg:ml-0">
                         <a href="{{ route('general.info') }}" class="flex items-center space-x-3">
                             <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg shadow">
                                 <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg shadow">
                                     <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LTR logo">
-                                      <!-- Fondo transparente para mantener el gradiente del div -->
-                                      <rect width="24" height="24" fill="none"/>
-                                      <!-- Letras: L T R -->
-                                      <text x="5"  y="16" font-family="Inter, system-ui, -apple-system, Arial, sans-serif"
+                                        <!-- Fondo transparente para mantener el gradiente del div -->
+                                        <rect width="24" height="24" fill="none" />
+                                        <!-- Letras: L T R -->
+                                        <text x="5" y="16" font-family="Inter, system-ui, -apple-system, Arial, sans-serif"
                                             font-size="15" font-weight="700" text-anchor="middle" alignment-baseline="middle" fill="#008000">L</text>
-                                      <text x="12" y="16" font-family="Inter, system-ui, -apple-system, Arial, sans-serif"
+                                        <text x="12" y="16" font-family="Inter, system-ui, -apple-system, Arial, sans-serif"
                                             font-size="15" font-weight="700" text-anchor="middle" alignment-baseline="middle" fill="#32CD32">T</text>
-                                      <text x="19" y="16" font-family="Inter, system-ui, -apple-system, Arial, sans-serif"
+                                        <text x="19" y="16" font-family="Inter, system-ui, -apple-system, Arial, sans-serif"
                                             font-size="15" font-weight="700" text-anchor="middle" alignment-baseline="middle" fill="#4682B4">R</text>
                                     </svg>
-                                  </div>
-                                  
+                                </div>
+
                             </div>
                             <div class="hidden md:block">
                                 <h1 class="text-xl font-bold text-gray-900">
-                                    <span style="color: #008000; font-weight: bold;">Limpia</span> 
-                                    <span style="color: #32CD32; font-weight: bold;">Tu</span> 
+                                    <span style="color: #008000; font-weight: bold;">Limpia</span>
+                                    <span style="color: #32CD32; font-weight: bold;">Tu</span>
                                     <span style="color: #4682B4; font-weight: bold;">Rincon</span>
                                 </h1>
                                 <p class="text-xs text-gray-500">Administracion</p>
@@ -102,15 +104,15 @@
                 <!-- Información de usuario y acciones - Derecha -->
                 <div class="flex items-center space-x-3">
                     <!-- Botón Dashboard -->
-                    <a href="{{ route('dashboard') }}" 
-                       class="hidden md:flex items-center space-x-2 px-4 py-2 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-lg transition-colors">
+                    <a href="{{ route('dashboard') }}"
+                        class="hidden md:flex items-center space-x-2 px-4 py-2 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-lg transition-colors">
                         <i class="fas fa-chart-line"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
 
                     <!-- Botón Información -->
-                    <a href="#" 
-                       class="hidden md:flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors">
+                    <a href="#"
+                        class="hidden md:flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors">
                         <i class="fas fa-info-circle"></i>
                         <span class="font-medium">Información</span>
                     </a>
@@ -118,18 +120,18 @@
 
                     <!-- Menú de usuario -->
                     <div class="relative">
-                        <button @click="userMenuOpen = !userMenuOpen; notificationsOpen = false" 
-                                class="flex items-center space-x-3 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+                        <button @click="userMenuOpen = !userMenuOpen; notificationsOpen = false"
+                            class="flex items-center space-x-3 p-1 rounded-lg hover:bg-gray-100 transition-colors">
                             <div class="flex items-center space-x-3">
                                 <!-- Avatar -->
                                 <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white font-semibold shadow">
                                     @if(auth()->check())
-                                        {{ substr(auth()->user()->name, 0, 1) }}{{ substr(auth()->user()->last_name ?? '', 0, 1) }}
+                                    {{ substr(auth()->user()->name, 0, 1) }}{{ substr(auth()->user()->last_name ?? '', 0, 1) }}
                                     @else
-                                        <i class="fas fa-user"></i>
+                                    <i class="fas fa-user"></i>
                                     @endif
                                 </div>
-                                
+
                                 <!-- Información del usuario (solo desktop) -->
                                 <div class="hidden md:block text-left">
                                     <div class="font-semibold text-gray-900">
@@ -142,19 +144,19 @@
                             </div>
                             <i class="fas fa-chevron-down text-gray-500 text-sm" :class="{ 'rotate-180': userMenuOpen }"></i>
                         </button>
-                        
+
                         <!-- Dropdown del usuario -->
-                        <div x-show="userMenuOpen" 
-                             @click.away="userMenuOpen = false"
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 scale-95"
-                             x-transition:enter-end="opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 scale-100"
-                             x-transition:leave-end="opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 hidden"
-                             :class="{ 'hidden': !userMenuOpen }"
-                             style="display: none;">
+                        <div x-show="userMenuOpen"
+                            @click.away="userMenuOpen = false"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 hidden"
+                            :class="{ 'hidden': !userMenuOpen }"
+                            style="display: none;">
                             <!-- Información del usuario -->
                             <div class="px-4 py-3 border-b border-gray-100">
                                 <p class="font-semibold text-gray-900">{{ auth()->check() ? auth()->user()->name : 'Invitado' }}</p>
@@ -164,7 +166,7 @@
                                     <span class="text-xs text-gray-500">En línea</span>
                                 </div>
                             </div>
-                            
+
                             <!-- Enlaces del usuario -->
                             <div class="py-2">
                                 <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -180,10 +182,10 @@
                                     Ayuda
                                 </a>
                             </div>
-                            
+
                             <!-- Separador -->
                             <div class="border-t border-gray-100"></div>
-                            
+
                             <!-- Cerrar sesión -->
                             @if(auth()->check())
                             <form method="POST" action="{{ route('logout') }}" class="py-2">
@@ -209,16 +211,16 @@
     </nav>
 
     <!-- Sidebar para móvil -->
-    <div x-show="sidebarOpen" 
-         x-transition:enter="transition-opacity ease-linear duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition-opacity ease-linear duration-300"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-40 lg:hidden" 
-         :class="{ 'hidden': !sidebarOpen }"
-         style="display: none;">
+    <div x-show="sidebarOpen"
+        x-transition:enter="transition-opacity ease-linear duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity ease-linear duration-300"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-40 lg:hidden"
+        :class="{ 'hidden': !sidebarOpen }"
+        style="display: none;">
         <div class="fixed inset-0 bg-gray-600 bg-opacity-75" @click="sidebarOpen = false"></div>
         <div class="fixed inset-y-0 left-0 flex flex-col w-64 bg-white shadow-xl">
             <!-- Header del sidebar móvil -->
@@ -241,15 +243,15 @@
             <div class="flex-1 overflow-y-auto py-4">
                 <nav class="space-y-1 px-3">
                     <!-- Dashboard -->
-                    <a href="{{ route('dashboard') }}" 
-                       class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-900 bg-gray-100">
+                    <a href="{{ route('dashboard') }}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-900 bg-gray-100">
                         <i class="fas fa-chart-line mr-3 text-gray-500"></i>
                         Dashboard
                     </a>
 
                     <!-- Información -->
-                    <a href="#" 
-                       class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                    <a href="#"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                         <i class="fas fa-info-circle mr-3 text-gray-500"></i>
                         Información
                     </a>
@@ -260,7 +262,7 @@
                             Módulos CRUD
                         </h3>
 
-                        
+
                         <!-- Sidebar dinámico -->
 
                         @livewire('admin.aside-menu')
@@ -275,13 +277,13 @@
                             Soporte
                         </h3>
                         <div class="mt-2 space-y-1">
-                            <a href="#" 
-                               class="flex items-center px-3 py-2 text-sm rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                            <a href="#"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                                 <i class="fas fa-question-circle mr-3 text-gray-400"></i>
                                 Ayuda
                             </a>
-                            <a href="#" 
-                               class="flex items-center px-3 py-2 text-sm rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                            <a href="#"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                                 <i class="fas fa-book mr-3 text-gray-400"></i>
                                 Documentación
                             </a>
@@ -328,7 +330,7 @@
 
                 <!-- Sidebar dinámico -->
 
-                     @livewire('admin.aside-menu')
+                @livewire('admin.aside-menu')
 
 
                 <!-- Información del sistema en sidebar -->
@@ -445,7 +447,7 @@
                         <p>&copy; {{ date('Y') }} {{ config('app.name', 'Sistema CRUD') }}. Todos los derechos reservados.</p>
                         <p class="mt-1">Desarrollado con Laravel, Tailwind CSS y Livewire.</p>
                     </div>
-                    
+
                     <div class="flex items-center space-x-6">
                         <a href="#" class="text-sm text-gray-500 hover:text-gray-700">
                             Privacidad
@@ -468,21 +470,26 @@
 
     <!-- Scripts -->
     @livewireScripts()
-    
-    
+
+
     <!-- Script para reloj en tiempo real -->
     <script>
         // Actualizar hora en tiempo real
         function updateDateTime() {
             const now = new Date();
-            
+
             // Formatear fecha
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
             const dateElement = document.getElementById('current-date');
             if (dateElement) {
                 dateElement.textContent = now.toLocaleDateString('es-ES', options);
             }
-            
+
             // Formatear hora
             const timeElement = document.getElementById('current-time');
             if (timeElement) {
@@ -493,20 +500,20 @@
                 timeElement.textContent = `${formattedHours}:${minutes} ${ampm}`;
             }
         }
-        
+
         // Actualizar cada minuto
         updateDateTime();
         setInterval(updateDateTime, 60000);
-        
+
         // Cerrar dropdowns al hacer clic fuera
         document.addEventListener('click', function(event) {
             const userMenu = document.querySelector('[x-show="userMenuOpen"]');
             const notificationsMenu = document.querySelector('[x-show="notificationsOpen"]');
-            
+
             if (userMenu && !userMenu.contains(event.target) && !event.target.closest('[x-show="userMenuOpen"]')) {
                 Alpine.store('userMenuOpen', false);
             }
-            
+
             if (notificationsMenu && !notificationsMenu.contains(event.target) && !event.target.closest('[x-show="notificationsOpen"]')) {
                 Alpine.store('notificationsOpen', false);
             }
@@ -514,4 +521,5 @@
     </script>
     @stack('scripts')
 </body>
+
 </html>
