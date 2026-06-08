@@ -20,6 +20,17 @@ class VecinoController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
+        $user = $request->user();
+        if ($user->role_name !== 'vecino') {
+            return response()->json(
+                [
+                    'has_vecino' => false,
+                    'mensaje' => 'Solo los vecinos registrados pueden realizar denuncias.'
+                ],
+                200
+            );
+        }
+
         $vecino = Vecino::with('barrio')
             ->where('user_id', $request->user()->id)
             ->first();
@@ -90,10 +101,24 @@ class VecinoController extends Controller
             'lng' => 'required|numeric',
         ]);
 
+        $user = $request->user();
+        if ($user->role_name !== 'vecino') {
+            return response()->json([
+                'valido'  => false,
+                'barrio_nombre' => null,
+                'mensaje' => 'Solo los vecinos registrados pueden realizar denuncias.',
+            ], 200);
+        }
         $vecino = Vecino::with('barrio')
             ->where('user_id', $request->user()->id)
             ->firstOrFail();
-
+        if (!$vecino->barrio) {
+            return response()->json([
+                'valido'  => false,
+                'barrio_nombre' => null,
+                'mensaje' => 'Vecino sin barrio asignado, ubicación no válida.',
+            ], 200);
+        }
         $polygon = $vecino->barrio?->polygon;
 
         if (empty($polygon)) {

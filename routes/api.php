@@ -12,6 +12,7 @@ use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\MetricaController;
 use App\Http\Controllers\VecinoController;
 use App\Http\Controllers\BarrioController;
+use App\Http\Controllers\Api\ContravencionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,7 +56,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/',                  [VecinoController::class, 'store']);
         Route::post('/validar-ubicacion', [VecinoController::class, 'validarUbicacion']);
     });
-
+    // 📋 Catálogo de contravenciones
+    Route::get('/contravenciones', [ContravencionController::class, 'index']);
     // 📝 Denuncias
     Route::prefix('denuncias')->group(function () {
         Route::get('/',     [DenunciaController::class, 'index']);
