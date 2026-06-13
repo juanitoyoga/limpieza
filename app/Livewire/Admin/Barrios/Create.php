@@ -75,7 +75,12 @@ class Create extends Component
         session()->flash('message', 'Barrio creado correctamente.');
         return redirect()->route('barrios.index');
     }
+    public $readyToLoad = false;
 
+    public function initComponent()
+    {
+        $this->readyToLoad = true;
+    }
     public function render()
     {
         return view('livewire.admin.barrios.create');

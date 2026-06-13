@@ -38,11 +38,17 @@ Route::prefix('auth')->group(function () {
 // --- RUTAS PÚBLICAS GENERALES ---
 Route::get('/barrios', [BarrioController::class, 'index']);
 
-// 📋 Catálogos — públicos para que la app los cargue sin autenticación
-Route::prefix('catalogos')->group(function () {
-    Route::get('/',          [CatalogoController::class, 'index']);
-    Route::get('/agrupados', [CatalogoController::class, 'agrupados']);
-});
+// Ruta agrupados con nombre
+Route::get('/catalogos/agrupados', [CatalogoController::class, 'agrupados'])
+    ->name('catalogos.agrupados');
+
+// Ruta principal con nombre
+Route::get('/catalogos', [CatalogoController::class, 'index'])
+    ->name('catalogos.index');
+
+// Ruta de sincronización con el nombre que está buscando tu sistema
+Route::get('/catalogos', [CatalogoController::class, 'sync'])
+    ->name('catalogos.sync');
 
 // --- RUTAS PROTEGIDAS (Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {
@@ -71,8 +77,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/evidence/upload', [EvidenceController::class, 'store']);
     });
 
-    // 🔁 Sync Wikidata — solo administradores
-    Route::post('/catalogos/sync', [CatalogoController::class, 'sync']);
 
     // 📊 Métricas
     Route::get('/metricas', [MetricaController::class, 'getStats']);

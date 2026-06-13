@@ -2,24 +2,69 @@
 
 use Illuminate\Support\Facades\Route;
 
-//
-// BARRIOS
-//
-Route::prefix('barrios')->group(function () {
-    Route::get('/index', \App\Livewire\Admin\Barrios\Index::class)
-        ->name('barrios.index');
+use App\Http\Controllers\BarrioController;
 
-    Route::get('/create', \App\Livewire\Admin\Barrios\Create::class)
+use App\Http\Controllers\VecinoController;
+
+Route::prefix('barrios')->group(function () {
+
+    // LISTADO
+    Route::get('/', [BarrioController::class, 'index'])
+        ->name('barrios.index');
+    // LISTA — Livewire tabla paginada con filtros aplicados
+    Route::get('/lista', \App\Livewire\Admin\Barrios\Lista::class)
+        ->name('barrios.lista');
+    // FORMULARIO CREAR
+    Route::get('/create', [BarrioController::class, 'create'])
         ->name('barrios.create');
 
+    // GUARDAR
+    Route::post('/', [BarrioController::class, 'store'])
+        ->name('barrios.store');
 
-    Route::get('/barrios/{id}/edit', \App\Livewire\Admin\Barrios\Edit::class)
+    // MOSTRAR
+    Route::get('/{barrio}', [BarrioController::class, 'show'])
+        ->name('barrios.show');
+
+    // FORMULARIO EDITAR
+    Route::get('/{barrio}/edit', [BarrioController::class, 'edit'])
         ->name('barrios.edit');
 
-    Route::get('/barrios/{id}', \App\Livewire\Admin\Barrios\Show::class)
-        ->name('barrios.show');
+    // ACTUALIZAR
+    Route::put('/{barrio}', [BarrioController::class, 'update'])
+        ->name('barrios.update');
+
+    // ELIMINAR
+    Route::delete('/{barrio}', [BarrioController::class, 'destroy'])
+        ->name('barrios.destroy');
 });
 
+Route::prefix('vecinos')->group(function () {
+
+    // FORMULARIO DE FILTROS (Blade normal)
+    Route::get('/', [VecinoController::class, 'index'])
+        ->name('vecinos.index');
+
+    // LISTA — Livewire tabla paginada con filtros aplicados
+    Route::get('/lista', \App\Livewire\Admin\Vecinos\Lista::class)
+        ->name('vecinos.lista');
+
+    // CREAR — Livewire
+    Route::get('/create', \App\Livewire\Admin\Vecinos\Create::class)
+        ->name('vecinos.create');
+
+    // MOSTRAR — Livewire (si lo necesitas)
+    Route::get('/{vecino}/show', \App\Livewire\Admin\Vecinos\Show::class)
+        ->name('vecinos.show');
+
+    // EDITAR — Livewire
+    // Route::get('/{vecino}/edit', \App\Livewire\Admin\Vecinos\Edit::class)
+    //     ->name('vecinos.edit');
+
+    // ELIMINAR — Livewire o controlador (según tu preferencia)
+    Route::delete('/{vecino}', [VecinoController::class, 'destroy'])
+        ->name('vecinos.destroy');
+});
 
 //
 // ORDENANZAS

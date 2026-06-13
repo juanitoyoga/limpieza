@@ -17,7 +17,6 @@ class ContravencionController extends Controller
         $contravenciones = Ordenanza332::select(
             'id',
             'codigo',
-            'nombre',
             'descripcion',
             'tipo',
             'nivel_gravedad'

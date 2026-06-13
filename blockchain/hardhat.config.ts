@@ -1,25 +1,45 @@
 import * as dotenv from "dotenv";
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: ".env.blockchain" });
 
+import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 
-export default {
+const config: HardhatUserConfig = {
+  solidity: {
+    version: "0.8.28",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
+
   paths: {
-    artifacts: "../resources/js/artifacts",
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
+    artifacts: "../resources/js/artifacts",
   },
-
-  solidity: "0.8.28",
 
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
     },
-    sepolia: {
-      url: process.env.SEPOLIA_RPC_URL,
-      accounts: [process.env.SEPOLIA_PRIVATE_KEY],
-    },
   },
 };
+
+const rpc = process.env.SEPOLIA_RPC_URL;
+const key = process.env.SEPOLIA_PRIVATE_KEY;
+
+if (rpc && key) {
+  config.networks = {
+    ...config.networks,
+    sepolia: {
+      url: rpc,
+      accounts: [key],
+    },
+  };
+}
+
+export default config;

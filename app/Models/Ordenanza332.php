@@ -10,7 +10,7 @@ class Ordenanza332 extends Model
     /** @use HasFactory<\Database\Factories\Ordenanza332Factory> */
     use HasFactory;
     protected $table = 'ordenanza332';
-    protected $fillable = ['codigo', 'nombre', 'descripcion', 'tipo', 'nivel_gravedad'];
+    protected $fillable = ['codigo', 'descripcion', 'tipo', 'nivel_gravedad'];
 
     // 🔗 Relación con porcentajes históricos
     public function porcentajes()

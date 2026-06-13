@@ -14,6 +14,30 @@ class VecinoController extends Controller
 {
     public function __construct(private GeoService $geo) {}
 
+    public function index()
+    {
+        return view('livewire.admin.vecinos.index');
+    }
+
+    /**
+     * Activar/Desactivar — PATCH /barrios/{barrio}/toggle
+     */
+    public function toggle(Vecino $vecino)
+    {
+        $vecino->update(['is_active' => !$vecino->is_active]);
+
+        return back()->with(
+            'success',
+            'Vecino ' . ($vecino->is_active ? 'activado' : 'desactivado') . ' correctamente.'
+        );
+    }
+
+    public function list()
+    {
+        $vecinos = Vecino::orderBy('created_at', 'desc')->paginate(20);
+        return view('livewire.admin.vecinos.list', compact('vecinos'));
+    }
+
     /**
      * GET /api/vecinos/me
      * Devuelve si el usuario autenticado ya tiene vecino registrado.

@@ -434,8 +434,11 @@
                 </div>
                 @endif
 
-                <!-- Contenido dinámico -->
-                {{ $slot }}
+                {{-- Para vistas Blade clásicas --}}
+                @yield('content')
+
+                {{-- Para componentes Livewire --}}
+                {{ $slot ?? '' }}
             </div>
         </main>
 
@@ -471,7 +474,7 @@
     <!-- Scripts -->
     @livewireScripts()
 
-
+    @yield('scripts')
     <!-- Script para reloj en tiempo real -->
     <script>
         // Actualizar hora en tiempo real
