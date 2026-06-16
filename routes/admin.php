@@ -6,6 +6,22 @@ use App\Http\Controllers\BarrioController;
 
 use App\Http\Controllers\VecinoController;
 
+// DENUNCIAS
+Route::prefix('denuncias')->group(function () {
+    // FORMULARIO DE FILTROS (Blade normal)
+    Route::get('/', \App\Livewire\Admin\Denuncias\Index::class)
+        ->name('denuncias.index');
+
+    // LISTA — Livewire tabla paginada con filtros aplicados
+    Route::get('/lista', \App\Livewire\Admin\Denuncias\Lista::class)
+        ->name('denuncias.lista');
+
+    // LISTA — Livewire tabla paginada con filtros aplicados
+    Route::get('/denuncias/{id}', \App\Livewire\Admin\Denuncias\Show::class)
+        ->name('denuncias.show');
+});
+
+// BARRIOS
 Route::prefix('barrios')->group(function () {
 
     // LISTADO

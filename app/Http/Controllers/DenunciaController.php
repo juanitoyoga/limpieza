@@ -3,112 +3,179 @@
 namespace App\Http\Controllers;
 
 use App\Models\Denuncia;
+use App\Models\Vecino;
 use App\Models\Ordenanza332;
-use App\Services\GeoService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\AuditEvent;
+use App\Http\Requests\StoreDenunciaRequest;
+use App\Http\Resources\DenunciaResource;
+use App\Services\BlockchainService;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Exception;
 
 class DenunciaController extends Controller
 {
-    public function __construct(private GeoService $geoService) {}
 
-    public function store(Request $request)
+
+    public function index()
     {
-        $request->validate([
-            'latitud'          => 'required|numeric|between:-90,90',
-            'longitud'         => 'required|numeric|between:-180,180',
-            'ordenanza332_id'  => 'required|integer',
-            'descripcion'      => 'nullable|string|max:1000',
-            'evidencia'        => 'required|file|mimes:jpg,jpeg,png,mp4,mov|max:51200',
-            // Metadatos del dispositivo (opcionales)
-            'app_uuid'         => 'nullable|uuid',
-            'device_id'        => 'nullable|string|max:64',
-            'os_version'       => 'nullable|string|max:32',
-            'app_version'      => 'nullable|string|max:16',
+        return DenunciaResource::collection(
+            Denuncia::with(['vecino', 'ordenanza332', 'dirigente', 'funcionario'])
+                ->latest()
+                ->paginate(20)
+        );
+    }
+
+    public function show($id)
+    {
+        return new DenunciaResource(
+            Denuncia::with(['vecino', 'ordenanza332', 'dirigente', 'funcionario'])
+                ->findOrFail($id)
+        );
+    }
+
+
+public function store(StoreDenunciaRequest $request, BlockchainService $blockchain)
+{
+    $data = $request->validated();
+    $userId = auth()->id(); // ← obtener ID del usuario
+
+    // ───────────────────────────────────────────────
+    // 1. Validaciones cruzadas de seguridad
+    // ───────────────────────────────────────────────
+
+    $vecino = Vecino::findOrFail($data['vecino_id']);
+
+    if ($vecino->barrio_id != $request->input('barrio_id')) {
+        return response()->json([
+            'status'  => 422,
+            'error'   => 'INVALID_BARRIO',
+            'message' => 'El vecino no pertenece al barrio indicado.'
+        ], 422);
+    }
+
+    if (!Ordenanza332::find($data['ordenanza332_id'])) {
+        return response()->json([
+            'status'  => 422,
+            'error'   => 'INVALID_ORDENANZA',
+            'message' => 'La contravención no existe.'
+        ], 422);
+    }
+
+    // ───────────────────────────────────────────────
+    // 2. Reverse Geocoding (lat/lng → dirección)
+    // ───────────────────────────────────────────────
+
+    if ($request->latitud && $request->longitud) {
+        $url = "https://nominatim.openstreetmap.org/reverse?format=json&lat={$request->latitud}&lon={$request->longitud}";
+        $geo = Http::get($url)->json();
+        $data['direccion_gps'] = $geo['display_name'] ?? null;
+    }
+
+    // ───────────────────────────────────────────────
+    // 3. Guardar evidencia (foto/video)
+    // ───────────────────────────────────────────────
+
+    if ($request->hasFile('evidencia')) {
+        $file = $request->file('evidencia');
+        $path = $file->store('denuncias', 'public');
+
+        $data['evidencia_path'] = $path;
+        $data['evidencia_tipo'] = Str::contains($file->getMimeType(), 'video')
+            ? 'video'
+            : 'foto';
+    }
+
+    // ───────────────────────────────────────────────
+    // 4. Fecha de denuncia
+    // ───────────────────────────────────────────────
+
+    $data['fecha_denuncia'] = now();
+
+    // ───────────────────────────────────────────────
+    // 5. Crear denuncia en base de datos
+    // ───────────────────────────────────────────────
+
+    $denuncia = Denuncia::create($data);
+
+    // Registrar evento de creación con logEvent (correcto)
+    AuditEvent::logEvent(
+        $denuncia,
+        $userId,
+        AuditEvent::EVENT_NOMINATION_CREATED, // o crea un EVENT_DENUNCIA_CREATED si quieres
+        $data
+    );
+
+    // ───────────────────────────────────────────────
+    // 6. Generar hash SHA‑256 de la denuncia
+    // ───────────────────────────────────────────────
+
+    $raw = implode('|', [
+        $denuncia->id,
+        $denuncia->vecino_id,
+        $denuncia->ordenanza332_id,
+        $denuncia->latitud,
+        $denuncia->longitud,
+        $denuncia->direccion_gps,
+        $denuncia->descripcion,
+        $denuncia->device_id,
+        $denuncia->os_version,
+        $denuncia->app_version,
+        $denuncia->evidencia_path,
+        $denuncia->fecha_denuncia,
+    ]);
+
+    $hash = hash('sha256', $raw);
+    $denuncia->update(['file_hash' => $hash]);
+
+    // ───────────────────────────────────────────────
+    // 7. Registrar en Blockchain
+    // ───────────────────────────────────────────────
+
+    try {
+        $txHash = $blockchain->registrarDenunciaBlockchain($denuncia->id, $hash, $userId);
+
+        $denuncia->update([
+            'tx_hash'           => $txHash,
+            'blockchain_status' => 'confirmed',
+            'verified_on_chain' => true,
         ]);
 
-        // ── 1. Vecino autenticado → barrio ────────────────────────
-        $user   = $request->user();
-        $vecino = $user->vecino()->with('barrio')->first();
-
-        if (!$vecino) {
-            return response()->json([
-                'message' => 'El usuario no tiene un perfil de vecino registrado.',
-            ], 403);
-        }
-
-        $barrio = $vecino->barrio;
-
-        if (!$barrio || !$barrio->activo) {
-            return response()->json([
-                'message' => 'No se encontró un barrio activo asociado a tu cuenta.',
-            ], 422);
-        }
-
-        if (empty($barrio->polygon)) {
-            return response()->json([
-                'message' => 'El barrio aún no tiene polígono registrado.',
-            ], 422);
-        }
-
-        // ── 2. Contravención válida en catálogo ───────────────────
-        $ordenanza = Ordenanza332::find($request->ordenanza332_id);
-
-        if (!$ordenanza) {
-            return response()->json([
-                'message' => 'La contravención seleccionada no existe en el catálogo.',
-            ], 422);
-        }
-
-        // ── 3. GPS dentro del polígono del barrio ─────────────────
-        $dentroDelBarrio = $this->geoService->pointInPolygon(
-            lat: $request->latitud,
-            lng: $request->longitud,
-            polygon: $barrio->polygon   // ya es array gracias al cast 'json'
+        // Evento de registro en blockchain con logEvent
+        AuditEvent::logEvent(
+            $denuncia,
+            $userId,
+            AuditEvent::EVENT_BLOCKCHAIN_REGISTERED,
+            ['hash' => $hash, 'tx_hash' => $txHash]
         );
 
-        if (!$dentroDelBarrio) {
-            return response()->json([
-                'message' => 'La ubicación registrada está fuera de los límites de tu barrio.',
-                'codigo'  => 'FUERA_DE_BARRIO',
-                'barrio'  => $barrio->nombre,
-            ], 422);
-        }
+        // O si quieres actualizar el evento anterior con blockchain_hash:
+        // $denuncia->auditEvents()->latest()->first()->recordBlockchainTransaction($hash, $txHash);
+    } catch (Exception $e) {
 
-        // ── 4. Guardar evidencia + crear denuncia ─────────────────
-        $denuncia = DB::transaction(function () use ($request, $vecino, $ordenanza) {
-            $archivo   = $request->file('evidencia');
-            $mimeType  = $archivo->getMimeType();
-            $esFoto    = str_starts_with($mimeType, 'image');
-            $path      = $archivo->store("denuncias/{$vecino->id}", 'public');
-            $fileHash  = hash_file('sha256', $archivo->getRealPath());
+        $denuncia->update([
+            'blockchain_status' => 'failed',
+            'verified_on_chain' => false,
+        ]);
 
-            return Denuncia::create([
-                'vecino_id'        => $vecino->id,
-                'ordenanza332_id'  => $ordenanza->id,
-                'latitud'          => $request->latitud,
-                'longitud'         => $request->longitud,
-                'descripcion'      => $request->descripcion,
-                'fecha_denuncia'   => now(),
-                'estado'           => 'pendiente',
-                'evidencia_path'   => $path,
-                'evidencia_tipo'   => $esFoto ? 'foto' : 'video',
-                'file_hash'        => $fileHash,   // listo para blockchain
-                'app_uuid'         => $request->app_uuid ?? Str::uuid(),
-                'device_id'        => $request->device_id,
-                'os_version'       => $request->os_version,
-                'app_version'      => $request->app_version,
-                'synced'           => true,
-                'synced_at'        => now(),
-            ]);
-        });
-
-        return response()->json([
-            'message'      => 'Denuncia registrada exitosamente.',
-            'denuncia_id'  => $denuncia->id,
-            'estado'       => $denuncia->estado,
-            'evidencia_url' => $denuncia->evidencia_url,  // accessor del modelo
-        ], 201);
+        // Evento de fallo en blockchain con logEvent
+        AuditEvent::logEvent(
+            $denuncia,
+            $userId,
+            'BLOCKCHAIN_FAILED',
+            ['error' => $e->getMessage()]
+        );
     }
+
+    // ───────────────────────────────────────────────
+    // 8. Respuesta final
+    // ───────────────────────────────────────────────
+
+    return response()->json([
+        'status'  => 200,
+        'message' => 'Denuncia registrada correctamente',
+        'data'    => $denuncia,
+    ]);
+}
 }

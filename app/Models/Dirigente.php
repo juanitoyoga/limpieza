@@ -5,7 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
@@ -48,7 +48,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Dirigente extends Model
 {
-    use SoftDeletes, HasFactory;
+    use HasFactory;
 
     /**
      * Nombre de la tabla en la base de datos
@@ -132,7 +132,7 @@ class Dirigente extends Model
      */
     public function barrio(): BelongsTo
     {
-        return $this->belongsTo(Barrio::class, 'id_DMQ' , 'id_DMQ');
+        return $this->belongsTo(Barrio::class, 'id_DMQ', 'id_DMQ');
     }
 
     /**
@@ -238,15 +238,15 @@ class Dirigente extends Model
     public function getDireccionCompletaAttribute(): string
     {
         $direccion = "{$this->calle_principal} #{$this->numero}";
-        
+
         if ($this->calle_secundaria) {
             $direccion .= " y {$this->calle_secundaria}";
         }
-        
+
         if ($this->referencias) {
             $direccion .= " - {$this->referencias}";
         }
-        
+
         return $direccion;
     }
 
@@ -281,7 +281,7 @@ class Dirigente extends Model
         if (!$this->last_login_at) {
             return false;
         }
-        
+
         return $this->last_login_at->diffInDays(now()) <= $dias;
     }
 
@@ -309,18 +309,19 @@ class Dirigente extends Model
         if (!$this->phone) {
             return null;
         }
-        
+
         // Formato: +593 99 999 9999
         $phone = preg_replace('/\D/', '', $this->phone);
-        
+
         if (strlen($phone) === 10) {
-            return sprintf('+593 %s %s %s', 
+            return sprintf(
+                '+593 %s %s %s',
                 substr($phone, 0, 2),
                 substr($phone, 2, 3),
                 substr($phone, 5)
             );
         }
-        
+
         return $this->phone;
     }
 
@@ -337,7 +338,7 @@ class Dirigente extends Model
             $existeDirigente = self::where('barrio_id', $dirigente->barrio_id)
                 ->where('is_active', true)
                 ->exists();
-            
+
             if ($existeDirigente) {
                 throw new \Exception('Ya existe un dirigente activo para este barrio.');
             }
