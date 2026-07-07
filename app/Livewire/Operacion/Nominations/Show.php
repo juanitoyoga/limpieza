@@ -50,26 +50,29 @@ class Show extends Component
         $this->issuer_type = $this->nomination->issuer_type;
         $this->pdf = $this->nomination->document_path;
         $this->fecha_emision = Carbon::parse($this->nomination->fecha_emision)
-                ->locale('es')
-                ->translatedFormat('d - F - Y');
+            ->locale('es')
+            ->translatedFormat('d - F - Y');
 
         $this->fecha_inicio_vigencia = Carbon::parse($this->nomination->fecha_inicio_vigencia)
             ->locale('es')
             ->translatedFormat('d - F - Y');
-        
+
         $this->fecha_fin_vigencia = Carbon::parse($this->nomination->fecha_fin_vigencia)
             ->locale('es')
             ->translatedFormat('d - F - Y');
         $this->observaciones = $this->nomination->observaciones;
     }
-    public function render()
-    {
-        return view('livewire.operacion.nominations.show');
-    }
 
-    public function save() 
+    public function save()
     {
 
         return redirect()->route('nominations.index');
+    }
+
+    public function render()
+    {
+        return view('livewire.operacion.nominations.show', [
+            'nomination' => $this->nomination
+        ]);
     }
 }

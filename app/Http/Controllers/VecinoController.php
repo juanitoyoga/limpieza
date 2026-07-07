@@ -9,6 +9,8 @@ use App\Models\Vecino;
 use App\Services\GeoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class VecinoController extends Controller
 {
@@ -45,7 +47,7 @@ class VecinoController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
-        if ($user->role_name !== 'vecino') {
+        if ($user->role_name !== 'Vecino') {
             return response()->json(
                 [
                     'has_vecino' => false,
@@ -84,36 +86,81 @@ class VecinoController extends Controller
      * POST /api/vecinos
      * Crea el vecino para el usuario autenticado.
      */
+
+
     public function store(StoreVecinoRequest $request): JsonResponse
     {
-        // Evitar duplicados
-        $existe = Vecino::where('user_id', $request->user()->id)->exists();
+        $user = $request->user();
+
+        // Bloqueo por rol ya asignado (igual que Livewire\Admin\Vecinos\Create::mount())
+        $rolesBloqueados = ['Vecino', 'Dirigente', 'Presidente', 'Funcionario', 'Supervisor', 'Auditor'];
+        if (in_array($user->role_name, $rolesBloqueados)) {
+            return response()->json([
+                'message' => 'Tu cuenta ya cuenta con un perfil verificado en el sistema.'
+            ], 409);
+        }
+
+        $existe = Vecino::where('user_id', $user->id)->exists();
         if ($existe) {
             return response()->json([
                 'message' => 'El usuario ya tiene un vecino registrado.'
             ], 409);
         }
 
-        $vecino = Vecino::create([
-            'user_id'          => $request->user()->id,
-            'userroles_id'     => $request->userroles_id,
-            'id_DMQ'           => $request->barrio_id_DMQ,
-            'cedula'           => $request->cedula,
-            'telefono'         => $request->telefono,
-            'calle_principal'  => $request->calle_principal,
-            'numero'           => $request->numero,
-            'calle_secundaria' => $request->calle_secundaria,
-            'referencias'      => $request->referencias,
-            'fecha_registro'   => now()->toDateString(),
-            'is_active'        => true,
+        $barrio = Barrio::where('id_DMQ', $request->barrio_id_DMQ)->firstOrFail();
+        \Log::info('DEBUG vecino store', [
+            'barrio_id_DMQ_recibido' => $request->barrio_id_DMQ,
+            'barrio_encontrado_id'   => $barrio->id,
+            'barrio_encontrado_dmq'  => $barrio->id_DMQ,
+            'barrio_nombre'          => $barrio->nombre,
+            'polygon_usado'          => $barrio->polygon,
+            'lat_recibida'           => $request->latitud,
+            'lng_recibida'           => $request->longitud,
         ]);
+        // Validación geoespacial Ray Casting (igual que Livewire\Admin\Vecinos\Create::save())
+        if (!empty($barrio->polygon)) {
+            $dentroDePoligono = $this->geo->pointInPolygon(
+                $request->latitud,
+                $request->longitud,
+                $barrio->polygon
+            );
+
+            if (!$dentroDePoligono) {
+                return response()->json([
+                    'message' => 'La ubicación de tu domicilio se encuentra fuera del límite perimetral de este barrio.',
+                    'errors'  => ['barrio_id_DMQ' => ['Ubicación fuera del polígono del barrio.']],
+                ], 422);
+            }
+        }
+
+        $vecino = DB::transaction(function () use ($request, $user) {
+            $vecino = Vecino::create([
+                'user_id'          => $user->id,
+                'id_DMQ'           => $request->barrio_id_DMQ,
+                'cedula'           => $user->nro_id, // heredada del registro base (User ya validado con tipo_id CÉDULA)
+                'telefono'         => $request->telefono ?: $user->phone,
+                'calle_principal'  => $request->calle_principal,
+                'numero'           => $request->numero,
+                'calle_secundaria' => $request->calle_secundaria,
+                'referencias'      => $request->referencias,
+                'fecha_registro'   => now(),
+                'is_active'        => true,
+                'ocupacion'        => $request->ocupacion ?? [],
+                'deportes'         => $request->deportes ?? [],
+                'recreacion'       => $request->recreacion ?? [],
+            ]);
+
+            $user->update(['role_name' => 'Vecino']);
+
+            return $vecino;
+        });
 
         return response()->json([
-            'message' => 'Vecino registrado correctamente.',
-            'vecino'  => $vecino->load('barrio'),
+            'message'   => '¡Perfil verificado! Ahora eres formalmente Vecino de tu rincón.',
+            'vecino'    => $vecino->load('barrio'),
+            'role_name' => 'Vecino',
         ], 201);
     }
-
     /**
      * POST /api/vecinos/validar-ubicacion
      * Kotlin envía GPS — Laravel valida que esté dentro del barrio del vecino.
@@ -126,7 +173,7 @@ class VecinoController extends Controller
         ]);
 
         $user = $request->user();
-        if ($user->role_name !== 'vecino') {
+        if ($user->role_name !== 'Vecino') {
             return response()->json([
                 'valido'  => false,
                 'barrio_nombre' => null,

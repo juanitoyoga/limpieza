@@ -18,16 +18,28 @@ contract AuditoriaEventos {
     );
 
     /**
-     * tipoEvento:
-     * 1 = Denuncia creada
-     * 2 = Denuncia validada
+     * tipoEvento: DENUNCIAS
+     * 1 = Denuncia pendiente
+     * 2 = Denuncia verificada
      * 3 = Denuncia aprobada
-     * 4 = Multa emitida
-     * 5 = Pago registrado
-     * 6 = Contrato firmado
-     * 7 = Trabajo ejecutado
-     * 8 = Inspección
-     * 9 = Otro
+     * 4 = Denuncia rechazada
+     * 5 = Denuncia expirada
+     * tipoEvento: MULTAS
+     * 11 = Multa emitida
+     * 12 = Multa pagada
+     * 13 = Multa anulada
+     * 14 = Multa desactivada
+     * tipoEvento: CONTRATOS
+     * 21 = Contrato pendiente
+     * 22 = Contrato verificado
+     * 23 = Contrato aprobado
+     * 24 = Contrato rechazado
+     * tipoEvento: NOMINACIONES
+     * 31 = Nominación pendiente
+     * 32 = Nominación verificada
+     * 33 = Nominación aprobada
+     * 34 = Nominación rechazada
+
      */
     function registrarEvento(
         uint8 tipoEvento,

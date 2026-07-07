@@ -22,8 +22,18 @@ class DenunciaResource extends JsonResource
             // ───────────────────────────────────────────────
             'vecino'           => new VecinoResource($this->whenLoaded('vecino')),
             'ordenanza'        => new Ordenanza332Resource($this->whenLoaded('ordenanza332')),
-            'dirigente'        => new DirigenteResource($this->whenLoaded('dirigente')),
-            'funcionario'      => new FuncionarioResource($this->whenLoaded('funcionario')),
+
+            // 🆕 Barrio — ya se cargaba con with('barrio') pero nunca se exponía
+            'barrio' => $this->whenLoaded('barrio', function () {
+                return $this->barrio ? [
+                    'id'     => $this->barrio->id,
+                    'id_DMQ' => $this->barrio->id_DMQ,
+                    'nombre' => $this->barrio->nombre,
+                ] : null;
+            }),
+
+            // Datos de auditoría dinámica usando tu accessor del modelo
+            'auditoria_revisor' => $this->revisor,
 
             // ───────────────────────────────────────────────
             // Datos de la denuncia
@@ -73,7 +83,7 @@ class DenunciaResource extends JsonResource
                 'file_hash'        => $this->file_hash,
                 'tx_hash'          => $this->tx_hash,
                 'status'           => $this->blockchain_status,
-                'verified_on_chain'=> $this->verified_on_chain,
+                'verified_on_chain' => $this->verified_on_chain,
                 'tx_url'           => $this->tx_hash
                     ? "https://sepolia.etherscan.io/tx/{$this->tx_hash}"
                     : null,
@@ -87,4 +97,3 @@ class DenunciaResource extends JsonResource
         ];
     }
 }
-

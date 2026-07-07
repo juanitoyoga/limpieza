@@ -19,6 +19,7 @@ class StoreDenunciaRequest extends FormRequest
             // Relaciones principales
             // ───────────────────────────────────────────────
             'vecino_id'        => 'required|exists:vecinos,id',
+            'barrio_id'        => 'required|exists:barrios,id',
             'ordenanza332_id'  => 'required|exists:ordenanza332,id',
             'dirigente_id'     => 'nullable|exists:dirigentes,id',
             'funcionario_id'   => 'nullable|exists:funcionarios,id',
@@ -57,10 +58,12 @@ class StoreDenunciaRequest extends FormRequest
             'synced_at'        => 'nullable|date',
 
             // ───────────────────────────────────────────────
-            // Blockchain (el backend genera el hash real)
+            // Blockchain (el hash ya viene calculado desde el frontend, no se recalcula aquí)
             // ───────────────────────────────────────────────
-            'file_hash'        => 'nullable|string|max:255',
-            'tx_hash'          => 'nullable|string|max:255',
+            'evidencia_hash'    => ['required', 'string', 'size:64', 'regex:/^[a-f0-9]+$/i'],
+            'file_hash'         => 'nullable|string|max:255',
+            'tx_hash'           => 'nullable|string|max:255',
+            'tx_block'          => 'nullable|string|max:255',
             'blockchain_status' => 'nullable|string|in:pending,confirmed,failed',
             'verified_on_chain' => 'nullable|boolean',
         ];

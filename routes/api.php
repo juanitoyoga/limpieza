@@ -12,6 +12,7 @@ use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\MetricaController;
 use App\Http\Controllers\VecinoController;
 use App\Http\Controllers\BarrioController;
+use App\Http\Controllers\MultaController;
 use App\Http\Controllers\Api\ContravencionController;
 
 /*
@@ -36,7 +37,7 @@ Route::prefix('auth')->group(function () {
 });
 
 // --- RUTAS PÚBLICAS GENERALES ---
-Route::get('/barrios', [BarrioController::class, 'index']);
+Route::get('/barrios', [BarrioController::class, 'apiIndex']);
 
 // Ruta agrupados con nombre
 Route::get('/catalogos/agrupados', [CatalogoController::class, 'agrupados'])
@@ -66,9 +67,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/contravenciones', [ContravencionController::class, 'index']);
     // 📝 Denuncias
     Route::prefix('denuncias')->group(function () {
-        Route::get('/',     [DenunciaController::class, 'index']);
-        Route::post('/',    [DenunciaController::class, 'store']);
-        Route::get('/{id}', [DenunciaController::class, 'show']);
+        Route::get('/',                        [DenunciaController::class, 'index']);
+        Route::post('/',                       [DenunciaController::class, 'store']);
+        Route::get('/{id}',                    [DenunciaController::class, 'show']);
+        Route::patch('/{denuncia}/verificar',  [DenunciaController::class, 'verificar']);   // Funcionario
+        Route::patch('/{denuncia}/aprobar',    [DenunciaController::class, 'aprobar']);     // Supervisor
+        Route::patch('/{denuncia}/rechazar',   [DenunciaController::class, 'rechazar']);    // Funcionario o Supervisor
     });
 
     // 🖼️ Evidencias
@@ -77,6 +81,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/evidence/upload', [EvidenceController::class, 'store']);
     });
 
+
+
+    // 💰 Multas
+    Route::prefix('multas')->group(function () {
+        Route::get('/',              [MultaController::class, 'index']);
+        Route::get('/{multa}',       [MultaController::class, 'show']);
+        Route::post('/{multa}/pagar', [MultaController::class, 'pagar']);
+    });
 
     // 📊 Métricas
     Route::get('/metricas', [MetricaController::class, 'getStats']);

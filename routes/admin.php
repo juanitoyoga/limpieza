@@ -6,20 +6,6 @@ use App\Http\Controllers\BarrioController;
 
 use App\Http\Controllers\VecinoController;
 
-// DENUNCIAS
-Route::prefix('denuncias')->group(function () {
-    // FORMULARIO DE FILTROS (Blade normal)
-    Route::get('/', \App\Livewire\Admin\Denuncias\Index::class)
-        ->name('denuncias.index');
-
-    // LISTA — Livewire tabla paginada con filtros aplicados
-    Route::get('/lista', \App\Livewire\Admin\Denuncias\Lista::class)
-        ->name('denuncias.lista');
-
-    // LISTA — Livewire tabla paginada con filtros aplicados
-    Route::get('/denuncias/{id}', \App\Livewire\Admin\Denuncias\Show::class)
-        ->name('denuncias.show');
-});
 
 // BARRIOS
 Route::prefix('barrios')->group(function () {
@@ -27,6 +13,7 @@ Route::prefix('barrios')->group(function () {
     // LISTADO
     Route::get('/', [BarrioController::class, 'index'])
         ->name('barrios.index');
+ 
     // LISTA — Livewire tabla paginada con filtros aplicados
     Route::get('/lista', \App\Livewire\Admin\Barrios\Lista::class)
         ->name('barrios.lista');
@@ -162,7 +149,8 @@ Route::prefix('porcentajes')->group(function () {
 // CONTRATOS
 //
 Route::prefix('contratos')->group(function () {
-    Route::get('/index', \App\Livewire\Admin\Contratos\Index::class)
+
+    Route::get('/', \App\Livewire\Admin\Contratos\Index::class)
         ->name('contratos.index');
 
     Route::get('/create', \App\Livewire\Admin\Contratos\Create::class)
@@ -171,7 +159,12 @@ Route::prefix('contratos')->group(function () {
     Route::get('/{contrato}/edit', \App\Livewire\Admin\Contratos\Edit::class)
         ->whereNumber('contrato')
         ->name('contratos.edit');
+
+    Route::get('/{contrato}', \App\Livewire\Admin\Contratos\Show::class)
+        ->whereNumber('contrato')
+        ->name('contratos.show');
 });
+
 
 
 //

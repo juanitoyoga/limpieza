@@ -59,7 +59,7 @@
  
 	 public function isAdmin()
 	 {
-		 return $this->name === 'admin';
+		 return $this->name === 'Admin';
 	 }
  
 	 public function hasMenuItems()

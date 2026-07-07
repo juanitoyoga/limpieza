@@ -386,7 +386,7 @@
                 </div>
 
                 <!-- Mensajes de sesión -->
-                @if(session()->has('success'))
+                @if(session()->has('success') || session()->has('message'))
                 <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div class="flex items-center">
                         <i class="fas fa-check-circle text-green-500 mr-3"></i>
@@ -433,7 +433,27 @@
                     </div>
                 </div>
                 @endif
+                {{-- Banner de invitación para completar el Perfil de Vecino --}}
+                @auth
+                @if(auth()->user()->role_name === 'User')
+                <div class="mb-6 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-5 text-white shadow-md border border-blue-500 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 class="text-base font-bold flex items-center gap-2">
+                            <i class="fas fa-map-marked-alt text-blue-200"></i> ¡Bienvenido a LimpiaTuRincón! 🧹
+                        </h3>
+                        <p class="text-xs text-blue-100 mt-1 max-w-xl">
+                            Tu cuenta base está activa. Para poder reportar incidencias de desechos urbanos y proteger tu sector, necesitamos verificar geográficamente tu zona residencial.
+                        </p>
+                    </div>
+                    <a href="{{ route('vecinos.create') }}"
+                        class="bg-white text-blue-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-50 transition shadow shrink-0 flex items-center gap-1">
+                        <i class="fas fa-check-circle text-blue-600"></i> Validar mi Barrio
+                    </a>
+                </div>
+                @endif
+                @endauth
 
+                ...
                 {{-- Para vistas Blade clásicas --}}
                 @yield('content')
 

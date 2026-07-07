@@ -28,6 +28,9 @@ class Contrato extends Model
         'id_verificacion',
         'rol_aprobacion',
         'id_aprobacion',
+        'rol_rechazo',
+        'id_rechazo',
+        'motivo_rechazo',
         'numero_contrato',
         'fecha_inicio',
         'fecha_fin',
@@ -39,7 +42,7 @@ class Contrato extends Model
         'fecha_verificacion',
         'fecha_aprobacion',
         'fecha_pago',
-        'fecha_distribucion',
+        'fecha_rechazo',
         'estado',
         'contrato_path',
         'document_hash',
@@ -57,7 +60,7 @@ class Contrato extends Model
         'fecha_verificacion'    => 'datetime',
         'fecha_aprobacion'      => 'datetime',
         'fecha_pago'            => 'datetime',
-        'fecha_distribucion'    => 'datetime',
+        'fecha_rechazo'         => 'datetime',
         'document_hash'         => 'string',
         'blockchain_tx'         => 'string',
         'blockchain_at'         => 'datetime',
@@ -74,13 +77,13 @@ class Contrato extends Model
     {
         return $this->morphMany(AuditEvent::class, 'auditable');
     }
-    
+
 
     public function calcularDocumentHash(string $path): string
     {
         return hash_file('sha256', storage_path('app/' . $path));
     }
-       
+
     public function estadoLabel(): string
     {
         return match ($this->estado) {
@@ -92,7 +95,7 @@ class Contrato extends Model
             default                         => 'Desconocido',
         };
     }
-    
+
     public function estadoColor(): string
     {
         return match ($this->estado) {
@@ -126,7 +129,7 @@ class Contrato extends Model
             'document_hash'      => $documentHash,
         ]);
     }
-    
+
     public function registrarVerificacion($funcionarioId, $rol)
     {
         if ($funcionarioId == $this->id_ingreso) {
@@ -156,11 +159,13 @@ class Contrato extends Model
     }
 
 
-    public function registrarDistribucion()
+    public function registrarRechazo($funcionarioId, $rol)
     {
         $this->update([
-            'fecha_distribucion' => now(),
-            'estado' => self::ESTADO_FINALIZADO,
+            'id_rechazo' => $funcionarioId,
+            'rol_rechazo' => $rol,
+            'fecha_rechazo' => now(),
+            'estado' => self::ESTADO_RECHAZADO,
         ]);
     }
 

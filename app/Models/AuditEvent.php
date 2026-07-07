@@ -26,6 +26,7 @@ class AuditEvent extends Model
         'event_at',
         'blockchain_hash',
         'tx_hash',
+        'tx_block',
         'version',
         'event_hash',
         'previous_event_hash',
@@ -41,6 +42,7 @@ class AuditEvent extends Model
         'event_at' => 'datetime',
         'details' => 'array', // Si los detalles se almacenan como JSON
         'version' => 'integer',
+        'tx_block' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -305,11 +307,12 @@ class AuditEvent extends Model
     /**
      * Record blockchain transaction details.
      */
-    public function recordBlockchainTransaction(string $blockchainHash, string $txHash): void
+    public function recordBlockchainTransaction(string $blockchainHash, string $txHash, ?int $txBlock = null): void
     {
         $this->update([
             'blockchain_hash' => $blockchainHash,
-            'tx_hash' => $txHash,
+            'tx_hash'         => $txHash,
+            'tx_block'        => $txBlock,
         ]);
     }
 

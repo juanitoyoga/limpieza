@@ -10,6 +10,13 @@ class Denuncia extends Model
 {
     use HasFactory;
 
+    public const ESTADO_PENDIENTE  = 'pendiente';
+    public const ESTADO_VERIFICADA = 'verificada';
+    public const ESTADO_RECHAZADA  = 'rechazada';
+    public const ESTADO_EXPIRADA   = 'expirada';
+    public const ESTADO_ANULADA   = 'anulada';
+    public const ESTADO_APROBADA = 'aprobada';
+
     protected $fillable = [
         // Relaciones core
         'vecino_id',
@@ -61,6 +68,7 @@ class Denuncia extends Model
         // Blockchain
         'file_hash',
         'tx_hash',
+        'tx_block',
         'blockchain_status',
         'verified_on_chain',
     ];
@@ -76,6 +84,8 @@ class Denuncia extends Model
         'multa_calculada'    => 'decimal:2',
         'latitud'            => 'decimal:7',
         'longitud'           => 'decimal:7',
+        'tx_block'           => 'integer',
+
     ];
 
     // ───────────────────────────────────────────────
@@ -164,6 +174,31 @@ class Denuncia extends Model
     {
         return in_array($this->estado, ['resuelto', 'rechazado']);
     }
+    public function estadoLabel(): string
+    {
+        return match ($this->estado) {
+            self::ESTADO_PENDIENTE  => 'Pendiente',
+            self::ESTADO_VERIFICADA => 'Verificada',
+            self::ESTADO_APROBADA   => 'Aprobada',
+            self::ESTADO_RECHAZADA  => 'Rechazada',
+            self::ESTADO_EXPIRADA   => 'Expirada',
+            self::ESTADO_ANULADA    => 'Anulada',
+            default                 => 'Desconocido',
+        };
+    }
+
+    public function estadoColor(): string
+    {
+        return match ($this->estado) {
+            self::ESTADO_PENDIENTE  => 'bg-gray-500',
+            self::ESTADO_VERIFICADA => 'bg-green-500',
+            self::ESTADO_APROBADA   => 'bg-blue-500',
+            self::ESTADO_RECHAZADA  => 'bg-red-600',
+            self::ESTADO_EXPIRADA   => 'bg-yellow-600',
+            self::ESTADO_ANULADA    => 'bg-red-400',
+            default                 => 'bg-gray-400',
+        };
+    }
 
     // ───────────────────────────────────────────────
     // ACCESSOR: REVISOR
@@ -238,5 +273,14 @@ class Denuncia extends Model
             'rol'    => $info['rol'],
             'fecha'  => $info['fecha'],
         ];
+    }
+
+    public function recordBlockchainTransaction(string $blockchainHash, string $txHash, ?int $txBlock = null): void
+    {
+        $this->update([
+            'blockchain_hash' => $blockchainHash,
+            'tx_hash'         => $txHash,
+            'tx_block'        => $txBlock,
+        ]);
     }
 }

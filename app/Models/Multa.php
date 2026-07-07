@@ -18,7 +18,7 @@ class Multa extends Model
         'denuncia_id',
         'ordenanza332_id',
         'vecino_id',
-        'funcionario_id',
+        'supervisor_id',
         'barrio_id',
 
         // Identificación
@@ -109,14 +109,17 @@ class Multa extends Model
 
     public function funcionario(): BelongsTo
     {
-        return $this->belongsTo(Funcionario::class);
+        return $this->belongsTo(Supervisor::class);
     }
 
     public function barrio(): BelongsTo
     {
         return $this->belongsTo(Barrio::class);
     }
-
+    public function auditEvents()
+    {
+        return $this->morphMany(AuditEvent::class, 'auditable');
+    }
     /*
      * Helpers
      */

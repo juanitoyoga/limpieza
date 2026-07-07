@@ -7,6 +7,7 @@ use App\Models\Contrato;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Storage;
 
 #[Layout('layouts.admin')]
 
@@ -43,9 +44,11 @@ class Create extends Component
         $path = null;
         $hash = null;
 
+
+
         if ($this->archivo) {
             $path = $this->archivo->store('contratos');
-            $hash = hash_file('sha256', storage_path('app/' . $path));
+            $hash = hash_file('sha256', Storage::path($path));
         }
 
         $contrato = Contrato::create([

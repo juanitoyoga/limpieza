@@ -17,7 +17,18 @@ class BarrioController extends Controller
     {
         return view('livewire.admin.barrios.index');
     }
-
+    /**
+     * API — GET /api/barrios
+     * Devuelve JSON para la app móvil
+     */
+    public function apiIndex()
+    {
+        return response()->json(
+            Barrio::activos()
+                ->orderBy('nombre')
+                ->get(['id', 'id_DMQ', 'nombre', 'sector', 'parroquia'])
+        );
+    }
     /**
      * Activar/Desactivar — PATCH /barrios/{barrio}/toggle
      */
