@@ -4,19 +4,27 @@ use Illuminate\Support\Facades\Route;
 
 // DENUNCIAS
 Route::prefix('denuncias')->group(function () {
-    // FORMULARIO DE FILTROS (Blade normal)
     Route::get('/', \App\Livewire\Operacion\Denuncias\Index::class)
         ->name('denuncias.index');
 
-    // LISTA — Livewire tabla paginada con filtros aplicados
     Route::get('/lista', \App\Livewire\Operacion\Denuncias\Lista::class)
         ->name('denuncias.lista');
 
-    // LISTA — Livewire tabla paginada con filtros aplicados
-    Route::get('/denuncias/{id}', \App\Livewire\Operacion\Denuncias\Show::class)
+    Route::get('/{id}', \App\Livewire\Operacion\Denuncias\Show::class)
         ->name('denuncias.show');
 });
 
+// NOTIFICACIONES
+Route::prefix('notificaciones')->group(function () {
+    Route::get('/', \App\Livewire\Operacion\Notificaciones\Index::class)
+        ->name('notificaciones.index');
+
+    Route::get('/lista', \App\Livewire\Operacion\Notificaciones\Lista::class)
+        ->name('notificaciones.lista');
+
+    Route::get('/{id}', \App\Livewire\Operacion\Notificaciones\Show::class)
+        ->name('notificaciones.show');
+});
 // Nominations
 
 Route::prefix('nominations')->group(function () {

@@ -12,6 +12,8 @@ use App\Models\Supervisor;
 use App\Models\Contrato;
 use App\Models\SalarioMinimo;
 use App\Models\Multa;
+
+use App\Events\DenunciaRequiereJustificacion;
 use App\Http\Requests\StoreDenunciaRequest;
 use App\Http\Resources\DenunciaResource;
 use App\Jobs\RegistrarEventoBlockchain;
@@ -411,9 +413,22 @@ class DenunciaController extends Controller
         // 8. Respuesta final — INMEDIATA, no espera blockchain
         // ───────────────────────────────────────────────
 
+        $barrioAtributo = $denuncia->resolverBarrioAtributo();
+
+        if ($barrioAtributo && $barrioAtributo->plazo_horas) {
+            $denuncia->update(['estado' => Denuncia::ESTADO_NOTIFICADA]);
+
+            event(new DenunciaRequiereJustificacion($denuncia, $barrioAtributo));
+
+            $mensaje = "Denuncia creada satisfactoriamente. El contribuyente tiene {$barrioAtributo->plazo_horas} horas para regularizar la situación.";
+        } else {
+            $mensaje = "Denuncia creada satisfactoriamente.";
+        }
+
+
         return response()->json([
             'status'  => 200,
-            'message' => 'Denuncia registrada correctamente. Verificación blockchain en proceso.',
+            'message' => $mensaje,
             'data'    => $denuncia,
         ]);
     }

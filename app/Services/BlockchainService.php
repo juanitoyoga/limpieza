@@ -28,7 +28,9 @@ class BlockchainService
     /**
      * Publica un evento en el smart contract AuditoriaEventos.
      *
-     * @param  int    $tipoEvento    1-9, ver config/blockchain.php
+     * @param  int    $tipoEvento    Código numérico por dominio (ver config/blockchain.php):
+     *                               1-9 Denuncias · 11-19 Multas · 21-29 Contratos ·
+     *                               31-39 Nominaciones · 41-49 Notificaciones
      * @param  int    $referenciaId  ID del registro (denuncia, contrato, etc.)
      * @param  string $dataHash      SHA-256 hex (con o sin prefijo 0x), 64 chars
      *

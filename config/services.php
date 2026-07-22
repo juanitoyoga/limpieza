@@ -38,4 +38,15 @@ return [
     'google_maps' => [
         'key' => env('GOOGLE_MAPS_API_KEY'),
     ],
+    
+    'dev_contact' => [
+        'email' => env('DEV_NOTIFICATION_EMAIL'),
+        'phone' => env('DEV_NOTIFICATION_PHONE'), // formato E.164, ej: +593999123456
+    ],
+
+    'twilio' => [
+        'sid'   => env('TWILIO_SID'),
+        'token' => env('TWILIO_AUTH_TOKEN'),
+        'from'  => env('TWILIO_FROM_NUMBER'),
+    ],
 ];

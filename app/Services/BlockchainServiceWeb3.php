@@ -10,7 +10,7 @@ use Web3p\EthereumTx\Transaction;
 use Dotenv\Dotenv;
 use Exception;
 
-class BlockchainService
+class BlockchainServiceWeb3
 {
     protected Web3 $web3;
     protected Contract $contract;
@@ -29,7 +29,30 @@ class BlockchainService
         // 2. Leer variables (versión mínima)
         $rpcUrl   = $_ENV['SEPOLIA_RPC_URL'];
         $this->privateKey = $_ENV['SEPOLIA_PRIVATE_KEY'];
-        $this->from = $_ENV['SEPOLIA_FROM_ADDRESS'];
+        $this->from = $_ENV['SEPOLIA_FROM_ADDRESS'];        // TODO: DECISIÓN TEMPORAL (jul 2026) — se usa siempre el predio real
+        // con el que se validó esta integración (predio 79806, Itchimbia,
+        // titular CARRILLO SERRANO JUAN ROBERTO), sin importar lat/lng
+        // recibidos. Esto permite probar el flujo completo de notificaciones
+        // sin depender aún de calibrar tolerance/mapExtent para coordenadas
+        // arbitrarias. Reemplazar por la llamada real de abajo (comentada)
+        // cuando se calibre en Septiembre 2026.
+        return [
+            'numero_predio'      => '79806',
+            'clave_catastral'    => '1000405007',
+            'nombre_titular'     => 'CARRILLO SERRANO JUAN ROBERTO',
+            'identificacion'     => '1703644805',
+            'tipo_propietario'   => 'NATURAL',
+            'total_propietarios' => 2,
+            'parroquia'          => 'ITCHIMBIA',
+            'nomenclatura'       => 'N16-37',
+
+            // TODO: correo/celular reales del propietario no existen en el
+            // servicio público de GeoQuito. Se resuelven en EnviarNotificacionJob
+            // con los datos de contacto del desarrollador (ver DEV_NOTIFICATION_*
+            // en .env), no aquí.
+            'correo'  => null,
+            'celular' => null,
+        ];
         $this->chainId = (int) ($_ENV['SEPOLIA_CHAIN_ID'] ?? 11155111);
         $contractAddr = $_ENV['SEPOLIA_CONTRACT_ADDR'];
 

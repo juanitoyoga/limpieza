@@ -14,6 +14,8 @@ use App\Http\Controllers\VecinoController;
 use App\Http\Controllers\BarrioController;
 use App\Http\Controllers\MultaController;
 use App\Http\Controllers\Api\ContravencionController;
+use App\Http\Controllers\NotificacionController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -74,7 +76,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/{denuncia}/aprobar',    [DenunciaController::class, 'aprobar']);     // Supervisor
         Route::patch('/{denuncia}/rechazar',   [DenunciaController::class, 'rechazar']);    // Funcionario o Supervisor
     });
-
+    // 🔔 Notificaciones
+    Route::prefix('notificaciones')->group(function () {
+        Route::get('/',                           [NotificacionController::class, 'index']);
+        Route::get('/{notificacion}',             [NotificacionController::class, 'show']);
+        Route::get('/buscar/{denunciaId}',        [NotificacionController::class, 'buscarPorDenuncia']);
+        Route::post('/{notificacion}/evidencia',  [NotificacionController::class, 'presentarEvidencia']); // cualquier usuario autenticado
+        Route::patch('/{notificacion}/verificar', [NotificacionController::class, 'verificar']);  // Funcionario
+        Route::patch('/{notificacion}/aprobar',   [NotificacionController::class, 'aprobar']);    // Supervisor
+        Route::patch('/{notificacion}/rechazar',  [NotificacionController::class, 'rechazar']);   // Funcionario o Supervisor
+    });
     // 🖼️ Evidencias
     Route::prefix('evidences')->group(function () {
         Route::post('/',                [EvidenceController::class, 'store']);
@@ -85,8 +96,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // 💰 Multas
     Route::prefix('multas')->group(function () {
-        Route::get('/',              [MultaController::class, 'index']);
-        Route::get('/{multa}',       [MultaController::class, 'show']);
+        Route::get('/',               [MultaController::class, 'index']);
+        Route::get('/{multa}',        [MultaController::class, 'show']);
         Route::post('/{multa}/pagar', [MultaController::class, 'pagar']);
     });
 

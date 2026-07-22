@@ -4,6 +4,31 @@ namespace App\Services;
 
 class GeoService
 {
+
+    private const RADIO_TOLERANCIA_METROS = 50; // TODO: confirmar si Denuncia ya usa otro radio
+    private const UMBRAL_MINIMO_APROBACION = 70; // %
+
+    public function calcularPorcentaje(float $lat1, float $lng1, float $lat2, float $lng2): float
+    {
+        $distancia = $this->haversine($lat1, $lng1, $lat2, $lng2);
+        return max(0, 100 * exp(-$distancia / self::RADIO_TOLERANCIA_METROS));
+    }
+
+    public function cumpleUmbral(float $porcentaje): bool
+    {
+        return $porcentaje >= self::UMBRAL_MINIMO_APROBACION;
+    }
+
+    private function haversine(float $lat1, float $lng1, float $lat2, float $lng2): float
+    {
+        $r = 6371000;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+        $a = sin($dLat / 2) ** 2
+            + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return $r * $c;
+    }
     /**
      * Ray Casting: determina si un punto está dentro de un polígono.
      * @param float $lat  Latitud del punto

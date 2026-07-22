@@ -6,6 +6,8 @@ use App\Http\Controllers\BarrioController;
 
 use App\Http\Controllers\VecinoController;
 
+use App\Http\Controllers\BarrioAtributoController;
+
 
 // BARRIOS
 Route::prefix('barrios')->group(function () {
@@ -13,7 +15,7 @@ Route::prefix('barrios')->group(function () {
     // LISTADO
     Route::get('/', [BarrioController::class, 'index'])
         ->name('barrios.index');
- 
+
     // LISTA — Livewire tabla paginada con filtros aplicados
     Route::get('/lista', \App\Livewire\Admin\Barrios\Lista::class)
         ->name('barrios.lista');
@@ -40,6 +42,37 @@ Route::prefix('barrios')->group(function () {
     // ELIMINAR
     Route::delete('/{barrio}', [BarrioController::class, 'destroy'])
         ->name('barrios.destroy');
+});
+// BARRIOS ATRIBUTOS
+Route::prefix('barrio-atributo')->group(function () {
+
+    // LISTADO (formulario de filtros)
+    Route::get('/', [BarrioAtributoController::class, 'index'])
+        ->name('barrio-atributo.index');
+
+    // LISTA — Livewire tabla paginada con filtros aplicados
+    Route::get('/lista', \App\Livewire\Admin\BarriosAtributos\Lista::class)
+        ->name('barrio-atributo.lista');
+
+    // FORMULARIO CREAR
+    Route::get('/create', [BarrioAtributoController::class, 'create'])
+        ->name('barrio-atributo.create');
+
+    // GUARDAR
+    Route::post('/', [BarrioAtributoController::class, 'store'])
+        ->name('barrio-atributo.store');
+
+    // FORMULARIO EDITAR
+    Route::get('/{barrioAtributo}/edit', [BarrioAtributoController::class, 'edit'])
+        ->name('barrio-atributo.edit');
+
+    // FORMULARIO MOSTRAR
+    Route::get('/{barrioAtributo}/show', [BarrioAtributoController::class, 'show'])
+        ->name('barrio-atributo.show');
+
+    // ACTUALIZAR
+    Route::put('/{barrioAtributo}', [BarrioAtributoController::class, 'update'])
+        ->name('barrio-atributo.update');
 });
 
 Route::prefix('vecinos')->group(function () {

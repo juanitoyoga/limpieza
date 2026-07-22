@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Vecinos;
+namespace App\Livewire\Admin\Vecinos;
 
 use App\Models\Barrio;
 use App\Models\Vecino;

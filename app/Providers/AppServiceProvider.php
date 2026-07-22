@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+
 use App\Services\GenerarDocumentoNominacion;
+
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 // --- Agrega estos dos use ---
 use Laravel\Fortify\Contracts\LoginResponse;
@@ -41,8 +44,13 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+
+
     public function boot(): void
     {
-        //
+        Relation::morphMap([
+            'denuncia'     => \App\Models\Denuncia::class,
+            'notificacion' => \App\Models\Notificacion::class,
+        ]);
     }
 }

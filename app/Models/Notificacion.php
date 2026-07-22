@@ -5,40 +5,60 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
-use App\Jobs\RegistrarEventoBlockchain;
-use App\Models\AuditEvent;
-use App\Services\RequiereEvidenciaParaTransicion;
-use App\Models\BarrioAtributo;
 
-
-
-class Denuncia extends Model
+class Notificacion extends Model
 {
-    use HasFactory, RequiereEvidenciaParaTransicion;
+    use HasFactory;
 
-    public const ESTADO_PENDIENTE   = 'Pendiente';
-    public const ESTADO_VERIFICADA  = 'Verificada';
-    public const ESTADO_RECHAZADA   = 'Rechazada';
-    public const ESTADO_EXPIRADA    = 'Expirada';
-    public const ESTADO_ANULADA     = 'Anulada';
-    public const ESTADO_APROBADA    = 'Aprobada';
-    public const ESTADO_NOTIFICADA  = 'Notificada';
-    public const ESTADO_CERRADA     = 'Cerrada';
+    protected $table = 'notificaciones';
+
+    public const ESTADO_PENDIENTE       = 'Pendiente';
+    public const ESTADO_ENVIADA         = 'Enviada';
+    public const ESTADO_VERIFICADA      = 'Verificada';
+    public const ESTADO_APROBADA        = 'Aprobada';
+    public const ESTADO_VENCIDA         = 'Vencida';
+    public const ESTADO_CERRADA         = 'Cerrada';
+    public const ESTADO_RECHAZADA       = 'Rechazada';
+
+    public const MEDIO_SISTEMA   = 'Sistema';
+    public const MEDIO_CORREO    = 'Correo';
+    public const MEDIO_SMS       = 'SMS';
+    public const MEDIO_WHATSAPP  = 'WhatsApp';
 
     protected $fillable = [
-        // Relaciones core
-        'vecino_id',
+        // Relaciones
+        'denuncia_id',
+        'user_id',
         'barrio_id',
         'ordenanza332_id',
+        'barrio_atributo_id',
 
-        // Datos de la denuncia
-        'direccion',
-        'direccion_gps',
-        'descripcion',
-        'fecha_denuncia',
+        // Datos del predio
+        'numero_predio',
+
+        // Datos del contribuyente (snapshot)
+        'contribuyente_nombre',
+        'contribuyente_identificacion',
+        'contribuyente_email',
+        'contribuyente_telefono',
+        'contribuyente_direccion',
+
+        // Estado
         'estado',
-        'multa_calculada',
+        'plazo_horas',
+        'fecha_notificacion',
+        'fecha_vencimiento',
+        'leida_at',
+        'cerrada_at',
+
+        // Envío
+        'medio',
+        'enviada_at',
+        'codigo_envio',
+        'error_envio',
+
+        // Observaciones
+        'observacion',
 
         // Evidencia
         'evidencia_path',
@@ -83,6 +103,12 @@ class Denuncia extends Model
     ];
 
     protected $casts = [
+        'fecha_notificacion' => 'datetime',
+        'fecha_vencimiento'  => 'datetime',
+        'leida_at'           => 'datetime',
+        'cerrada_at'         => 'datetime',
+        'enviada_at'         => 'datetime',
+        'plazo_horas'        => 'integer',
         'synced'             => 'boolean',
         'verified_on_chain'  => 'boolean',
         'fecha_denuncia'     => 'datetime',
@@ -90,20 +116,20 @@ class Denuncia extends Model
         'verificado_at'      => 'datetime',
         'aprobado_at'        => 'datetime',
         'rechazado_at'       => 'datetime',
-        'multa_calculada'    => 'decimal:2',
         'latitud'            => 'decimal:7',
         'longitud'           => 'decimal:7',
         'tx_block'           => 'integer',
 
     ];
 
-    // ───────────────────────────────────────────────
-    // RELACIONES BASE
-    // ───────────────────────────────────────────────
-
-    public function vecino(): BelongsTo
+    public function denuncia(): BelongsTo
     {
-        return $this->belongsTo(Vecino::class);
+        return $this->belongsTo(Denuncia::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function barrio(): BelongsTo
@@ -116,25 +142,14 @@ class Denuncia extends Model
         return $this->belongsTo(Ordenanza332::class);
     }
 
+    public function barrioAtributo(): BelongsTo
+    {
+        return $this->belongsTo(BarrioAtributo::class);
+    }
     // ───────────────────────────────────────────────
     // RELACIONES PARA REVISIÓN SEGÚN ROL Y ESTADO
     // ───────────────────────────────────────────────
 
-    // DIRIGENTE
-    public function verificadoPorDirigente(): BelongsTo
-    {
-        return $this->belongsTo(Dirigente::class, 'verificado_por_id');
-    }
-
-    public function aprobadoPorDirigente(): BelongsTo
-    {
-        return $this->belongsTo(Dirigente::class, 'aprobado_por_id');
-    }
-
-    public function rechazadoPorDirigente(): BelongsTo
-    {
-        return $this->belongsTo(Dirigente::class, 'rechazado_por_id');
-    }
 
     // FUNCIONARIO
     public function verificadoPorFuncionario(): BelongsTo
@@ -181,36 +196,64 @@ class Denuncia extends Model
 
     public function estaResuelta(): bool
     {
-        return in_array($this->estado, ['resuelto', 'rechazado']);
+        return in_array($this->estado, ['Resuelta', 'Rechazada', 'Cerrada']);
     }
+
+    // ───────────────────────────────────────────────
+    // HELPERS: ESTADO
+    // ───────────────────────────────────────────────
 
     public function estadoLabel(): string
     {
         return match ($this->estado) {
-            self::ESTADO_PENDIENTE   => 'Pendiente',
-            self::ESTADO_VERIFICADA  => 'Verificada',
-            self::ESTADO_APROBADA    => 'Aprobada',
-            self::ESTADO_RECHAZADA   => 'Rechazada',
-            self::ESTADO_EXPIRADA    => 'Expirada',
-            self::ESTADO_ANULADA     => 'Anulada',
-            self::ESTADO_NOTIFICADA  => 'Notificada',
-            self::ESTADO_CERRADA     => 'Cerrada',
-            default                  => 'Desconocido',
+            self::ESTADO_PENDIENTE       => 'Pendiente',
+            self::ESTADO_VERIFICADA      => 'Verificada',
+            self::ESTADO_APROBADA        => 'Aprobada',
+            self::ESTADO_VENCIDA         => 'Vencida',
+            self::ESTADO_CERRADA         => 'Cerrada',
+            self::ESTADO_ENVIADA         => 'Enviada',
+            self::ESTADO_RECHAZADA       => 'Rechazada',
+            default                      => 'Desconocido',
         };
     }
 
     public function estadoColor(): string
     {
         return match ($this->estado) {
-            self::ESTADO_PENDIENTE   => 'bg-gray-500',
-            self::ESTADO_VERIFICADA  => 'bg-green-500',
-            self::ESTADO_APROBADA    => 'bg-blue-500',
-            self::ESTADO_RECHAZADA   => 'bg-red-600',
-            self::ESTADO_EXPIRADA    => 'bg-yellow-600',
-            self::ESTADO_ANULADA     => 'bg-red-400',
-            self::ESTADO_NOTIFICADA  => 'bg-purple-500',
-            self::ESTADO_CERRADA     => 'bg-slate-700',
-            default                  => 'bg-gray-400',
+            self::ESTADO_PENDIENTE       => 'bg-gray-500',
+            self::ESTADO_VERIFICADA      => 'bg-blue-500',
+            self::ESTADO_APROBADA        => 'bg-green-500',
+            self::ESTADO_VENCIDA         => 'bg-yellow-600',
+            self::ESTADO_CERRADA         => 'bg-slate-700',
+            self::ESTADO_ENVIADA         => 'bg-green-500',
+            self::ESTADO_RECHAZADA       => 'bg-red-500',
+            default                      => 'bg-gray-400',
+        };
+    }
+
+    // ───────────────────────────────────────────────
+    // HELPERS: MEDIO
+    // ───────────────────────────────────────────────
+
+    public function medioLabel(): string
+    {
+        return match ($this->medio) {
+            self::MEDIO_SISTEMA  => 'Sistema',
+            self::MEDIO_CORREO   => 'Correo',
+            self::MEDIO_SMS      => 'SMS',
+            self::MEDIO_WHATSAPP => 'WhatsApp',
+            default              => 'Desconocido',
+        };
+    }
+
+    public function medioIcon(): string
+    {
+        return match ($this->medio) {
+            self::MEDIO_SISTEMA  => 'notifications',
+            self::MEDIO_CORREO   => 'mail',
+            self::MEDIO_SMS      => 'sms',
+            self::MEDIO_WHATSAPP => 'whatsapp',
+            default              => 'help_outline',
         };
     }
 
@@ -221,11 +264,7 @@ class Denuncia extends Model
     public function getRevisorAttribute(): array
     {
         $roles = [
-            'Dirigente'   => [
-                'Verificado' => 'verificadoPorDirigente',
-                'Aprobado'   => 'aprobadoPorDirigente',
-                'Rechazado'  => 'rechazadoPorDirigente',
-            ],
+
             'Funcionario' => [
                 'Verificado' => 'verificadoPorFuncionario',
                 'Aprobado'   => 'aprobadoPorFuncionario',
@@ -296,69 +335,5 @@ class Denuncia extends Model
             'tx_hash'         => $txHash,
             'tx_block'        => $txBlock,
         ]);
-    }
-
-    // ───────────────────────────────────────────────EVIDENCIAS MAS DE UNA FOTO O VIDEO
-    public function evidencias(): MorphMany
-    {
-        return $this->morphMany(Evidencia::class, 'evidenciable')->orderBy('orden');
-    }
-
-    protected function relacionEvidencias(): MorphMany
-    {
-        return $this->evidencias();
-    }
-
-    protected function estadosQueRequierenEvidencia(): array
-    {
-        return [self::ESTADO_VERIFICADA, self::ESTADO_APROBADA];
-    }
-
-    public function transicionarEstado(string $nuevoEstado): void
-    {
-        $this->validarEvidenciaPara($nuevoEstado);
-
-        $anterior = $this->estado;
-        $this->update(['estado' => $nuevoEstado]);
-
-        $eventType = "denuncia." . strtolower($nuevoEstado);
-        if (!config("blockchain.tipo_evento_map.{$eventType}")) return;
-
-        $payload = [
-            'id' => $this->id,
-            'estado' => $nuevoEstado,
-            'estado_anterior' => $anterior,
-            'timestamp' => now()->toIso8601String(),
-        ];
-        if ($hash = $this->hashEvidenciaSiAplica($nuevoEstado)) {
-            $payload['hash_evidencia'] = $hash;
-        }
-
-        $auditEvent = AuditEvent::create([
-            'auditable_type' => 'denuncia', // vía morphMap
-            'auditable_id'   => $this->id,
-            'event_type'     => $eventType,
-            'event_hash'     => hash('sha256', json_encode($payload)),
-        ]);
-
-        RegistrarEventoBlockchain::dispatch($auditEvent->id);
-    }
-
-
-
-    // ───────────────────────────────────────────────
-    // RESOLUCIÓN DE BARRIO_ATRIBUTO (justificación)
-    // ───────────────────────────────────────────────
-
-    public function resolverBarrioAtributo(): ?BarrioAtributo
-    {
-        if (!$this->barrio_id || !$this->ordenanza332_id) {
-            return null;
-        }
-
-        return BarrioAtributo::query()
-            ->where('barrio_id', $this->barrio_id)
-            ->where('ordenanza332_id', $this->ordenanza332_id)
-            ->first();
     }
 }
