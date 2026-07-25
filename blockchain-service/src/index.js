@@ -94,7 +94,7 @@ function toBytes32(hexString) {
 }
 
 function validarTipoEvento(tipo) {
-  return Number.isInteger(tipo) && tipo >= 1 && tipo <= 9;
+  return Number.isInteger(tipo) && tipo >= 1 && tipo <= 255;
 }
 
 // ─── Lógica de negocio ────────────────────────────────────────────────────────
@@ -214,7 +214,7 @@ app.post('/registrar', async (req, res) => {
 
     // Validaciones
     if (!validarTipoEvento(tipoEvento)) {
-      return res.status(400).json({ error: 'tipoEvento debe ser entero entre 1 y 9' });
+      return res.status(400).json({ error: 'tipoEvento debe ser un entero entre 1 y 255' });
     }
     if (!Number.isInteger(referenciaId) || referenciaId <= 0) {
       return res.status(400).json({ error: 'referenciaId debe ser entero positivo' });
