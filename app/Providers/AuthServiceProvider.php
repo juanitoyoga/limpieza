@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use App\Models\{Nomination, User};
+use App\Models\{Nomination, User, Resolucion};
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -55,7 +55,98 @@ class AuthServiceProvider extends ServiceProvider
             fn($user) =>
             $user->role_name !== 'user'
         );
+        /*
+|--------------------------------------------------------------------------
+| Resoluciones
+|--------------------------------------------------------------------------
+*/
+        // Crear resolución
+        Gate::define('resoluciones.create', function (User $user) {
+            return in_array($user->role_name, [
 
+                'Dirigente',
+                'User',
+                'Presidente',
+                'Vecino',
+            ]);
+        });
+
+        // Editar resolución (solo mientras esté pendiente)
+        Gate::define('resoluciones.edit', function (User $user, Resolucion $resolucion) {
+            return in_array($user->role_name, [
+                'Dirigente',
+                'User',
+                'Presidente',
+                'Vecino',
+            ])
+                && $resolucion->auth_status === Resolucion::ESTADO_PENDIENTE;
+        });
+
+        // Verificar resolución: debe ser el Dirigente activo de ESE barrio
+        Gate::define('resoluciones.verificar', function (User $user, Resolucion $resolucion) {
+            if ($user->role_name === 'SuperAdmin') {
+                return true;
+            }
+
+            if ($user->role_name !== 'Dirigente') {
+                return false;
+            }
+
+            return \App\Models\Dirigente::where('user_id', $user->id)
+                ->where('barrio_id', $resolucion->barrio_id)
+                ->where('is_active', true)
+                ->exists();
+        });
+
+        // Aprobar resolución: debe ser el Presidente activo de ESE barrio
+        Gate::define('resoluciones.aprobar', function (User $user, Resolucion $resolucion) {
+            if ($user->role_name === 'SuperAdmin') {
+                return true;
+            }
+
+            if ($user->role_name !== 'Presidente') {
+                return false;
+            }
+
+            return \App\Models\Presidente::where('user_id', $user->id)
+                ->where('barrio_id', $resolucion->barrio_id)
+                ->where('is_active', true)
+                ->exists();
+        });
+
+        // Rechazar resolución: el Dirigente o Presidente de ese barrio, según la etapa
+        Gate::define('resoluciones.rechazar', function (User $user, Resolucion $resolucion) {
+            if ($user->role_name === 'SuperAdmin') {
+                return true;
+            }
+
+            if ($user->role_name === 'Dirigente') {
+                return \App\Models\Dirigente::where('user_id', $user->id)
+                    ->where('barrio_id', $resolucion->barrio_id)
+                    ->where('is_active', true)
+                    ->exists();
+            }
+
+            if ($user->role_name === 'Presidente') {
+                return \App\Models\Presidente::where('user_id', $user->id)
+                    ->where('barrio_id', $resolucion->barrio_id)
+                    ->where('is_active', true)
+                    ->exists();
+            }
+
+            return false;
+        });
+
+        // Ver cualquier resolución
+        Gate::define('resoluciones.view', function (User $user) {
+            return in_array($user->role_name, [
+                'SuperAdmin',
+                'Funcionario',
+                'Supervisor',
+                'Dirigente',
+                'Presidente',
+            ]);
+        });
         /*
         |--------------------------------------------------------------------------
         | Nominations

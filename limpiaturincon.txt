@@ -1,0 +1,1265 @@
+.
+├── app
+│   ├── Actions
+│   │   ├── Fortify
+│   │   │   ├── CreateNewUser.php
+│   │   │   ├── PasswordValidationRules.php
+│   │   │   ├── ResetUserPassword.php
+│   │   │   ├── UpdateUserPassword.php
+│   │   │   └── UpdateUserProfileInformation.php
+│   │   ├── Jetstream
+│   │   │   └── DeleteUser.php
+│   │   └── SyncCatalogoAction.php
+│   ├── Console
+│   │   └── Commands
+│   │       ├── CheckUtf8Command.php
+│   │       └── VencerNotificacionesExpiradas.php
+│   ├── Contracts
+│   │   └── PredioServiceInterface.php
+│   ├── DTOs
+│   │   ├── ContribuyenteData.php
+│   │   └── PredioData.php
+│   ├── Enums
+│   │   └── NominationEstado.php
+│   ├── Events
+│   │   ├── ContratoDocumentoGenerado.php
+│   │   └── DenunciaRequiereJustificacion.php
+│   ├── Exceptions
+│   │   ├── DatabaseAuthException.php
+│   │   ├── DatabaseConnectionException.php
+│   │   ├── DatabaseException.php
+│   │   ├── MenuNotFoundException.php
+│   │   ├── MenuQueryException.php
+│   │   ├── MenuServiceException.php
+│   │   └── PredioNoResueltoException.php
+│   ├── Filters
+│   │   └── ContratoFilter.php
+│   ├── Http
+│   │   ├── Controllers
+│   │   │   ├── Api
+│   │   │   │   └── ContravencionController.php
+│   │   │   ├── Auth
+│   │   │   │   ├── AuthenticatedSessionController.php
+│   │   │   │   ├── ConfirmablePasswordController.php
+│   │   │   │   ├── EmailVerificationNotificationController.php
+│   │   │   │   ├── EmailVerificationPromptController.php
+│   │   │   │   ├── NewPasswordController.php
+│   │   │   │   ├── PasswordController.php
+│   │   │   │   ├── PasswordResetLinkController.php
+│   │   │   │   ├── RegisteredUserController.php
+│   │   │   │   └── VerifyEmailController.php
+│   │   │   ├── AuthController.php
+│   │   │   ├── BarrioAtributoController.php
+│   │   │   ├── BarrioController.php
+│   │   │   ├── CatalogoController.php
+│   │   │   ├── ConsultaController.php
+│   │   │   ├── Controller.php
+│   │   │   ├── DenunciaController.php
+│   │   │   ├── DepartamentoController.php
+│   │   │   ├── EvidenceController.php
+│   │   │   ├── EvidenciaController.php
+│   │   │   ├── MetricaController.php
+│   │   │   ├── MultaController.php
+│   │   │   ├── NotificacionController.php
+│   │   │   ├── VecinoController.php
+│   │   │   └── Web3Controller.php
+│   │   ├── Requests
+│   │   │   ├── Api
+│   │   │   │   └── StoreVecinoRequest.php
+│   │   │   ├── Auth
+│   │   │   │   └── LoginRequest.php
+│   │   │   ├── StoreDenunciaRequest.php
+│   │   │   ├── StoreEvidenceRequest.php
+│   │   │   ├── StoreNotificacionEvidenciaRequest.php
+│   │   │   └── UpdateNotificacionRequest.php
+│   │   ├── Resources
+│   │   │   ├── BarrioResource.php
+│   │   │   ├── DenunciaResource.php
+│   │   │   ├── DirigenteResource.php
+│   │   │   ├── MultaResource.php
+│   │   │   ├── NotificacionResource.php
+│   │   │   ├── Ordenanza332Resource.php
+│   │   │   └── VecinoResource.php
+│   │   └── Responses
+│   │       └── LoginResponse.php
+│   ├── Jobs
+│   │   ├── EnviarNotificacionJob.php
+│   │   └── RegistrarEventoBlockchain.php
+│   ├── Listeners
+│   │   ├── GenerarNotificacionJustificacion.php
+│   │   └── PrepararContratoParaBlockchain.php
+│   ├── Livewire
+│   │   ├── Actions
+│   │   │   └── Logout.php
+│   │   ├── Admin
+│   │   │   ├── AsideMenu.php
+│   │   │   ├── Barrios
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Lista.php
+│   │   │   │   └── Show.php
+│   │   │   ├── BarriosAtributos
+│   │   │   │   ├── Create.php
+│   │   │   │   └── Lista.php
+│   │   │   ├── Contratos
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Lista.php
+│   │   │   │   └── Show.php
+│   │   │   ├── Home.php
+│   │   │   ├── Ordenanzas
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Index.php
+│   │   │   │   └── Show.php
+│   │   │   ├── Porcentajes
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Index.php
+│   │   │   │   └── Show.php
+│   │   │   ├── Salarios
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Index.php
+│   │   │   │   └── Show.php
+│   │   │   ├── Userroles
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Index.php
+│   │   │   │   └── Show.php
+│   │   │   └── Vecinos
+│   │   │       ├── Create.php
+│   │   │       ├── Edit.php
+│   │   │       ├── Index.php
+│   │   │       ├── Lista.php
+│   │   │       ├── Registro.php
+│   │   │       └── Show.php
+│   │   ├── Auth
+│   │   │   ├── Login.php
+│   │   │   └── Register.php
+│   │   ├── Dashboard
+│   │   │   └── Home.php
+│   │   ├── Dondepone.php
+│   │   ├── Forms
+│   │   │   └── LoginForm.php
+│   │   ├── Operacion
+│   │   │   ├── Approvals
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Show.php
+│   │   │   │   ├── Store.php
+│   │   │   │   └── Update.php
+│   │   │   ├── AsideMenu.php
+│   │   │   ├── Asignments
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Show.php
+│   │   │   │   └── Update.php
+│   │   │   ├── Assignments
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Show.php
+│   │   │   │   ├── Store.php
+│   │   │   │   └── Update.php
+│   │   │   ├── AuditEvents
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Show.php
+│   │   │   │   ├── Store.php
+│   │   │   │   └── Update.php
+│   │   │   ├── Denuncias
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Lista.php
+│   │   │   │   └── Show.php
+│   │   │   ├── Home.php
+│   │   │   ├── Nominations
+│   │   │   │   ├── Anular.php
+│   │   │   │   ├── Aprobar.php
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Imprimir.php
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Rechazar.php
+│   │   │   │   ├── Search.php
+│   │   │   │   ├── Show.php
+│   │   │   │   ├── Store.php
+│   │   │   │   └── Verificar.php
+│   │   │   ├── Notificaciones
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── Lista.php
+│   │   │   │   └── Show.php
+│   │   │   ├── Simple.php
+│   │   │   └── Verifications
+│   │   │       ├── Create.php
+│   │   │       ├── Index.php
+│   │   │       ├── Show.php
+│   │   │       ├── Store.php
+│   │   │       └── Update.php
+│   │   └── Public
+│   │       ├── Header.php
+│   │       ├── Izquierdo.php
+│   │       ├── Notifications
+│   │       │   ├── Index.php
+│   │       │   ├── Open.php
+│   │       │   ├── Show.php
+│   │       │   └── Update.php
+│   │       └── Welcome.php
+│   ├── Mail
+│   │   ├── NotificacionMail.php
+│   │   └── WelcomeUserMail.php
+│   ├── Models
+│   │   ├── Approval.php
+│   │   ├── Assignment.php
+│   │   ├── AuditEvent.php
+│   │   ├── Auditor.php
+│   │   ├── BarrioAtributo.php
+│   │   ├── Barrio.php
+│   │   ├── CacheLock.php
+│   │   ├── Cache.php
+│   │   ├── Catalogo.php
+│   │   ├── CatalogoVecino.php
+│   │   ├── ContainerMedia.php
+│   │   ├── ContainerNews.php
+│   │   ├── Container.php
+│   │   ├── Contrato.php
+│   │   ├── Denuncia.php
+│   │   ├── Departamento.php
+│   │   ├── Dirigente.php
+│   │   ├── Evidence.php
+│   │   ├── Evidencia.php
+│   │   ├── Funcionario.php
+│   │   ├── JobBatch.php
+│   │   ├── Job.php
+│   │   ├── MenuItem.php
+│   │   ├── MetadataVecino.php
+│   │   ├── ModelHasPermission.php
+│   │   ├── ModelHasRole.php
+│   │   ├── Multa.php
+│   │   ├── Nomination.php
+│   │   ├── Notificacion.php
+│   │   ├── Notification.php
+│   │   ├── Ordenanza332.php
+│   │   ├── Permission.php
+│   │   ├── PorcentajeMultas.php
+│   │   ├── Presidente.php
+│   │   ├── RoleHasPermission.php
+│   │   ├── Role.php
+│   │   ├── SalarioMinimo.php
+│   │   ├── Session.php
+│   │   ├── Supervisor.php
+│   │   ├── User.php
+│   │   ├── Userrole.php
+│   │   ├── Vecino.php
+│   │   └── Verification.php
+│   ├── Policies
+│   │   ├── ContratoPolicy.php
+│   │   └── NotificacionPolicy.php
+│   ├── Providers
+│   │   ├── AppServiceProvider.php
+│   │   ├── AuthServiceProvider.php
+│   │   ├── FortifyServiceProvider.php
+│   │   ├── JetstreamServiceProvider.php
+│   │   ├── ServidorEventos.php
+│   │   ├── TelescopeServiceProvider.php
+│   │   └── VoltServiceProvider.php
+│   ├── Rules
+│   │   └── CedulaEcuador.php
+│   ├── Services
+│   │   ├── BlockchainService.php
+│   │   ├── BlockchainServiceWeb3.php
+│   │   ├── CombinadorHashEvidencias.php
+│   │   ├── Contracts
+│   │   │   └── RoleMenuServiceInterface.php
+│   │   ├── DmqPredioService.php
+│   │   ├── GenerarDocumentoContrato.php
+│   │   ├── GenerarDocumentoNominacion.php
+│   │   ├── GenerarDocumentoVecino.php
+│   │   ├── GenerarDocumentoVerificacion.php
+│   │   ├── GeoService.php
+│   │   ├── MenuItemService.php
+│   │   ├── MenuService.php
+│   │   ├── QrCodeService.php
+│   │   ├── RequiereEvidenciaParaTransicion.php
+│   │   └── RoleMenuService.php
+│   └── View
+│       └── Components
+│           ├── AppLayout.php
+│           └── GuestLayout.php
+├── artisan
+├── blockchain
+│   ├── cache
+│   │   ├── build-info
+│   │   ├── compile-cache.json
+│   │   ├── solidity-files-cache.json
+│   │   └── test-artifacts
+│   │       ├── build-info
+│   │       │   ├── solc-0_8_28-0093c652ae45a119a272b9e4d188227124584146.json
+│   │       │   └── solc-0_8_28-0093c652ae45a119a272b9e4d188227124584146.output.json
+│   │       └── contracts
+│   │           └── Counter.t.sol
+│   │               └── CounterTest.json
+│   ├── contracts
+│   │   ├── AuditoriaEventos.sol
+│   │   ├── ContratoDistribucion.sol
+│   │   ├── MultaMunicipal.sol
+│   │   └── Registrodocumentos.sol
+│   ├── hardhat.config.ts
+│   ├── ignition
+│   │   └── modules
+│   │       └── Counter.ts
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── README.md
+│   ├── scripts
+│   │   ├── deploy-and-sync.ts
+│   │   ├── deploy.js
+│   │   ├── deploy.ts
+│   │   └── send-op-tx.ts
+│   ├── test
+│   │   └── Counter.ts
+│   ├── tsconfig.json
+│   ├── typechain-types
+│   │   ├── AuditoriaEventos.ts
+│   │   ├── common.ts
+│   │   ├── ContratoDistribucion.ts
+│   │   ├── factories
+│   │   │   ├── AuditoriaEventos__factory.ts
+│   │   │   ├── ContratoDistribucion__factory.ts
+│   │   │   ├── index.ts
+│   │   │   ├── MultaMunicipal__factory.ts
+│   │   │   └── Registrodocumentos.sol
+│   │   │       ├── index.ts
+│   │   │       └── RegistroDocumentos__factory.ts
+│   │   ├── hardhat.d.ts
+│   │   ├── index.ts
+│   │   ├── MultaMunicipal.ts
+│   │   └── Registrodocumentos.sol
+│   │       ├── index.ts
+│   │       └── RegistroDocumentos.ts
+│   └── types
+│       └── ethers-contracts
+│           ├── common.ts
+│           ├── ContratoDistribucion.ts
+│           ├── Counter.ts
+│           ├── factories
+│           │   ├── ContratoDistribucion__factory.ts
+│           │   ├── Counter__factory.ts
+│           │   ├── index.ts
+│           │   └── MultaMunicipal__factory.ts
+│           ├── hardhat.d.ts
+│           ├── index.ts
+│           └── MultaMunicipal.ts
+├── blockchain-service
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── package-lock.json
+│   └── src
+│       └── index.js
+├── bootstrap
+│   ├── app.php
+│   ├── cache
+│   │   ├── packages.php
+│   │   └── services.php
+│   └── providers.php
+├── composer.json
+├── composer.lock
+├── composer-setup.php
+├── config
+│   ├── app.php
+│   ├── auth.php
+│   ├── blockchain.php
+│   ├── cache.php
+│   ├── database.php
+│   ├── filesystems.php
+│   ├── fortify.php
+│   ├── jetstream.php
+│   ├── logging.php
+│   ├── mail.php
+│   ├── nominations.php
+│   ├── permission.php
+│   ├── queue.php
+│   ├── sanctum.php
+│   ├── services.php
+│   ├── session.php
+│   └── telescope.php
+├── database
+│   ├── factories
+│   │   ├── BarrioAtributoFactory.php
+│   │   ├── ContratoFactory.php
+│   │   ├── DepartamentoFactory.php
+│   │   ├── EvidenceFactory.php
+│   │   ├── EvidenciaFactory.php
+│   │   ├── MultaFactory.php
+│   │   ├── NotificacionFactory.php
+│   │   └── UserFactory.php
+│   ├── migrations
+│   │   ├── 0001_01_01_000000_create_users_table.php
+│   │   ├── 0001_01_01_000001_create_cache_table.php
+│   │   ├── 0001_01_01_000002_create_jobs_table.php
+│   │   ├── 2024_10_13_215057_create_roles_table.php
+│   │   ├── 2024_11_08_001938_create_user_roles_table.php
+│   │   ├── 2025_04_08_212130_create_barrios_table.php
+│   │   ├── 2025_04_08_212445_create_metadatavecino_table.php
+│   │   ├── 2025_11_08_201006_create_salariominimo_table.php
+│   │   ├── 2025_11_09_000052_create_dirigentes_table.php
+│   │   ├── 2025_11_09_000107_create_presidentes_table.php
+│   │   ├── 2025_11_09_000125_create_funcionarios_table.php
+│   │   ├── 2025_11_09_000141_create_supervisores_table.php
+│   │   ├── 2025_11_09_000201_create_auditores_table.php
+│   │   ├── 2025_11_09_200101_create_ordenanza332_table.php
+│   │   ├── 2025_11_09_200952_create_porcentajemultas_table.php
+│   │   ├── 2025_11_11_211619_create_menu_items_table.php
+│   │   ├── 2025_11_11_211619_menu_items.php
+│   │   ├── 2025_11_20_121215_create_container_table.php
+│   │   ├── 2025_11_20_121249_create_container_news_table.php
+│   │   ├── 2025_11_20_121301_create_container_media_table.php
+│   │   ├── 2025_11_28_131613_verifications.php
+│   │   ├── 2025_11_28_132734_approvals.php
+│   │   ├── 2025_11_28_133311_assigments.php
+│   │   ├── 2025_11_28_141056_audit_events.php
+│   │   ├── 2025_12_01_215442_add_two_factor_columns_to_users_table.php
+│   │   ├── 2025_12_01_215526_create_personal_access_tokens_table.php
+│   │   ├── 2025_12_03_100545_create_telescope_entries_table.php
+│   │   ├── 2025_12_03_232823_create_notifications_table.php
+│   │   ├── 2025_12_11_205936_create_notifications_table.php
+│   │   ├── 2026_04_27_094916_add_polygon_barrios_table.php
+│   │   ├── 2026_04_27_180819_create_vecinos_table.php
+│   │   ├── 2026_05_04_232659_create_evidence_table.php
+│   │   ├── 2026_05_17_162328_cambio_vecinos_table.php
+│   │   ├── 2026_06_15_020114_create_denuncia_table.php
+│   │   └── 2026_07_18_064607_create_evidencia_table.php
+│   └── seeders
+│       ├── ContratoSeeder.php
+│       ├── DatabaseSeeder.php
+│       ├── DenunciaSeeder.php
+│       ├── DirigenteSeeder.php
+│       ├── FuncionarioSeeder.php
+│       ├── NominationSeeder.php
+│       ├── NotificacionSeeder.php
+│       ├── PorcentajeMultasSeeder.php
+│       ├── PresidenteSeeder.php
+│       ├── SupervisorSeeder.php
+│       ├── UserSeeder.php
+│       └── VecinoSeeder.php
+├── limpiaturincon.txt
+├── package.json
+├── package-lock.json
+├── phpunit.xml
+├── postcss.config.js
+├── public
+│   ├── build
+│   │   ├── assets
+│   │   │   ├── app-BbzB21r_.js
+│   │   │   └── app-qHmFx5us.css
+│   │   └── manifest.json
+│   ├── css
+│   │   ├── animate.css
+│   │   ├── app.css
+│   │   ├── bootstrap.css
+│   │   ├── bootstrap.min.css
+│   │   ├── datatables.css
+│   │   ├── demo.css
+│   │   ├── fonts.css
+│   │   ├── jquery.countdown.css
+│   │   ├── jquery.selectbox.css
+│   │   ├── main.css
+│   │   ├── prettyPhoto.css
+│   │   ├── responsive.css
+│   │   ├── revslider1.css
+│   │   ├── revslider2.css
+│   │   ├── revslider3.css
+│   │   ├── revslider4.css
+│   │   ├── revslider5.css
+│   │   ├── revslider6.css
+│   │   ├── revslider-section.css
+│   │   ├── sky-forms-blue.css
+│   │   ├── sky-forms.css
+│   │   ├── sky-forms-green.css
+│   │   ├── style.css
+│   │   └── table.css
+│   ├── favicon.ico
+│   ├── images
+│   │   ├── 404bg.jpg
+│   │   ├── 404-contentbg@2x.png
+│   │   ├── 404-contentbg.png
+│   │   ├── about-bgbanner.jpg
+│   │   ├── about-bgbanner-light.jpg
+│   │   ├── about-img2.jpg
+│   │   ├── about-img.jpg
+│   │   ├── background1.jpg
+│   │   ├── background2.jpg
+│   │   ├── background3.jpg
+│   │   ├── background4.jpg
+│   │   ├── banners
+│   │   │   ├── allabout.jpg
+│   │   │   ├── b1.jpg
+│   │   │   ├── b2.jpg
+│   │   │   ├── b3.jpg
+│   │   │   ├── b4.jpg
+│   │   │   ├── b5.jpg
+│   │   │   ├── b6.jpg
+│   │   │   ├── b7.jpg
+│   │   │   ├── banner.jpg
+│   │   │   ├── banner-sm2.jpg
+│   │   │   ├── banner-sm.jpg
+│   │   │   ├── bg1.jpg
+│   │   │   ├── bg2.jpg
+│   │   │   ├── bg3.jpg
+│   │   │   ├── bg4.jpg
+│   │   │   ├── facebook.jpg
+│   │   │   ├── kids.jpg
+│   │   │   ├── megamenu-banner2.jpg
+│   │   │   ├── megamenu-banner.jpg
+│   │   │   ├── men.jpg
+│   │   │   ├── newsletter.jpg
+│   │   │   ├── pinterest.jpg
+│   │   │   ├── sale.jpg
+│   │   │   ├── testimonial.jpg
+│   │   │   ├── twitter.jpg
+│   │   │   └── women.jpg
+│   │   ├── bg-blue_1.jpg
+│   │   ├── blog
+│   │   │   ├── author.jpg
+│   │   │   ├── post1.jpg
+│   │   │   ├── post2.jpg
+│   │   │   ├── post3.jpg
+│   │   │   ├── post4.jpg
+│   │   │   └── post5.jpg
+│   │   ├── boy1.png
+│   │   ├── boy2.png
+│   │   ├── boy3.png
+│   │   ├── boy4.png
+│   │   ├── brands
+│   │   │   └── brand.jpg
+│   │   ├── bx_loader.gif
+│   │   ├── comingsoonbg2.jpg
+│   │   ├── comingsoonbg.jpg
+│   │   ├── comingsoon-logo@2x.png
+│   │   ├── comingsoon-logo.png
+│   │   ├── down.png
+│   │   ├── facebook
+│   │   │   ├── anna.jpg
+│   │   │   ├── antuan.jpg
+│   │   │   ├── justine.jpg
+│   │   │   ├── maria2.jpg
+│   │   │   ├── maria.jpg
+│   │   │   ├── milla.jpg
+│   │   │   ├── tom2.jpg
+│   │   │   └── tom.jpg
+│   │   ├── flags
+│   │   │   ├── england.jpg
+│   │   │   ├── france.jpg
+│   │   │   ├── germany.jpg
+│   │   │   ├── italy.jpg
+│   │   │   └── spain.jpg
+│   │   ├── footerbg.jpg
+│   │   ├── funfactsbg-index6.jpg
+│   │   ├── funfactsbg-index7.jpg
+│   │   ├── funfactsbg.jpg
+│   │   ├── funfactsbg-light.jpg
+│   │   ├── grid.png
+│   │   ├── homebg-section.jpg
+│   │   ├── homesliders
+│   │   │   ├── index
+│   │   │   │   ├── slide1.jpg
+│   │   │   │   └── slide2.jpg
+│   │   │   ├── index2
+│   │   │   │   ├── 1920x1080semilla.png
+│   │   │   │   ├── figura2.jpg
+│   │   │   │   ├── figura3.jpg
+│   │   │   │   ├── slide1.jpg
+│   │   │   │   ├── slide2.jpg
+│   │   │   │   └── slide3.jpg
+│   │   │   ├── index3
+│   │   │   │   ├── slide1.jpg
+│   │   │   │   ├── slide2.jpg
+│   │   │   │   └── slide3.jpg
+│   │   │   ├── index3-arrivals
+│   │   │   │   ├── item1.png
+│   │   │   │   ├── item2.png
+│   │   │   │   ├── item3.png
+│   │   │   │   └── item4.png
+│   │   │   ├── index4
+│   │   │   │   ├── item1.png
+│   │   │   │   ├── item2.png
+│   │   │   │   ├── price-left@2x.png
+│   │   │   │   ├── price-left.png
+│   │   │   │   ├── slide1.png
+│   │   │   │   ├── slide2.jpg
+│   │   │   │   ├── thumb1.png
+│   │   │   │   ├── thumb2.png
+│   │   │   │   └── thumb3.png
+│   │   │   ├── index6
+│   │   │   │   ├── slide1.jpg
+│   │   │   │   ├── slide2.jpg
+│   │   │   │   ├── slide3.jpg
+│   │   │   │   └── x.png
+│   │   │   ├── index7
+│   │   │   │   ├── slide1.jpg
+│   │   │   │   ├── slide2.jpg
+│   │   │   │   └── slide3.jpg
+│   │   │   ├── index7-2
+│   │   │   │   ├── slide1.jpg
+│   │   │   │   └── slide2.jpg
+│   │   │   ├── index-arrivals
+│   │   │   │   ├── item1.png
+│   │   │   │   ├── item2.png
+│   │   │   │   └── item3.png
+│   │   │   └── index-lookbooks
+│   │   │       ├── slide1.jpg
+│   │   │       ├── slide2.jpg
+│   │   │       └── slide3.jpg
+│   │   ├── index1_2.jpg
+│   │   ├── limpiaturincon_letra26.jpg
+│   │   ├── limpiaturincon_letra44.jpg
+│   │   ├── limpieza1.jpg
+│   │   ├── limpieza2.jpg
+│   │   ├── limpieza3.jpg
+│   │   ├── limpieza4.jpg
+│   │   ├── limpieza5.jpg
+│   │   ├── limpieza6.jpg
+│   │   ├── list.png
+│   │   ├── logo@2x.png
+│   │   ├── logo.jpeg
+│   │   ├── logo.png
+│   │   ├── ltr1.jpeg
+│   │   ├── ltr2.jpeg
+│   │   ├── ltr3.jpeg
+│   │   ├── newsletterbg-index6.jpg
+│   │   ├── newsletterbg.jpg
+│   │   ├── newsletterbg-section.jpg
+│   │   ├── pin2@2x.png
+│   │   ├── pin2.png
+│   │   ├── pin@2x.png
+│   │   ├── pin.png
+│   │   ├── pin-text@2x.png
+│   │   ├── pin-text.png
+│   │   ├── portfolio
+│   │   │   ├── classic
+│   │   │   │   ├── item10.jpg
+│   │   │   │   ├── item11.jpg
+│   │   │   │   ├── item12.jpg
+│   │   │   │   ├── item1.jpg
+│   │   │   │   ├── item2.jpg
+│   │   │   │   ├── item3.jpg
+│   │   │   │   ├── item4.jpg
+│   │   │   │   ├── item5.jpg
+│   │   │   │   ├── item6.jpg
+│   │   │   │   ├── item7.jpg
+│   │   │   │   ├── item8.jpg
+│   │   │   │   └── item9.jpg
+│   │   │   ├── item1.jpg
+│   │   │   ├── item2.jpg
+│   │   │   ├── item3.jpg
+│   │   │   ├── item4.jpg
+│   │   │   ├── item5.jpg
+│   │   │   ├── item6.jpg
+│   │   │   ├── item7.jpg
+│   │   │   ├── item8.jpg
+│   │   │   └── masonry
+│   │   │       ├── item10.jpg
+│   │   │       ├── item11.jpg
+│   │   │       ├── item12.jpg
+│   │   │       ├── item1.jpg
+│   │   │       ├── item2.jpg
+│   │   │       ├── item3.jpg
+│   │   │       ├── item4.jpg
+│   │   │       ├── item5.jpg
+│   │   │       ├── item6.jpg
+│   │   │       ├── item7.jpg
+│   │   │       ├── item8.jpg
+│   │   │       └── item9.jpg
+│   │   ├── prettyPhoto
+│   │   │   ├── dark_rounded
+│   │   │   │   ├── btnNext.png
+│   │   │   │   ├── btnPrevious.png
+│   │   │   │   ├── contentPattern.png
+│   │   │   │   ├── default_thumbnail.gif
+│   │   │   │   ├── loader.gif
+│   │   │   │   └── sprite.png
+│   │   │   ├── dark_square
+│   │   │   │   ├── btnNext.png
+│   │   │   │   ├── btnPrevious.png
+│   │   │   │   ├── contentPattern.png
+│   │   │   │   ├── default_thumbnail.gif
+│   │   │   │   ├── loader.gif
+│   │   │   │   └── sprite.png
+│   │   │   ├── default
+│   │   │   │   ├── default_thumb.png
+│   │   │   │   ├── loader.gif
+│   │   │   │   ├── sprite_next.png
+│   │   │   │   ├── sprite.png
+│   │   │   │   ├── sprite_prev.png
+│   │   │   │   ├── sprite_x.png
+│   │   │   │   └── sprite_y.png
+│   │   │   ├── facebook
+│   │   │   │   ├── btnNext.png
+│   │   │   │   ├── btnPrevious.png
+│   │   │   │   ├── contentPatternBottom.png
+│   │   │   │   ├── contentPatternLeft.png
+│   │   │   │   ├── contentPatternRight.png
+│   │   │   │   ├── contentPatternTop.png
+│   │   │   │   ├── default_thumbnail.gif
+│   │   │   │   ├── loader.gif
+│   │   │   │   └── sprite.png
+│   │   │   ├── light_rounded
+│   │   │   │   ├── btnNext.png
+│   │   │   │   ├── btnPrevious.png
+│   │   │   │   ├── default_thumbnail.gif
+│   │   │   │   ├── loader.gif
+│   │   │   │   └── sprite.png
+│   │   │   └── light_square
+│   │   │       ├── btnNext.png
+│   │   │       ├── btnPrevious.png
+│   │   │       ├── default_thumbnail.gif
+│   │   │       ├── loader.gif
+│   │   │       └── sprite.png
+│   │   ├── products
+│   │   │   ├── big
+│   │   │   │   ├── product1.jpg
+│   │   │   │   ├── product2.jpg
+│   │   │   │   ├── product3.jpg
+│   │   │   │   ├── product4.jpg
+│   │   │   │   ├── product5.jpg
+│   │   │   │   ├── product6.jpg
+│   │   │   │   ├── product7.jpg
+│   │   │   │   ├── product8.jpg
+│   │   │   │   └── product9.jpg
+│   │   │   ├── product10.jpeg
+│   │   │   ├── product11.jpeg
+│   │   │   ├── product12.jpeg
+│   │   │   ├── product13.jpg
+│   │   │   ├── product14.jpg
+│   │   │   ├── product15.jpg
+│   │   │   ├── product16.jpg
+│   │   │   ├── product17.jpg
+│   │   │   ├── product18.jpg
+│   │   │   ├── product19.jpg
+│   │   │   ├── product1-hover.jpg
+│   │   │   ├── product1.jpg
+│   │   │   ├── product20.jpg
+│   │   │   ├── product2-hover.jpg
+│   │   │   ├── product2.jpg
+│   │   │   ├── product3.jpg
+│   │   │   ├── product4.jpg
+│   │   │   ├── product5.jpg
+│   │   │   ├── product6.jpeg
+│   │   │   ├── product7.jpeg
+│   │   │   ├── product8.jpeg
+│   │   │   └── product9.jpeg
+│   │   ├── r1.jpeg
+│   │   ├── r2.jpeg
+│   │   ├── r3.jpeg
+│   │   ├── revslider
+│   │   │   ├── arrow_large_left.png
+│   │   │   ├── arrow_large_right.png
+│   │   │   ├── arrow_left2.png
+│   │   │   ├── arrow_left.png
+│   │   │   ├── arrowleft.png
+│   │   │   ├── arrow_right2.png
+│   │   │   ├── arrow_right.png
+│   │   │   ├── arrowright.png
+│   │   │   ├── arrows.psd
+│   │   │   ├── black50.png
+│   │   │   ├── boxed_bgtile.png
+│   │   │   ├── bullet_boxed.png
+│   │   │   ├── bullet.png
+│   │   │   ├── bullets2.png
+│   │   │   ├── bullets.png
+│   │   │   ├── bullets.psd
+│   │   │   ├── coloredbg.png
+│   │   │   ├── dummy.png
+│   │   │   ├── grain.png
+│   │   │   ├── gridtile_3x3.png
+│   │   │   ├── gridtile_3x3_white.png
+│   │   │   ├── gridtile.png
+│   │   │   ├── gridtile_white.png
+│   │   │   ├── large_left.png
+│   │   │   ├── large_right.png
+│   │   │   ├── loader2.gif
+│   │   │   ├── loader.gif
+│   │   │   ├── navigdots_bgtile.png
+│   │   │   ├── navigdots.png
+│   │   │   ├── shadow1.png
+│   │   │   ├── shadow2.png
+│   │   │   ├── shadow3.png
+│   │   │   ├── small_arrows.psd
+│   │   │   ├── small_left_boxed.png
+│   │   │   ├── small_left.png
+│   │   │   ├── small_right_boxed.png
+│   │   │   ├── small_right.png
+│   │   │   ├── timerdot.png
+│   │   │   ├── timer.png
+│   │   │   ├── transparent.jpg
+│   │   │   ├── transparent.png
+│   │   │   └── white50.png
+│   │   ├── sidemenubg.png
+│   │   ├── sprites
+│   │   │   ├── sprite@2x.png
+│   │   │   └── sprite.png
+│   │   ├── team
+│   │   │   ├── arron.jpg
+│   │   │   ├── countrey.jpg
+│   │   │   ├── evan.jpg
+│   │   │   └── walter.jpg
+│   │   ├── testimonialsbg-index2.jpg
+│   │   ├── testimonialsbg-index4.jpg
+│   │   ├── testimonialsbg-index6.jpg
+│   │   ├── testimonialsbg.jpg
+│   │   ├── testimonialsbg-light.jpg
+│   │   └── user
+│   │       ├── grace2.jpg
+│   │       ├── grace.jpg
+│   │       ├── miranda.jpg
+│   │       ├── rafael.jpg
+│   │       ├── reviewer1.jpg
+│   │       ├── reviewer2.jpg
+│   │       └── user.jpg
+│   ├── index.php
+│   ├── js
+│   │   ├── app.js
+│   │   ├── bootstrap.js
+│   │   ├── bootstrap.min.js
+│   │   ├── datatables.min.js
+│   │   ├── html5shiv.min.js
+│   │   ├── imagesloaded.min.js
+│   │   ├── isotope.min.js
+│   │   ├── jflickrfeed.min.js
+│   │   ├── jquery-2.1.1.min.js
+│   │   ├── jquery.bxslider.js
+│   │   ├── jquery.bxslider.min.js
+│   │   ├── jquery.countdown.js
+│   │   ├── jquery.countdown.min.js
+│   │   ├── jquery.countdown.plugin.js
+│   │   ├── jquery.countdown.plugin.min.js
+│   │   ├── jquery.countTo.js
+│   │   ├── jquery.debouncedresize.js
+│   │   ├── jquery.hoverIntent.min.js
+│   │   ├── jquery.nouislider.min.js
+│   │   ├── jquery.parallax-1.1.3.js
+│   │   ├── jquery.placeholder.js
+│   │   ├── jquery.prettyPhoto.js
+│   │   ├── jquery.selectbox.min.js
+│   │   ├── jquery.stellar.js
+│   │   ├── jquery.stellar.min.js
+│   │   ├── jquery.themepunch.revolution.js
+│   │   ├── jquery.themepunch.revolution.min.js
+│   │   ├── jquery.themepunch.tools.min.js
+│   │   ├── local
+│   │   │   ├── jquery.countdown-ar.js
+│   │   │   ├── jquery.countdown-bg.js
+│   │   │   ├── jquery.countdown-bn.js
+│   │   │   ├── jquery.countdown-bs.js
+│   │   │   ├── jquery.countdown-ca.js
+│   │   │   ├── jquery.countdown-cs.js
+│   │   │   ├── jquery.countdown-cy.js
+│   │   │   ├── jquery.countdown-da.js
+│   │   │   ├── jquery.countdown-de.js
+│   │   │   ├── jquery.countdown-el.js
+│   │   │   ├── jquery.countdown-es.js
+│   │   │   ├── jquery.countdown-et.js
+│   │   │   ├── jquery.countdown-fa.js
+│   │   │   ├── jquery.countdown-fi.js
+│   │   │   ├── jquery.countdown-fo.js
+│   │   │   ├── jquery.countdown-fr.js
+│   │   │   ├── jquery.countdown-gl.js
+│   │   │   ├── jquery.countdown-gu.js
+│   │   │   ├── jquery.countdown-he.js
+│   │   │   ├── jquery.countdown-hr.js
+│   │   │   ├── jquery.countdown-hu.js
+│   │   │   ├── jquery.countdown-hy.js
+│   │   │   ├── jquery.countdown-id.js
+│   │   │   ├── jquery.countdown-is.js
+│   │   │   ├── jquery.countdown-it.js
+│   │   │   ├── jquery.countdown-ja.js
+│   │   │   ├── jquery.countdown-kn.js
+│   │   │   ├── jquery.countdown-ko.js
+│   │   │   ├── jquery.countdown-lt.js
+│   │   │   ├── jquery.countdown-lv.js
+│   │   │   ├── jquery.countdown-ml.js
+│   │   │   ├── jquery.countdown-ms.js
+│   │   │   ├── jquery.countdown-my.js
+│   │   │   ├── jquery.countdown-nb.js
+│   │   │   ├── jquery.countdown-nl.js
+│   │   │   ├── jquery.countdown-pl.js
+│   │   │   ├── jquery.countdown-pt-BR.js
+│   │   │   ├── jquery.countdown-ro.js
+│   │   │   ├── jquery.countdown-ru.js
+│   │   │   ├── jquery.countdown-sk.js
+│   │   │   ├── jquery.countdown-sl.js
+│   │   │   ├── jquery.countdown-sq.js
+│   │   │   ├── jquery.countdown-sr.js
+│   │   │   ├── jquery.countdown-sr-SR.js
+│   │   │   ├── jquery.countdown-sv.js
+│   │   │   ├── jquery.countdown-th.js
+│   │   │   ├── jquery.countdown-tr.js
+│   │   │   ├── jquery.countdown-uk.js
+│   │   │   ├── jquery.countdown-ur.js
+│   │   │   ├── jquery.countdown-uz.js
+│   │   │   ├── jquery.countdown-vi.js
+│   │   │   ├── jquery.countdown-zh-CN.js
+│   │   │   └── jquery.countdown-zh-TW.js
+│   │   ├── main.js
+│   │   ├── mapas
+│   │   │   ├── barrio-create.js
+│   │   │   └── vecino-create.js
+│   │   ├── maplabel.js
+│   │   ├── owl.carousel.js
+│   │   ├── owl.carousel.min.js
+│   │   ├── respond.min.js
+│   │   ├── retina.min.js
+│   │   ├── smoothscroll.js
+│   │   ├── twitter
+│   │   │   ├── 19240f0d27adbcc356123a76ddaa69ab.json
+│   │   │   ├── 3d91a82cf7161966ef980947306d7c4c.json
+│   │   │   ├── 9827adbe04341b50dd9f5a8bd22d7a3b.json
+│   │   │   ├── f6d9d577b26fc84c0fc2482890476030.json
+│   │   │   ├── index.php
+│   │   │   ├── jquery.tweet.js
+│   │   │   ├── jquery.tweet.min.js
+│   │   │   └── lib
+│   │   │       ├── tmhOAuth.php
+│   │   │       └── tmhUtilities.php
+│   │   ├── waypoints.js
+│   │   ├── waypoints.min.js
+│   │   ├── waypoints-sticky.js
+│   │   ├── waypoints-sticky.min.js
+│   │   └── wow.js
+│   └── robots.txt
+├── README.md
+├── resources
+│   ├── css
+│   │   ├── app.css
+│   │   ├── bootstrap.min.css
+│   │   ├── fonts.css
+│   │   ├── responsive.css
+│   │   ├── revslider2.css
+│   │   ├── sky-forms-blue.css
+│   │   ├── sky-forms.css
+│   │   ├── sky-forms-green.css
+│   │   └── style.css
+│   ├── js
+│   │   ├── app.js
+│   │   ├── artifacts
+│   │   │   ├── artifacts.d.ts
+│   │   │   ├── build-info
+│   │   │   │   └── 7ce7056fe30361885184b666f89accac.json
+│   │   │   └── contracts
+│   │   │       ├── AuditoriaEventos.sol
+│   │   │       │   ├── AuditoriaEventos.dbg.json
+│   │   │       │   └── AuditoriaEventos.json
+│   │   │       ├── ContratoDistribucion.sol
+│   │   │       │   ├── ContratoDistribucion.dbg.json
+│   │   │       │   └── ContratoDistribucion.json
+│   │   │       ├── Counter.sol
+│   │   │       │   └── artifacts.d.ts
+│   │   │       ├── MultaMunicipal.sol
+│   │   │       │   ├── artifacts.d.ts
+│   │   │       │   ├── MultaMunicipal.dbg.json
+│   │   │       │   └── MultaMunicipal.json
+│   │   │       └── Registrodocumentos.sol
+│   │   │           ├── RegistroDocumentos.dbg.json
+│   │   │           └── RegistroDocumentos.json
+│   │   └── bootstrap.js
+│   ├── markdown
+│   │   ├── policy.md
+│   │   └── terms.md
+│   └── views
+│       ├── api
+│       │   ├── api-token-manager.blade.php
+│       │   └── index.blade.php
+│       ├── auth
+│       │   ├── confirm-password.blade.php
+│       │   ├── forgot-password.blade.php
+│       │   ├── formatoCRUD.php
+│       │   ├── login.blade.php
+│       │   ├── OLDregister.blade.php
+│       │   ├── register.blade.php
+│       │   ├── reset-password.blade.php
+│       │   ├── two-factor-challenge.blade.php
+│       │   ├── users
+│       │   │   ├── index.blade.php
+│       │   │   └── show.blade.php
+│       │   └── verify-email.blade.php
+│       ├── components
+│       │   ├── action-message.blade.php
+│       │   ├── action-section.blade.php
+│       │   ├── app.blade.php
+│       │   ├── application-logo.blade.php
+│       │   ├── application-mark.blade.php
+│       │   ├── app-logo.blade.php
+│       │   ├── app-logo-icon.blade.php
+│       │   ├── authentication-card.blade.php
+│       │   ├── authentication-card-logo.blade.php
+│       │   ├── auth-header.blade.php
+│       │   ├── auth-session-status.blade.php
+│       │   ├── banner.blade.php
+│       │   ├── button.blade.php
+│       │   ├── checkbox.blade.php
+│       │   ├── confirmation-modal.blade.php
+│       │   ├── confirms-password.blade.php
+│       │   ├── danger-button.blade.php
+│       │   ├── dialog-modal.blade.php
+│       │   ├── dropdown.blade.php
+│       │   ├── dropdown-link.blade.php
+│       │   ├── form-section.blade.php
+│       │   ├── input.blade.php
+│       │   ├── input-error.blade.php
+│       │   ├── input-label.blade.php
+│       │   ├── label.blade.php
+│       │   ├── layouts
+│       │   │   ├── app
+│       │   │   │   ├── header.blade.php
+│       │   │   │   └── sidebar.blade.php
+│       │   │   ├── app.blade.php
+│       │   │   ├── auth
+│       │   │   │   ├── card.blade.php
+│       │   │   │   ├── simple.blade.php
+│       │   │   │   └── split.blade.php
+│       │   │   └── auth.blade.php
+│       │   ├── menu-operaciones.blade.php
+│       │   ├── modal.blade.php
+│       │   ├── nav-link.blade.php
+│       │   ├── placeholder-pattern.blade.php
+│       │   ├── primary-button.blade.php
+│       │   ├── responsive-nav-link.blade.php
+│       │   ├── secondary-button.blade.php
+│       │   ├── section-border.blade.php
+│       │   ├── section-title.blade.php
+│       │   ├── settings
+│       │   │   └── layout.blade.php
+│       │   ├── switchable-team.blade.php
+│       │   ├── text-input.blade.php
+│       │   ├── validation-errors.blade.php
+│       │   └── welcome.blade.php
+│       ├── dashboard.blade.php
+│       ├── emails
+│       │   ├── bienvenida.blade.php
+│       │   ├── notificacion.blade.php
+│       │   └── team-invitation.blade.php
+│       ├── layouts
+│       │   ├── admin.blade.php
+│       │   ├── app.blade.php
+│       │   ├── dashboard.blade.php
+│       │   ├── guest.blade.php
+│       │   ├── MIadmin.blade.php
+│       │   ├── navigation.blade.php
+│       │   ├── operacion.blade.php
+│       │   ├── public.blade.php
+│       │   └── traspolar.html
+│       ├── livewire
+│       │   ├── admin
+│       │   │   ├── aside-menu.blade.php
+│       │   │   ├── barrios
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── lista.blade.php
+│       │   │   │   ├── list.blade.php
+│       │   │   │   ├── newindex.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   ├── barriosAtributos
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── lista.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   ├── contratos
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── lista.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   ├── home.blade.php
+│       │   │   ├── ordenanzas
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   └── tailwindform.html
+│       │   │   ├── porcentajes
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   ├── salarios
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   ├── userroles
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   └── vecinos
+│       │   │       ├── create.blade.php
+│       │   │       ├── edit.blade.php
+│       │   │       ├── index.blade.php
+│       │   │       ├── lista.blade.php
+│       │   │       └── show.blade.php
+│       │   ├── auth
+│       │   │   ├── login.blade.php
+│       │   │   └── register.blade.php
+│       │   ├── dashboard
+│       │   │   └── home.blade.php
+│       │   ├── dondepone.blade.php
+│       │   ├── layout
+│       │   │   └── navigation.blade.php
+│       │   ├── operacion
+│       │   │   ├── approvals
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   ├── store.blade.php
+│       │   │   │   └── update.blade.php
+│       │   │   ├── aside-menu.blade.php
+│       │   │   ├── asignments
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   └── update.blade.php
+│       │   │   ├── assignments
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   ├── store.blade.php
+│       │   │   │   └── update.blade.php
+│       │   │   ├── audit-events
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   ├── store.blade.php
+│       │   │   │   └── update.blade.php
+│       │   │   ├── denuncias
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── lista.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   ├── home.blade.php
+│       │   │   ├── nominations
+│       │   │   │   ├── aprobar.blade.php
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── imprimir.blade.php
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── rechazar.blade.php
+│       │   │   │   ├── search.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   ├── store.blade.php
+│       │   │   │   └── verificar.blade.php
+│       │   │   ├── notificaciones
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── lista.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   ├── simple.blade.php
+│       │   │   └── verifications
+│       │   │       ├── create.blade.php
+│       │   │       ├── index.blade.php
+│       │   │       ├── show.blade.php
+│       │   │       ├── store.blade.php
+│       │   │       └── update.blade.php
+│       │   ├── pages
+│       │   │   ├── auth
+│       │   │   │   ├── confirm-password.blade.php
+│       │   │   │   ├── forgot-password.blade.php
+│       │   │   │   ├── login.blade.php
+│       │   │   │   ├── loginOLD.blade.php
+│       │   │   │   ├── OLDlogin.blade.php
+│       │   │   │   ├── register.blade.php
+│       │   │   │   ├── reset-password.blade.php
+│       │   │   │   └── verify-email.blade.php
+│       │   │   └── login.blade.php
+│       │   ├── profile
+│       │   │   ├── delete-user-form.blade.php
+│       │   │   ├── update-password-form.blade.php
+│       │   │   └── update-profile-information-form.blade.php
+│       │   ├── public
+│       │   │   ├── header.blade.php
+│       │   │   ├── home.blade.php
+│       │   │   ├── izquierdo.blade.php
+│       │   │   ├── notifications
+│       │   │   │   ├── index.blade.php
+│       │   │   │   ├── open.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   └── update.blade.php
+│       │   │   └── welcome.blade.php
+│       │   └── welcome
+│       │       └── navigation.blade.php
+│       ├── navigation-menu.blade.php
+│       ├── partials
+│       │   ├── _container2.blade.php
+│       │   ├── _container3.blade.php
+│       │   ├── _container4.blade.php
+│       │   ├── _container5.blade.php
+│       │   ├── _container6.blade.php
+│       │   ├── _container.blade.php
+│       │   ├── _derecho.blade.php
+│       │   ├── _footer.blade.php
+│       │   ├── head.blade.php
+│       │   ├── _header.blade.OLD.php
+│       │   ├── _header.blade.php
+│       │   ├── _izquierdo.blade.php
+│       │   ├── _main.blade.php
+│       │   ├── _maincorto.blade.php
+│       │   ├── _megamenu.blade.php
+│       │   ├── _menu7opciones.blade.php
+│       │   ├── OLD_header.blade.php
+│       │   ├── _revslider.blade.php
+│       │   ├── settings-heading.blade.php
+│       │   ├── _SHoopingCart.blade.php
+│       │   └── _testimonials.blade.php
+│       ├── pdf
+│       │   ├── nomination_aprobada.blade.php
+│       │   ├── nomination_propuesta.blade.php
+│       │   └── nomination_verificada.blade.php
+│       ├── policy.blade.php
+│       ├── profile
+│       │   ├── delete-user-form.blade.php
+│       │   ├── logout-other-browser-sessions-form.blade.php
+│       │   ├── show.blade.php
+│       │   ├── two-factor-authentication-form.blade.php
+│       │   ├── update-password-form.blade.php
+│       │   └── update-profile-information-form.blade.php
+│       ├── profile.blade.php
+│       ├── terms.blade.php
+│       └── welcome.blade.php
+├── routes
+│   ├── admin.php
+│   ├── api.php
+│   ├── auth.php
+│   ├── console.php
+│   ├── dashboard.php
+│   ├── operacion.php
+│   └── web.php
+├── tailwind.config.js
+├── test_email.html
+├── tests
+│   ├── Feature
+│   │   ├── ApiTokenPermissionsTest.php
+│   │   ├── Auth
+│   │   │   ├── AuthenticationTest.php
+│   │   │   ├── EmailVerificationTest.php
+│   │   │   ├── PasswordConfirmationTest.php
+│   │   │   ├── PasswordResetTest.php
+│   │   │   ├── PasswordUpdateTest.php
+│   │   │   └── RegistrationTest.php
+│   │   ├── AuthenticationTest.php
+│   │   ├── BrowserSessionsTest.php
+│   │   ├── CreateApiTokenTest.php
+│   │   ├── DeleteAccountTest.php
+│   │   ├── DeleteApiTokenTest.php
+│   │   ├── EmailVerificationTest.php
+│   │   ├── ExampleTest.php
+│   │   ├── PasswordConfirmationTest.php
+│   │   ├── PasswordResetTest.php
+│   │   ├── ProfileInformationTest.php
+│   │   ├── ProfileTest.php
+│   │   ├── RegistrationTest.php
+│   │   ├── TwoFactorAuthenticationSettingsTest.php
+│   │   └── UpdatePasswordTest.php
+│   ├── TestCase.php
+│   └── Unit
+│       └── ExampleTest.php
+└── vite.config.js
+
+187 directories, 1076 files

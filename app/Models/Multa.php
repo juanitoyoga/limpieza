@@ -10,6 +10,13 @@ class Multa extends Model
 {
     use HasFactory;
 
+    public const ESTADO_PENDIENTE   = 'Pendiente';
+    public const ESTADO_ANULADA     = 'Anulada';
+    public const ESTADO_PAGADA      = 'Pagada';
+    public const ESTADO_IMPUGNADA   = 'Impugnada';
+    public const ESTADO_DISTRIBUIDA = 'Distribuida';
+
+
     protected $table = 'multas';
 
     protected $fillable = [
@@ -123,19 +130,46 @@ class Multa extends Model
     /*
      * Helpers
      */
+    public function estadoLabel(): string
+    {
+        return match ($this->estado) {
+            self::ESTADO_PENDIENTE   => 'Pendiente',
+            self::ESTADO_PAGADA      => 'Pagada',
+            self::ESTADO_ANULADA     => 'Anulada',
+            self::ESTADO_IMPUGNADA   => 'Impugnada',
+            self::ESTADO_DISTRIBUIDA => 'Distribuida',
+            default                  => 'Desconocido',
+        };
+    }
+
+    public function estadoColor(): string
+    {
+        return match ($this->estado) {
+            self::ESTADO_PENDIENTE   => 'bg-gray-500',
+            self::ESTADO_PAGADA      => 'bg-green-500',
+            self::ESTADO_ANULADA     => 'bg-red-400',
+            self::ESTADO_IMPUGNADA   => 'bg-yellow-400',
+            self::ESTADO_DISTRIBUIDA => 'bg-blue-400',
+            default                  => 'bg-gray-400',
+        };
+    }
 
     public function estaPagada(): bool
     {
-        return $this->estado === 'pagada';
+        return $this->estado === 'Pagada';
     }
 
     public function estaPendiente(): bool
     {
-        return $this->estado === 'pendiente';
+        return $this->estado === 'Pendiente';
     }
-
     public function estaImpugnada(): bool
     {
-        return $this->estado === 'impugnada';
+        return $this->estado === 'Impugnada';
+    }
+
+    public function estaDistribuida(): bool
+    {
+        return $this->estado === 'Distribuida';
     }
 }

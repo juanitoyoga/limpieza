@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\Operacion\Nominations;
 
 use App\Models\{Nomination, User, AuditEvent, Supervisor, Auditor, Funcionario};
@@ -31,8 +32,8 @@ class Aprobar extends Component
         // Detectamos si es el caso especial para mostrar la alerta en la vista
         $currentUser = Auth::user();
         $this->isFirstTimeMode = (
-            \App\Models\Auditor::count() === 0 && 
-            $currentUser->role === 'SuperAdmin' && 
+            \App\Models\Auditor::count() === 0 &&
+            $currentUser->role_name === 'SuperAdmin' &&
             $currentUser->transition_role === 'Auditor' &&
             $nomination->role_name === 'Auditor'
         );
@@ -62,7 +63,7 @@ class Aprobar extends Component
     public function save()
     {
         $this->validate();
-        
+
         $nomination = Nomination::findOrFail($this->nominationId);
         /** @var User $currentUser */
         $currentUser = Auth::user();
@@ -80,7 +81,7 @@ class Aprobar extends Component
 
         DB::transaction(function () use ($nomination, $currentUser) {
             $now = now();
-            
+
             // Determinamos si es Primera Vez (Caso Auditor Inicial)
             $isFirstTimeAuditor = $this->checkFirstTimeAuditor($nomination, $currentUser);
 
@@ -101,7 +102,7 @@ class Aprobar extends Component
 
             // 4. EVENTO DE AUDITORÍA GLOBAL
             AuditEvent::logEvent(
-                $nomination->id,
+                $nomination,
                 $currentUser->id,
                 AuditEvent::EVENT_APPROVAL_GRANTED,
                 ['message' => $isFirstTimeAuditor ? 'Aprobación inicial de sistema (Primer Auditor)' : 'Aprobación en flujo normal']
@@ -111,14 +112,13 @@ class Aprobar extends Component
         session()->flash('success', 'Nominación aprobada y registro de rol completado.');
 
         return redirect()->route('nominations.imprimir', $nomination->id);
-
     }
 
     private function checkFirstTimeAuditor($nomination, $user): bool
     {
-        return Auditor::count() === 0 
-            && $user->role === 'SuperAdmin' 
-            && $user->transition_role === 'Auditor' 
+        return Auditor::count() === 0
+            && $user->role_name === 'SuperAdmin'
+            && $user->transition_role === 'Auditor'
             && $nomination->role_name === 'Auditor'
             && !is_null($nomination->verified_at);
     }
@@ -138,7 +138,7 @@ class Aprobar extends Component
 
         // Actualizar al SuperAdmin que aprueba
         $user->update(['transition_role' => 'SuperAdmin']);
-        
+
         // Actualizar al candidato (ahora es Auditor)
         $nomination->candidate->update(['role_name' => 'Auditor']);
     }
@@ -151,24 +151,67 @@ class Aprobar extends Component
         // Actualizar rol del usuario
         $candidate->update(['role_name' => $role]);
 
-        $data = [
-            'user_id'           => $candidate->id,
-            'nomination_id'     => $nomination->id,
-            'is_active'         => 1,
-            'email'             => $candidate->email,
-            'dependencia_dmq'   => $nomination->released_by,
-            'referencias'       => $nomination->observaciones,
-            'password'          => $candidate->password,
-
-        ];
-
-        // Generar registro en la tabla correspondiente
         match ($role) {
-            'Auditor'     => Auditor::create($data),
-            'Supervisor'  => Supervisor::create($data),
-            'Funcionario'  => Funcionario::create($data),
+            'Auditor'     => Auditor::create([
+                'user_id'         => $candidate->id,
+                'nomination_id'   => $nomination->id,
+                'is_active'       => 1,
+                'email'           => $candidate->email,
+                'dependencia_dmq' => $nomination->released_by,
+                'referencias'     => $nomination->observaciones,
+                'password'        => $candidate->password,
+            ]),
+            'Supervisor'  => Supervisor::create([
+                'user_id'         => $candidate->id,
+                'nomination_id'   => $nomination->id,
+                'is_active'       => 1,
+                'email'           => $candidate->email,
+                'dependencia_dmq' => $nomination->released_by,
+                'referencias'     => $nomination->observaciones,
+                'password'        => $candidate->password,
+            ]),
+            'Funcionario' => Funcionario::create([
+                'user_id'         => $candidate->id,
+                'nomination_id'   => $nomination->id,
+                'is_active'       => 1,
+                'email'           => $candidate->email,
+                'dependencia_dmq' => $nomination->released_by,
+                'referencias'     => $nomination->observaciones,
+                'password'        => $candidate->password,
+            ]),
+            'Dirigente'  => \App\Models\Dirigente::create([
+                'user_id'       => $candidate->id,
+                'barrio_id'     => $this->resolveBarrioId($nomination->released_by),
+                'nomination_id' => $nomination->id,
+                'email'         => $candidate->email,
+                'role_name'     => 'Dirigente',
+                'password'      => $candidate->password,
+                'is_active'     => true,
+                'referencias'   => $nomination->observaciones,
+            ]),
+            'Presidente' => \App\Models\Presidente::create([
+                'user_id'       => $candidate->id,
+                'barrio_id'     => $this->resolveBarrioId($nomination->released_by),
+                'nomination_id' => $nomination->id,
+                'email'         => $candidate->email,
+                'role_name'     => 'Presidente',
+                'password'      => $candidate->password,
+                'is_active'     => true,
+                'referencias'   => $nomination->observaciones,
+            ]),
             default => throw new \Exception("Rol de nominación no reconocido para registro."),
         };
+    }
+
+    private function resolveBarrioId(string $nombreBarrio): int
+    {
+        $barrio = \App\Models\Barrio::where('nombre', $nombreBarrio)->first();
+
+        if (!$barrio) {
+            throw new \Exception("No se encontró el barrio '{$nombreBarrio}' para asignar al Dirigente/Presidente.");
+        }
+
+        return $barrio->id;
     }
 
     public function render()

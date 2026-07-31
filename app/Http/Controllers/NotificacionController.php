@@ -228,6 +228,7 @@ class NotificacionController extends Controller
             'device_id'      => $data['device_id'],
             'os_version'     => $data['os_version'],
             'app_version'    => $data['app_version'],
+            'observacion'    => $data['observacion'] ?? null,
             'estado'         => Notificacion::ESTADO_ENVIADA,
         ]);
 
@@ -246,6 +247,7 @@ class NotificacionController extends Controller
                 'device_id'               => $data['device_id'],
                 'os_version'              => $data['os_version'],
                 'app_version'             => $data['app_version'],
+                'observacion'             => $data['observacion'] ?? null,
             ]
         );
 

@@ -59,19 +59,35 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::get('/ver-documento/{path}', function ($path) {
-    $decodedPath = base64_decode($path);
-    $fullPath = storage_path('app/nominations/' . $decodedPath);
+Route::get('/ver-documento/{disco}/{path}', function ($disco, $path) {
+    // Whitelist de discos permitidos — evita que alguien pida un disco arbitrario
+    $discosPermitidos = ['nominations', 'resoluciones'];
 
-    // Verificación de seguridad
+    if (!in_array($disco, $discosPermitidos, true)) {
+        abort(404, 'Disco no válido.');
+    }
+
+    $decodedPath = base64_decode($path, true);
+
+    if ($decodedPath === false) {
+        abort(404, 'Ruta inválida.');
+    }
+
+    $fullPath = storage_path("app/{$disco}/{$decodedPath}");
+    $basePath = storage_path("app/{$disco}");
+
+    // Verificación de seguridad: el path resuelto debe seguir dentro del directorio del disco
+    if (!str_starts_with(realpath($fullPath) ?: '', realpath($basePath))) {
+        abort(403, 'Acceso no permitido.');
+    }
+
     if (!file_exists($fullPath)) {
         abort(404, 'El archivo físico no existe.');
     }
 
-    // Retornar el archivo para visualizar
     return Response::file($fullPath, [
         'Content-Type' => 'application/pdf',
-        'Content-Disposition' => 'inline; filename="nominacion.pdf"',
+        'Content-Disposition' => 'inline; filename="documento.pdf"',
         'Cache-Control' => 'no-cache, no-store, must-revalidate',
         'Pragma' => 'no-cache',
         'Expires' => '0',

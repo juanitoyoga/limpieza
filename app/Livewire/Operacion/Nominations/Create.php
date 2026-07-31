@@ -43,10 +43,10 @@ class Create extends Component
         /** @var User $user */
         $user = Auth::user();
         $tablesEmpty = Funcionario::count() === 0 && Supervisor::count() === 0 && Auditor::count() === 0;
-        
-        $this->isFirstTime = $tablesEmpty && 
-                             $user->transition_role === 'Funcionario' && 
-                             $user->role_name === 'SuperAdmin';
+
+        $this->isFirstTime = $tablesEmpty &&
+            $user->transition_role === 'Funcionario' &&
+            $user->role_name === 'SuperAdmin';
     }
 
     public function updatedRoleName()
@@ -65,8 +65,11 @@ class Create extends Component
     {
         $this->validate();
 
+        // Se declara fuera del closure para poder limpiar el archivo si la transacción falla
+        $path = null;
+
         try {
-            $nomination = DB::transaction(function () {
+            $nomination = DB::transaction(function () use (&$path) {
                 $user = Auth::user();
                 $estado = $this->isFirstTime ? Nomination::ESTADO_APROBADA : Nomination::ESTADO_PROPUESTA;
 
@@ -112,9 +115,16 @@ class Create extends Component
 
             session()->flash('success', 'Nominación registrada exitosamente.');
             return redirect()->route('nominations.imprimir', $nomination->id);
-
         } catch (\Exception $e) {
             Log::error("Error creando nominación: " . $e->getMessage());
+
+            // Si el archivo llegó a subirse pero la transacción falló (rollback),
+            // el registro en BD nunca existió: eliminamos el archivo huérfano.
+            if ($path && Storage::disk('nominations')->exists($path)) {
+                Storage::disk('nominations')->delete($path);
+                Log::info("Archivo huérfano eliminado tras fallo de transacción: {$path}");
+            }
+
             $this->addError('global', 'Error crítico en el servidor. Intente nuevamente.');
         }
     }
@@ -141,12 +151,12 @@ class Create extends Component
 
     private function logNominationEvents($nomination, $userId, $path, $hash)
     {
-        AuditEvent::logEvent($nomination->id, $userId, AuditEvent::EVENT_NOMINATION_CREATED, ['role' => $this->role_name]);
-        AuditEvent::logEvent($nomination->id, $userId, AuditEvent::EVENT_DOCUMENT_UPLOADED, ['hash' => $hash]);
+        AuditEvent::logEvent($nomination, $userId, AuditEvent::EVENT_NOMINATION_CREATED, ['role' => $this->role_name]);
+        AuditEvent::logEvent($nomination, $userId, AuditEvent::EVENT_DOCUMENT_UPLOADED, ['hash' => $hash]);
 
         if ($this->isFirstTime) {
-            AuditEvent::logEvent($nomination->id, $userId, AuditEvent::EVENT_VERIFICATION_COMPLETED, ['msg' => 'Auto-verificación inicial']);
-            AuditEvent::logEvent($nomination->id, $userId, AuditEvent::EVENT_APPROVAL_GRANTED, ['msg' => 'Auto-aprobación inicial']);
+            AuditEvent::logEvent($nomination, $userId, AuditEvent::EVENT_VERIFICATION_COMPLETED, ['msg' => 'Auto-verificación inicial']);
+            AuditEvent::logEvent($nomination, $userId, AuditEvent::EVENT_APPROVAL_GRANTED, ['msg' => 'Auto-aprobación inicial']);
         }
     }
 

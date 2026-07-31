@@ -16,7 +16,7 @@ class Imprimir extends Component
     public $nomination;
 
     public $path;
-    
+
     private $generarDocumentoNominacion;
 
     public function mount($id, GenerarDocumentoNominacion $generarDocumentoNominacion)
@@ -25,13 +25,14 @@ class Imprimir extends Component
             'nominator',
             'candidate',
             'verifier',
-            'approver'
+            'approver',
+            'rejecter'
         ])->findOrFail($id);
         $this->generarDocumentoNominacion = $generarDocumentoNominacion;
         $this->imprimir();
     }
 
-    
+
     public function imprimir()
     {
 
@@ -41,9 +42,8 @@ class Imprimir extends Component
             return;
         }
         $this->path = $this->generarDocumentoNominacion->generarDocumentoCreado($this->nomination);
-
     }
-    
+
     public function render()
     {
 

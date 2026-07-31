@@ -4,21 +4,21 @@
 <div>
     {{-- Mensajes de Feedback --}}
     @if(session()->has('success'))
-        <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle text-green-500 mr-3"></i>
-                <p class="text-green-800 dark:text-green-300 font-medium">{{ session('success') }}</p>
-            </div>
+    <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+            <p class="text-green-800 dark:text-green-300 font-medium">{{ session('success') }}</p>
         </div>
+    </div>
     @endif
 
     @if(session()->has('error'))
-        <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-            <div class="flex items-center">
-                <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
-                <p class="text-red-800 dark:text-red-300 font-medium">{{ session('error') }}</p>
-            </div>
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+            <p class="text-red-800 dark:text-red-300 font-medium">{{ session('error') }}</p>
         </div>
+    </div>
     @endif
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -74,9 +74,9 @@
                                     <p class="text-xs text-blue-700 dark:text-blue-400">Verifique la validez legal del archivo</p>
                                 </div>
                             </div>
-                            <a href="{{ route('ver.documento', ['path' => base64_encode($details['pdf'])]) }}" 
-                               target="_blank"
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-md">
+                            <a href="{{ route('ver.documento', ['path' => base64_encode($details['pdf'])]) }}"
+                                target="_blank"
+                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-md">
                                 <i class="fas fa-external-link-alt mr-2"></i> ABRIR PDF
                             </a>
                         </div>
@@ -103,7 +103,7 @@
                     {{-- SECCIÓN DE ENTRADA (Lo que el usuario llena) --}}
                     <div>
                         <label class="block text-sm font-semibold mb-2">Observaciones de Verificación *</label>
-                        <textarea wire:model="observaciones" rows="3" 
+                        <textarea wire:model="observaciones" rows="3"
                             placeholder="Describa cualquier hallazgo o confirmación de los datos..."
                             class="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"></textarea>
                         @error('observaciones') <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
@@ -112,8 +112,8 @@
                     <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                         <div class="flex items-start space-x-3">
                             <input type="checkbox" id="check-resp"
-                                   wire:model="acepta_responsabilidad"
-                                   class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer">
+                                wire:model="acepta_responsabilidad"
+                                class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded cursor-pointer">
                             <label for="check-resp" class="text-sm text-yellow-900 dark:text-yellow-200 cursor-pointer">
                                 <strong>Declaración Jurada:</strong> Declaro que he verificado la información física/digital y asumo la responsabilidad administrativa y legal por esta validación.
                             </label>
@@ -121,21 +121,37 @@
                         @error('acepta_responsabilidad') <p class="text-red-500 text-xs mt-2 font-bold">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- BOTÓN DE ACCIÓN --}}
-                    <div class="pt-4">
+                    <div class="pt-4 flex justify-center space-x-4">
+
+                        {{-- BOTÓN PRINCIPAL --}}
                         <button type="submit"
-                                wire:loading.attr="disabled"
-                                class="w-full px-6 py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg shadow-lg transition-all transform active:scale-95">
-                            <span wire:loading.remove>
+                            wire:loading.attr="disabled"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
+                             text-white rounded-lg font-semibold text-base shadow-md transition-all transform active:scale-95
+                            flex items-center justify-center">
+
+                            <span wire:loading.remove class="flex items-center">
                                 <i class="fas fa-shield-check mr-2"></i>
-                                FINALIZAR Y REGISTRAR VERIFICACIÓN
+                                VERIFICAR
                             </span>
-                            <span wire:loading>
+
+                            <span wire:loading class="flex items-center">
                                 <i class="fas fa-circle-notch fa-spin mr-2"></i>
-                                PROCESANDO REGISTRO...
+                                PROCESANDO...
                             </span>
                         </button>
+
+                        {{-- BOTÓN REGRESAR --}}
+                        <a href="{{ route('nominations.index') }}"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition
+                            flex items-center justify-center shadow-sm">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Regresar
+                        </a>
+
                     </div>
+
+
                 </form>
             </div>
 

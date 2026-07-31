@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Cache;
 
 class User extends Authenticatable
 {
@@ -123,6 +124,25 @@ class User extends Authenticatable
             : asset("images/default-avatar.jpg");
     }
 
+
+    /**
+     * Obtiene el ID del usuario Admin del sistema, usado para atribuir
+     * acciones automatizadas (jobs, comandos) en el log de auditoría.
+     *
+     * @return int
+     */
+    public static function getSistemaAdminId(): int
+    {
+        return Cache::remember('sistema.admin_user_id', now()->addHour(), function () {
+            $admin = static::where('role_name', 'Admin')->first();
+
+            if (!$admin) {
+                throw new \RuntimeException('No existe ningún usuario con role_name Admin para registrar auditoría del sistema.');
+            }
+
+            return $admin->id;
+        });
+    }
     // Relaciones
 
     /**

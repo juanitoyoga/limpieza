@@ -11,7 +11,7 @@ use App\Models\SalarioMinimo;
 use App\Models\Contrato;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Str;
+use Illuminate\Support\Str;
 
 #[Layout('layouts.operacion')]
 
@@ -195,7 +195,7 @@ class Show extends Component
                 'valor_municipio'       => round($this->multa_calculada * ($pMunicipio / 100), 2),
                 'porcentaje_plataforma' => $pPlataforma,
                 'valor_plataforma'      => round($this->multa_calculada * ($pPlataforma / 100), 2),
-                'estado'                => 'pendiente',
+                'estado'                => 'Pendiente',
                 'fecha_emision'         => now(),
                 'fecha_vencimiento'     => now()->addDays(15),
             ]);

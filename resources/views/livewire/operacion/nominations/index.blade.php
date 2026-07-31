@@ -336,17 +336,49 @@
                                     <i class="fas fa-eye text-sm"></i>
                                 </a>
 
+                                {{-- Estado: propuesta --}}
+                                @if($n->estado === 'propuesta')
+
+                                {{-- Verificar --}}
+                                <a href="{{ route('nominations.verificar', $n->id) }}"
+                                    class="p-1.5 rounded text-gray-400 hover:text-green-600 hover:bg-gray-100 transition"
+                                    title="Verificar">
+                                    <i class="fas fa-check text-sm"></i>
+                                </a>
+
+                                {{-- Rechazar --}}
+                                <a href="{{ route('nominations.rechazar', $n->id) }}"
+                                    class="p-1.5 rounded text-gray-400 hover:text-yellow-600 hover:bg-gray-100 transition"
+                                    title="Rechazar">
+                                    <i class="fas fa-times text-sm"></i>
+                                </a>
+
                                 {{-- Anular --}}
-                                @if($n->estado !== 'anulada')
                                 <button type="button" wire:click="confirmAnular({{ $n->id }})"
                                     class="p-1.5 rounded text-gray-400 hover:text-red-600 hover:bg-gray-100 transition"
                                     title="Anular Trámite">
                                     <i class="fas fa-ban text-sm"></i>
                                 </button>
-                                @else
-                                <span class="p-1.5 text-gray-300 cursor-not-allowed" title="Ya anulado">
-                                    <i class="fas fa-lock text-sm"></i>
-                                </span>
+
+                                {{-- Estado: verificada --}}
+                                @elseif($n->estado === 'verificada')
+
+                                {{-- Aprobar --}}
+                                <a href="{{ route('nominations.aprobar', $n->id) }}"
+                                    class="p-1.5 rounded text-gray-400 hover:text-green-600 hover:bg-gray-100 transition"
+                                    title="Aprobar">
+                                    <i class="fas fa-check-circle text-sm"></i>
+                                </a>
+
+                                {{-- Rechazar --}}
+                                <a href="{{ route('nominations.rechazar', $n->id) }}"
+                                    class="p-1.5 rounded text-gray-400 hover:text-yellow-600 hover:bg-gray-100 transition"
+                                    title="Rechazar">
+                                    <i class="fas fa-times text-sm"></i>
+                                </a>
+
+                                @elseif($n->estado === 'aprobada')
+                                {{-- No mostrar iconos --}}
                                 @endif
 
                             </div>

@@ -235,9 +235,9 @@
                             <span class="text-xs uppercase block text-gray-500 dark:text-gray-400 font-normal tracking-wider mb-1">Estado en Sistema</span>
                             {{-- Icono según estado --}}
                             <x-heroicon-s-{{ 
-                                in_array($denuncia->estado, ['aprobada', 'resuelto'])
+                                in_array($denuncia->estado, ['Aprobada', 'Notificada'])
                                     ? 'check-badge'
-                                    : ($denuncia->estado === 'rechazada'
+                                    : ($denuncia->estado === 'Rechazada'
 
                                         ? 'x-circle'
                                         : 'clock')
@@ -252,13 +252,13 @@
 
                         @if(in_array(auth()->user()->role_name, ['Funcionario', 'Supervisor']))
                         <div class="mt-4 space-y-2">
-                            @if($denuncia->estado === 'pendiente')
+                            @if($denuncia->estado === 'Pendiente')
                             <button wire:click="$set('mostrarModalVerificar', true)" class="w-full flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm transition shadow-sm">
                                 <i class="fas fa-clipboard-check mr-2"></i> Verificar en Campo
                             </button>
                             @endif
 
-                            @if($denuncia->estado === 'verificada')
+                            @if($denuncia->estado === 'Verificada')
                             <div class="grid grid-cols-2 gap-2">
                                 @if(auth()->user()->role_name === 'Supervisor')
                                 <button wire:click="$set('mostrarModalAprobar', true)" class="w-full flex items-center justify-center px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm transition shadow-sm">
@@ -271,7 +271,7 @@
                             </div>
                             @endif
 
-                            @if($denuncia->estado === 'pendiente')
+                            @if($denuncia->estado === '<Picture></Picture>endiente')
                             <button wire:click="$set('mostrarModalRechazar', true)" class="w-full flex items-center justify-center px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg text-sm transition shadow-sm mt-2">
                                 <i class="fas fa-thumbs-down mr-1.5"></i> Rechazar
                             </button>

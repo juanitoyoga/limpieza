@@ -90,7 +90,8 @@
                             </div>
 
                             @if($nomination->document_path)
-                            <a href="{{ route('ver.documento', ['path' => base64_encode($nomination->document_path)]) }}"
+                            <a href="{{ route('ver.documento', ['disco' => 'nominations', 'path' => base64_encode($nomination->document_path)]) }}"
+
                                 target="_blank"
                                 class="inline-flex items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md">
                                 <i class="fas fa-external-link-alt mr-2"></i>

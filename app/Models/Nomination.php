@@ -215,6 +215,12 @@ class Nomination extends Model
     {
         return $this->belongsTo(User::class, 'verified_by');
     }
+
+    public function rejecter()
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
+    }
+
     // Scopes
     public function scopePropuesta($query)
     {

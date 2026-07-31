@@ -11,6 +11,7 @@ use App\Models\Ordenanza332;
 use App\Models\Role;
 use App\Models\Vecino;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 
 #[Layout('layouts.operacion')]
 class Index extends Component
@@ -18,17 +19,26 @@ class Index extends Component
     use WithPagination;
 
     // ─── Filtros y búsqueda ───────────────────────────────────────────────
+    #[Url(keep: true)]
     public $vecino_id = '';
+    #[Url(keep: true)]
     public $barrio_id = '';
+    #[Url(keep: true)]
     public $ordenanza332_id = '';
 
+    #[Url(keep: true)]
     public $fecha_inicio = '';
+    #[Url(keep: true)]
     public $fecha_fin = '';
 
+    #[Url(keep: true)]
     public $estado_revision = ''; // verificado | aprobado | rechazado
+    #[Url(keep: true)]
     public $fecha_revision_inicio = '';
+    #[Url(keep: true)]
     public $fecha_revision_fin = '';
 
+    #[Url(keep: true)]
     public $rol = ''; // role_name que aplicó la revisión
 
 
@@ -37,8 +47,11 @@ class Index extends Component
     public ?int $deleteId         = null;
 
     // ─── Tabla ─────────────────────────────────────────────────────────────
+    #[Url(keep: true)]
     public $perPage = 10;
+    #[Url(keep: true)]
     public $sortField = 'fecha_denuncia';
+    #[Url(keep: true)]
     public $sortDirection = 'desc';
 
     // ─── Anulación ─────────────────────────────────────────────────────────

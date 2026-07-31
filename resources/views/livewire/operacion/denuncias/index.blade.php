@@ -115,9 +115,9 @@
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 transition">
                                 <option value="">Cualquier estado</option>
                                 <option value="Pendiente">Pendiente</option>
-                                <option value="Verificado">Verificado</option>
-                                <option value="Aprobado">Aprobado</option>
-                                <option value="Rechazado">Rechazado</option>
+                                <option value="Verificada">Verificada</option>
+                                <option value="Aprobada">Aprobada</option>
+                                <option value="Rechazada">Rechazada</option>
                             </select>
                         </div>
 

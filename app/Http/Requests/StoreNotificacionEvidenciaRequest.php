@@ -4,6 +4,29 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+
+class StoreNotificacionEvidenciaRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'evidencia'        => 'required|file|max:20480|mimes:jpg,jpeg,png,mp4,mov',
+            'latitud'          => 'required|numeric|between:-90,90',
+            'longitud'         => 'required|numeric|between:-180,180',
+            'app_uuid'         => 'nullable|string|max:255',
+            'device_id'        => 'required|string|max:255',
+            'os_version'       => 'required|string|max:255',
+            'app_version'      => 'required|string|max:255',
+            'evidencia_hash'   => ['required', 'string', 'size:64', 'regex:/^[a-f0-9]+$/i'],
+            'observacion'      => 'nullable|string|max:1000',
+        ];
+    }
+}
 class StoreNotificacionRequest extends FormRequest
 {
 

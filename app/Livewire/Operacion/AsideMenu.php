@@ -11,11 +11,11 @@ class AsideMenu extends Component
 {
     protected RoleMenuService $roleMenuService;
     public $menuItems;
-    public $selectedEntity = null;    
+    public $selectedEntity = null;
 
     public function mount(RoleMenuService $roleMenuService)
     {
-        Log::debug('[AsideMenu] mount() iniciado');
+        // Log::debug('[AsideMenu] mount() iniciado');
 
         $this->roleMenuService = $roleMenuService;
 
@@ -24,37 +24,35 @@ class AsideMenu extends Component
             $user = Auth::user();
             $userId = $user->id;
 
-            Log::debug('[AsideMenu] Usuario autenticado', [
-                'user_id'   => $userId,
-                'role_name' => $user->role_name,
-                'email'     => $user->email ?? null,
-            ]);
+            // Log::debug('[AsideMenu] Usuario autenticado', [
+            //     'user_id'   => $userId,
+            //     'role_name' => $user->role_name,
+            //     'email'     => $user->email ?? null,
+            // ]);
 
             try {
                 // Si el usuario es admin, no mostrar menú de operaciones
                 if ($user->role_name === 'Admin') {
 
-                    Log::debug('[AsideMenu] Usuario Admin → menú vacío');
+                    // Log::debug('[AsideMenu] Usuario Admin → menú vacío');
 
                     $this->menuItems = [];
-
                 } else {
 
-                    Log::debug('[AsideMenu] Cargando menú por usuario', [
-                        'user_id' => $userId
-                    ]);
+                    // Log::debug('[AsideMenu] Cargando menú por usuario', [
+                    //     'user_id' => $userId
+                    // ]);
 
                     $this->menuItems = $this->roleMenuService
                         ->getMenuByUserId($userId);
 
-                    Log::debug('[AsideMenu] Menú cargado correctamente', [
-                        'items_count' => is_countable($this->menuItems)
-                            ? count($this->menuItems)
-                            : null,
-                        'menu_items'  => $this->menuItems,
-                    ]);
+                    // Log::debug('[AsideMenu] Menú cargado correctamente', [
+                    //     'items_count' => is_countable($this->menuItems)
+                    //         ? count($this->menuItems)
+                    //         : null,
+                    //     'menu_items'  => $this->menuItems,
+                    // ]);
                 }
-
             } catch (\Throwable $e) {
 
                 Log::error('[AsideMenu] Error al cargar menú', [
@@ -65,7 +63,6 @@ class AsideMenu extends Component
 
                 $this->menuItems = [];
             }
-
         } else {
 
             Log::warning('[AsideMenu] Usuario NO autenticado');

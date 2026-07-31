@@ -49,7 +49,7 @@ class Verificar extends Component
     public function save()
     {
         $this->validate();
-        
+
         $nomination = Nomination::findOrFail($this->nominationId);
         $currentUser = Auth::user();
 
@@ -77,7 +77,7 @@ class Verificar extends Component
 
             // 2. Log de Auditoría
             AuditEvent::logEvent(
-                $nomination->id,
+                $nomination,
                 $currentUser->id,
                 AuditEvent::EVENT_VERIFICATION_COMPLETED,
                 ['message' => 'Verificación realizada con observaciones: ' . $this->observaciones]
@@ -91,10 +91,9 @@ class Verificar extends Component
             DB::commit();
             session()->flash('success', 'Nominación verificada correctamente.');
             return redirect()->route('nominations.imprimir', $nomination->id);
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             // Registramos el error técnico en el log de Laravel (storage/logs/laravel.log)
             Log::error("Error en Verificación de Nominación ID {$this->nominationId}: " . $e->getMessage(), [
                 'exception' => $e,
@@ -122,10 +121,10 @@ class Verificar extends Component
 
         // Actualizar al candidato (Cargamos el modelo para asegurar persistencia)
         $candidate = User::findOrFail($nomination->candidate_user_id);
-        
+
         // ¡IMPORTANTE! Asegúrate de que la columna se llame 'role' o 'role_name' en tu tabla users
         $candidate->update(['role_name' => 'Supervisor']);
-        
+
         // Crear registro en tabla de Supervisores
         Supervisor::create([
             'user_id'         => $candidate->id,
@@ -136,13 +135,13 @@ class Verificar extends Component
             'email'           => $candidate->email,
             'dependencia_dmq' => $nomination->released_by,
             'referencias'     => json_encode([
-                'numero_tramite' => $nomination->numero_tramite, 
+                'numero_tramite' => $nomination->numero_tramite,
                 'path'           => $nomination->document_path
             ]),
             'last_login_at'   => $candidate->last_login_at,
         ]);
 
-        AuditEvent::logEvent($nomination->id, $user->id, AuditEvent::EVENT_APPROVAL_GRANTED, [
+        AuditEvent::logEvent($nomination, $user->id, AuditEvent::EVENT_APPROVAL_GRANTED, [
             'message' => 'Aprobación automática y creación de Supervisor por arranque inicial.'
         ]);
     }

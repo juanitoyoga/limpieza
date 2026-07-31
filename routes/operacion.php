@@ -1,6 +1,105 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Operacion\Proveedores\Lista as ProveedoresLista;
+use App\Livewire\Operacion\Proveedores\Create as ProveedoresCreate;
+use App\Livewire\Operacion\Proveedores\Edit as ProveedoresEdit;
+use App\Livewire\Operacion\Proveedores\Show as ProveedoresShow;
+
+use App\Livewire\Operacion\Resoluciones\Lista as ResolucionesLista;
+use App\Livewire\Operacion\Resoluciones\Create as ResolucionesCreate;
+use App\Livewire\Operacion\Resoluciones\Edit as ResolucionesEdit;
+use App\Livewire\Operacion\Resoluciones\Show as ResolucionesShow;
+
+use App\Livewire\Operacion\CatalogoServicios\Index as CatalogoIndex;
+use App\Livewire\Operacion\CatalogoServicios\Form as CatalogoForm;
+
+use App\Livewire\Operacion\Ofertas\Lista as OfertasLista;
+use App\Livewire\Operacion\Ofertas\Create as OfertasCreate;
+use App\Livewire\Operacion\Ofertas\Edit as OfertasEdit;
+use App\Livewire\Operacion\Ofertas\Servicios as OfertasServicios;
+use App\Livewire\Operacion\Ofertas\Verificar as OfertasVerificar;
+use App\Livewire\Operacion\Ofertas\Aprobar as OfertasAprobar;
+use App\Livewire\Operacion\Ofertas\Rechazar     as OfertasRechazar;
+
+Route::middleware(['auth'])->prefix('operacion')->group(function () {
+
+    /* -----------------------------------------
+       LISTA DE OFERTAS
+    ------------------------------------------*/
+    Route::get('/ofertas', OfertasLista::class)
+        ->name('ofertas.lista');
+
+    /* -----------------------------------------
+       CREAR OFERTA
+    ------------------------------------------*/
+    Route::get('/ofertas/crear', OfertasCreate::class)
+        ->name('ofertas.create');
+
+    /* -----------------------------------------
+       EDITAR OFERTA (solo si está Pendiente)
+    ------------------------------------------*/
+    Route::get('/ofertas/{oferta}/editar', OfertasEdit::class)
+        ->name('ofertas.edit');
+
+    /* -----------------------------------------
+       SERVICIOS DE LA OFERTA
+       (agregar, editar, eliminar servicios)
+    ------------------------------------------*/
+    Route::get('/ofertas/{oferta}/servicios', OfertasServicios::class)
+        ->name('ofertas.servicios');
+
+    /* -----------------------------------------
+       VERIFICAR OFERTA
+       (solo si está Pendiente)
+    ------------------------------------------*/
+    Route::get('/ofertas/{oferta}/verificar', OfertasVerificar::class)
+        ->name('ofertas.verificar');
+
+    /* -----------------------------------------
+       APROBAR OFERTA
+       (solo si está Verificada)
+    ------------------------------------------*/
+    Route::get('/ofertas/{oferta}/aprobar', OfertasAprobar::class)
+        ->name('ofertas.aprobar');
+
+    /* -----------------------------------------
+       RECHAZAR OFERTA
+       (solo si está Verificada)
+    ------------------------------------------*/
+    Route::get('/ofertas/{oferta}/rechazar', OfertasRechazar::class)
+        ->name('ofertas.rechazar');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/catalogo-servicios', CatalogoIndex::class)
+        ->name('catalogo-servicios.index');
+
+    Route::get('/catalogo-servicios/crear', CatalogoForm::class)
+        ->name('catalogo-servicios.create');
+
+    // Cambiamos {id} por {catalogo} para habilitar Model Binding
+    Route::get('/catalogo-servicios/{catalogo}/editar', CatalogoForm::class)
+        ->name('catalogo-servicios.edit');
+});
+// PROVEEDORES
+Route::prefix('proveedores')->name('proveedores.')->group(function () {
+    Route::get('/', ProveedoresLista::class)->name('lista');
+    Route::get('/crear', ProveedoresCreate::class)->name('create');
+    Route::get('/{proveedor}/editar', ProveedoresEdit::class)->name('edit');
+    Route::get('/{proveedor}/show', ProveedoresShow::class)->name('show');
+});
+
+// RESOLUCIONES
+Route::prefix('resoluciones')->name('resoluciones.')->group(function () {
+    Route::get('/', ResolucionesLista::class)->name('lista');
+    Route::get('/crear', ResolucionesCreate::class)->name('create');
+    Route::get('/{resolucion}/editar', ResolucionesEdit::class)->name('edit');
+    Route::get('/{resolucion}/show', ResolucionesShow::class)->name('show');
+    Route::get('/{resolucion}/verificar', \App\Livewire\Operacion\Resoluciones\Verificar::class)->name('verificar');
+    Route::get('/{resolucion}/aprobar', \App\Livewire\Operacion\Resoluciones\Aprobar::class)->name('aprobar');
+    Route::get('/{resolucion}/rechazar', \App\Livewire\Operacion\Resoluciones\Rechazar::class)->name('rechazar');
+});
 
 // DENUNCIAS
 Route::prefix('denuncias')->group(function () {

@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use App\Repositories\Contracts\MenuItemRepositoryInterface;
+use App\Repositories\MenuItemRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
+
 class MenuItemService
 {
     public function __construct(
@@ -65,5 +66,5 @@ class MenuItemService
 
 
         return $this->repository->getMenuByRoles($roles);
-    }  
+    }
 }
