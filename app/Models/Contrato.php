@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 
 class Contrato extends Model
 {
@@ -69,7 +72,7 @@ class Contrato extends Model
     ];
 
     // Relaciones
-    public function barrio()
+    public function barrio(): BelongsTo
     {
         return $this->belongsTo(Barrio::class);
     }

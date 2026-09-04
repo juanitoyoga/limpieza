@@ -17,6 +17,14 @@ use App\Livewire\Operacion\Home as OperacionHome;
 use App\Livewire\Operacion\Simple as OperacionSimple;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\DocumentoController;
+
+
+// Agregar en routes/web.php:
+
+if (app()->environment('local')) {
+    require __DIR__ . '/mail-preview.php';
+}
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -25,7 +33,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+Route::get('/usuarios/{user}/sesiones', function (\App\Models\User $user) {
+    return view('admin.sesiones', ['userId' => $user->id]);
+})->name('usuarios.sesiones')->middleware('can:gestionar-sesiones');
 
 Route::get('/descargar-documento/{path}', function ($path) {
     return Storage::download($path);
@@ -59,37 +69,6 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::get('/ver-documento/{disco}/{path}', function ($disco, $path) {
-    // Whitelist de discos permitidos — evita que alguien pida un disco arbitrario
-    $discosPermitidos = ['nominations', 'resoluciones'];
-
-    if (!in_array($disco, $discosPermitidos, true)) {
-        abort(404, 'Disco no válido.');
-    }
-
-    $decodedPath = base64_decode($path, true);
-
-    if ($decodedPath === false) {
-        abort(404, 'Ruta inválida.');
-    }
-
-    $fullPath = storage_path("app/{$disco}/{$decodedPath}");
-    $basePath = storage_path("app/{$disco}");
-
-    // Verificación de seguridad: el path resuelto debe seguir dentro del directorio del disco
-    if (!str_starts_with(realpath($fullPath) ?: '', realpath($basePath))) {
-        abort(403, 'Acceso no permitido.');
-    }
-
-    if (!file_exists($fullPath)) {
-        abort(404, 'El archivo físico no existe.');
-    }
-
-    return Response::file($fullPath, [
-        'Content-Type' => 'application/pdf',
-        'Content-Disposition' => 'inline; filename="documento.pdf"',
-        'Cache-Control' => 'no-cache, no-store, must-revalidate',
-        'Pragma' => 'no-cache',
-        'Expires' => '0',
-    ]);
-})->name('ver.documento')->middleware('auth');
+Route::get('/ver-documento/{disco}/{path}', [DocumentoController::class, 'ver'])
+    ->name('ver.documento')
+    ->middleware('auth');

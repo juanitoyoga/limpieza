@@ -6,17 +6,21 @@ use App\Models\Resolucion;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
+use App\Livewire\Concerns\ManejaEstadoBloqueado;
 
 #[Layout('layouts.operacion')]
 class Edit extends Component
 {
+
+    use ManejaEstadoBloqueado;
+
     public Resolucion $resolucion;
 
     public $codigo;
     public $barrio_id;
     public $titulo;
     public $descripcion;
-    public $tipo;
+    public $service_type_id;
     public $fecha_resolucion;
     public $numero_firmas;
 
@@ -30,7 +34,7 @@ class Edit extends Component
         $this->barrio_id        = $resolucion->barrio_id;
         $this->titulo           = $resolucion->titulo;
         $this->descripcion      = $resolucion->descripcion;
-        $this->tipo             = $resolucion->tipo;
+        $this->service_type_id = $resolucion->service_type_id;
         $this->fecha_resolucion = $resolucion->fecha_resolucion?->format('Y-m-d');
         $this->numero_firmas    = $resolucion->numero_firmas;
     }
@@ -42,7 +46,7 @@ class Edit extends Component
             'barrio_id'        => 'required|exists:barrios,id',
             'titulo'           => 'required|string|max:255',
             'descripcion'      => 'nullable|string',
-            'tipo'             => 'required|string|max:255',
+            'service_type_id' => 'required|exists:service_types,id',
             'fecha_resolucion' => 'required|date',
             'numero_firmas'    => 'nullable|integer',
         ];
@@ -57,7 +61,7 @@ class Edit extends Component
             'barrio_id'        => $this->barrio_id,
             'titulo'           => $this->titulo,
             'descripcion'      => $this->descripcion,
-            'tipo'             => $this->tipo,
+            'service_type_id' => $this->service_type_id,
             'fecha_resolucion' => $this->fecha_resolucion,
             'numero_firmas'    => $this->numero_firmas,
         ]);
@@ -69,6 +73,6 @@ class Edit extends Component
 
     public function render()
     {
-        return view('livewire.operacion.resoluciones.edit');
+        return $this->renderBloqueadoOr('livewire.operacion.resoluciones.edit');
     }
 }

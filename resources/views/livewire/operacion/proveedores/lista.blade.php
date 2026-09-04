@@ -21,7 +21,14 @@
                 <option value="inactivo">Inactivo</option>
             </select>
         </div>
-
+        <div class="flex flex-col">
+            <label class="text-sm text-gray-700 mb-1">Filas por página</label>
+            <select wire:model.live="perPage" class="border rounded px-3 py-2 w-28">
+                @foreach ($opcionesPerPage as $opcion)
+                <option value="{{ $opcion }}">{{ $opcion }}</option>
+                @endforeach
+            </select>
+        </div>
         <a href="{{ route('proveedores.create') }}"
             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
             + Nuevo Proveedor
@@ -39,8 +46,8 @@
                     RUC
                     @if($sortField === 'ruc') {{ $sortDirection === 'asc' ? '↑' : '↓' }} @endif
                 </th>
-                <th class="p-3">Tipo de servicio</th>
-                <th class="p-3">Estado</th>
+                <th class="p-3">Nombre Comercial</th>
+                <th class="p-3">Actividad</th>
                 <th class="p-3 text-right">Acciones</th>
             </tr>
         </thead>
@@ -49,18 +56,25 @@
             <tr class="border-b hover:bg-gray-50">
                 <td class="p-3">{{ $proveedor->razon_social }}</td>
                 <td class="p-3">{{ $proveedor->ruc }}</td>
-                <td class="p-3">{{ $proveedor->tipo_servicio ?? '—' }}</td>
-                <td class="p-3">
-                    <span class="px-2 py-1 rounded text-white text-xs {{ $proveedor->estadoColor() }}">
-                        {{ $proveedor->estadoLabel() }}
-                    </span>
-                </td>
+                <td class="p-3">{{ $proveedor->nombre_comercial ?? '—' }}</td>
+                <td class="p-3">{{ $proveedor->actividad ?? '—' }} </td>
                 <td class="p-3 text-right space-x-2">
-                    <a href="{{ route('proveedores.show', $proveedor) }}" class="text-gray-700 hover:underline">Ver</a>
+                    <a href="{{ route('proveedores.show', $proveedor) }}"
+                        title="Ver detalle"
+                        class="text-gray-500 hover:text-gray-800 transition">
+                        <i class="fas fa-eye"></i>
+                    </a>
                     <a href="{{ route('proveedores.edit', $proveedor) }}"
-                        class="text-blue-600 hover:underline">Editar</a>
+                        title="Editar proveedor"
+                        class="text-blue-500 hover:text-blue-800 transition">
+                        <i class="fas fa-pen"></i>
+                    </a>
                     <button wire:click="confirmDelete({{ $proveedor->id }})"
-                        class="text-red-600 hover:underline">Eliminar</button>
+                        title="Eliminar proveedor"
+                        class="text-red-600 hover:text-red-800 transition">
+                        <i class="fas fa-trash"></i>
+                    </button>
+
                 </td>
             </tr>
             @empty

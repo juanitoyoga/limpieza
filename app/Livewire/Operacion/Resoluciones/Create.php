@@ -2,9 +2,8 @@
 
 namespace App\Livewire\Operacion\Resoluciones;
 
-use App\Models\Resolucion;
-use App\Models\AuditEvent;
-use App\Models\Barrio;
+use App\Models\{Resolucion, AuditEvent, Barrio, ServiceType};
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -24,40 +23,30 @@ class Create extends Component
     public $barrio_id;
     public $titulo;
     public $descripcion;
-    public $tipo;
+    public $service_type_id;
     public $fecha_resolucion;
     public $documento_pdf;
     public $numero_firmas;
+    public $numero_servicios;
     public $evento_json;
     public $auth_status = 'Pendiente';
 
     // Se puebla en mount() para alimentar el dropdown de barrios.
     public $barrios = [];
 
-    // Mismo catálogo de tipos usado en CatalogoServicios\Form, para mantener
-    // consistencia entre el tipo de servicio y el tipo de resolución.
-    public $tipos = [
-        'limpieza_viaria',
-        'mantenimiento_parques',
-        'limpieza_edificios',
-        'eliminacion_grafitis',
-        'higiene_canina',
-        'mantenimiento_vial',
-        'mantenimiento_fuentes',
-        'gestion_residuos',
-        'limpieza_post_eventos',
-        'control_vegetacion',
-    ];
+    // Se puebla en mount() para alimentar el dropdown de tipos de servicio.
+    public $service_types = [];
 
     protected $rules = [
         'codigo'           => 'required|string|max:255|unique:resoluciones,codigo',
         'barrio_id'        => 'required|exists:barrios,id',
         'titulo'           => 'required|string|max:255',
         'descripcion'      => 'nullable|string',
-        'tipo'             => 'required|string|in:limpieza_viaria,mantenimiento_parques,limpieza_edificios,eliminacion_grafitis,higiene_canina,mantenimiento_vial,mantenimiento_fuentes,gestion_residuos,limpieza_post_eventos,control_vegetacion',
+        'service_type_id'    => 'required|exists:service_types,id',
         'fecha_resolucion' => 'required|date',
         'documento_pdf'    => 'required|file|mimes:pdf|max:5120',
-        'numero_firmas'    => 'nullable|integer',
+        'numero_firmas'    => 'required|integer',
+        'numero_servicios' => 'required|integer',
         'evento_json'      => 'nullable|json',
 
     ];
@@ -67,6 +56,7 @@ class Create extends Component
         Gate::authorize('resoluciones.create');
 
         $this->barrios = Barrio::orderBy('nombre')->get();
+        $this->service_types = ServiceType::orderBy('name')->get();
     }
 
     public function save()
@@ -87,9 +77,10 @@ class Create extends Component
                     'barrio_id'        => $this->barrio_id,
                     'titulo'           => $this->titulo,
                     'descripcion'      => $this->descripcion,
-                    'tipo'             => $this->tipo,
+                    'service_type_id'    => $this->service_type_id,
                     'fecha_resolucion' => $this->fecha_resolucion,
                     'numero_firmas'    => $this->numero_firmas,
+                    'numero_servicios' => $this->numero_servicios,
                     'evento_json'      => $this->evento_json ? json_decode($this->evento_json, true) : null,
                     'auth_status'      => $this->auth_status,
                 ]);
@@ -139,7 +130,7 @@ class Create extends Component
             'resolucion_creada',
             [
                 'codigo' => $resolucion->codigo,
-                'tipo'   => $resolucion->tipo,
+                'service_type_id'   => $resolucion->service_type_id,
                 'barrio' => $resolucion->barrio_id,
             ]
         );

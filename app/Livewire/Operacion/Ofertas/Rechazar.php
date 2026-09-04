@@ -1,59 +1,59 @@
 <?php
+// app/Livewire/Operacion/Ofertas/Rechazar.php
 
 namespace App\Livewire\Operacion\Ofertas;
 
-use Livewire\Component;
 use App\Models\Oferta;
 use App\Models\AuditEvent;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use App\Jobs\RegistrarEventoBlockchain;
+use Illuminate\Support\Facades\{Auth, DB, Gate};
+use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.operacion')]
 class Rechazar extends Component
 {
     public Oferta $oferta;
-    public $observaciones = '';
+    public string $observaciones = '';
+
+    protected $rules = ['observaciones' => 'required|string|min:10'];
 
     public function mount(Oferta $oferta)
     {
-        Gate::authorize('ofertas.reject');
+        Gate::authorize('ofertas.rechazar', $oferta);
+
+        abort_unless(
+            in_array($oferta->auth_status, [Oferta::ESTADO_PENDIENTE, Oferta::ESTADO_VERIFICADA], true),
+            403,
+            'Esta oferta ya fue aprobada o rechazada.'
+        );
 
         $this->oferta = $oferta;
-
-        if ($oferta->auth_status !== Oferta::ESTADO_VERIFICADA) {
-            abort(403, 'Solo las ofertas verificadas pueden ser rechazadas.');
-        }
     }
 
-    public function rechazar()
+    public function confirmar()
     {
-        DB::transaction(function () {
-            $userId = Auth::id();
+        $this->validate();
+        $userId = Auth::id();
 
+        DB::transaction(function () use ($userId) {
             $this->oferta->update([
-                'auth_status'       => Oferta::ESTADO_RECHAZADA,
-                'rechazado_por'     => $userId,
-                'fecha_rechazo'     => now(),
-                'observaciones'     => $this->observaciones,
+                'auth_status'   => Oferta::ESTADO_RECHAZADA,
+                'rechazado_por' => $userId,
+                'fecha_rechazo' => now(),
+                'observaciones' => trim(($this->oferta->observaciones ?? '') . "\nRechazo: {$this->observaciones}"),
             ]);
 
-            $audit = AuditEvent::logEvent(
-                $this->oferta,
-                $userId,
-                'oferta_rechazada',
-                [
-                    'codigo' => $this->oferta->codigo,
-                    'proveedor' => $this->oferta->proveedor_id,
-                    'resolucion' => $this->oferta->resolucion_id,
-                    'observaciones' => $this->observaciones,
-                ]
-            );
+            $evento = AuditEvent::logEvent($this->oferta, $userId, 'oferta_rechazada', [
+                'codigo' => $this->oferta->codigo,
+                'observaciones' => $this->observaciones,
+            ]);
 
-            DB::afterCommit(fn() => RegistrarEventoBlockchain::dispatch($audit->id));
+            DB::afterCommit(fn() => RegistrarEventoBlockchain::dispatch($evento->id));
         });
 
-        session()->flash('message', 'Oferta rechazada correctamente.');
+        session()->flash('message', 'Oferta rechazada.');
+
         return redirect()->route('ofertas.lista');
     }
 

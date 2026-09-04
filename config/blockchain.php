@@ -72,6 +72,37 @@ return [
         'resolucion_rechazada'         => 84,
         'resolucion_anulada'           => 85,
         'resolucion_ejecutada'         => 86,
+
+        // Ofertas (decena 90)
+        'oferta_creada'                 => 90,
+        'oferta_documento_subido'       => 91,
+        'oferta_verificada'             => 92,
+        'oferta_aprobada'               => 93,
+        'oferta_rechazada'              => 94,
+        'oferta_rechazada_automatica'   => 95,
+
+        // ContratoServicio (proveedor) — decena 100
+        'contrato_servicio_creado'      => 100,
+        'contrato_servicio_verificado'  => 101,
+        'contrato_servicio_aprobado'    => 102,
+        'contrato_servicio_rechazado'   => 103,
+        'contrato_servicio_rescindido'  => 104,
+        'contrato_servicio_liquidado'   => 105,
+
+        // HitoContratoServicio (evidencia de avance) — extiende decena 110
+        'hito_contrato_creado'          => 110,
+        'hito_contrato_verificado'      => 111,
+        'hito_contrato_aprobado'        => 112,
+        'hito_contrato_rechazado'       => 113,
+        'hito_verificado'               => 114,
+        'hito_aprobado'                 => 115,
+        'hito_rechazado'                => 116,
+
+        'orden_pago_autorizada' => 121,
+        'orden_pago_pagada'     => 122,
+        'orden_pago_anulada'    => 123,
+
+
     ],
 
     /*

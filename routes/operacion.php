@@ -14,61 +14,55 @@ use App\Livewire\Operacion\Resoluciones\Show as ResolucionesShow;
 use App\Livewire\Operacion\CatalogoServicios\Index as CatalogoIndex;
 use App\Livewire\Operacion\CatalogoServicios\Form as CatalogoForm;
 
-use App\Livewire\Operacion\Ofertas\Lista as OfertasLista;
-use App\Livewire\Operacion\Ofertas\Create as OfertasCreate;
-use App\Livewire\Operacion\Ofertas\Edit as OfertasEdit;
-use App\Livewire\Operacion\Ofertas\Servicios as OfertasServicios;
-use App\Livewire\Operacion\Ofertas\Verificar as OfertasVerificar;
-use App\Livewire\Operacion\Ofertas\Aprobar as OfertasAprobar;
-use App\Livewire\Operacion\Ofertas\Rechazar     as OfertasRechazar;
+use App\Livewire\Operacion\Ofertas\{
+    Lista as OfertasLista,
+    Create as OfertasCreate,
+    Edit as OfertasEdit,
+    Servicios as OfertasServicios,
+    Verificar as OfertasVerificar,
+    Aprobar as OfertasAprobar,
+    Rechazar     as OfertasRechazar,
+    Show as OfertasShow,
+    FormaPago as OfertasFormaPago
+};
 
-Route::middleware(['auth'])->prefix('operacion')->group(function () {
+use App\Livewire\Operacion\LogSistema\Index as LogSistemaIndex;
 
-    /* -----------------------------------------
-       LISTA DE OFERTAS
-    ------------------------------------------*/
-    Route::get('/ofertas', OfertasLista::class)
-        ->name('ofertas.lista');
+use App\Livewire\Operacion\ContratosServicios\{
+    Lista as ContratoServicioLista,
+    AsignarPersonal as ContratoServicioAsignarPersonal,
+    Show as ContratoServicioShow,
+    Create as ContratoServicioCreate,
+    Verificar as ContratoServicioVerificar,
+    Aprobar as ContratoServicioAprobar,
+    Rechazar as ContratoServicioRechazar,
+    Rescindir as ContratoServicioRescindir,
+    Liquidar as ContratoServicioLiquidar,
+    GestionHitos as ContratoServicioGestionHitos,
+    GestionOrdenesPago as ContratoServicioGestionOrdenesPago,
+};
 
-    /* -----------------------------------------
-       CREAR OFERTA
-    ------------------------------------------*/
-    Route::get('/ofertas/crear', OfertasCreate::class)
-        ->name('ofertas.create');
+Route::prefix('cms')->name('cms.')->group(function () {
+    Route::get('/', \App\Livewire\Operacion\Cms\Lista::class)->name('lista');
 
-    /* -----------------------------------------
-       EDITAR OFERTA (solo si está Pendiente)
-    ------------------------------------------*/
-    Route::get('/ofertas/{oferta}/editar', OfertasEdit::class)
-        ->name('ofertas.edit');
+    Route::get('/proponer/{contenidoSeccionId?}/{contenidoItemId?}', \App\Livewire\Operacion\Cms\Proponer::class)->name('proponer');
 
-    /* -----------------------------------------
-       SERVICIOS DE LA OFERTA
-       (agregar, editar, eliminar servicios)
-    ------------------------------------------*/
-    Route::get('/ofertas/{oferta}/servicios', OfertasServicios::class)
-        ->name('ofertas.servicios');
+    Route::get('/{version}/revisar', \App\Livewire\Operacion\Cms\RevisarAprobar::class)->name('revisar');
+    Route::get('/{item}/historial', \App\Livewire\Operacion\Cms\Historial::class)->name('historial');
+    Route::get('/gestionsecciones', \App\Livewire\Operacion\Cms\GestionSecciones::class)->name('gestionsecciones');
+});
 
-    /* -----------------------------------------
-       VERIFICAR OFERTA
-       (solo si está Pendiente)
-    ------------------------------------------*/
-    Route::get('/ofertas/{oferta}/verificar', OfertasVerificar::class)
-        ->name('ofertas.verificar');
+Route::middleware(['auth'])->group(function () {
 
-    /* -----------------------------------------
-       APROBAR OFERTA
-       (solo si está Verificada)
-    ------------------------------------------*/
-    Route::get('/ofertas/{oferta}/aprobar', OfertasAprobar::class)
-        ->name('ofertas.aprobar');
-
-    /* -----------------------------------------
-       RECHAZAR OFERTA
-       (solo si está Verificada)
-    ------------------------------------------*/
-    Route::get('/ofertas/{oferta}/rechazar', OfertasRechazar::class)
-        ->name('ofertas.rechazar');
+    Route::get('/ofertas', OfertasLista::class)->name('ofertas.lista');
+    Route::get('/ofertas/crear', OfertasCreate::class)->name('ofertas.create');
+    Route::get('/ofertas/{oferta}/show', OfertasShow::class)->name('ofertas.show');
+    Route::get('/ofertas/{oferta}/editar', OfertasEdit::class)->name('ofertas.edit');
+    Route::get('/ofertas/{oferta}/servicios', OfertasServicios::class)->name('ofertas.servicios');
+    Route::get('/ofertas/{oferta}/verificar', OfertasVerificar::class)->name('ofertas.verificar');
+    Route::get('/ofertas/{oferta}/aprobar', OfertasAprobar::class)->name('ofertas.aprobar');
+    Route::get('/ofertas/{oferta}/rechazar', OfertasRechazar::class)->name('ofertas.rechazar');
+    Route::get('/ofertas/{oferta}/formapago', OfertasFormaPago::class)->name('ofertas.formapago');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -101,6 +95,34 @@ Route::prefix('resoluciones')->name('resoluciones.')->group(function () {
     Route::get('/{resolucion}/rechazar', \App\Livewire\Operacion\Resoluciones\Rechazar::class)->name('rechazar');
 });
 
+// CONTRATOS DE SERVICIOS
+
+Route::middleware(['auth'])->prefix('contratos-servicios')->name('contratos-servicios.')->group(function () {
+
+    Route::get('/', ContratoServicioLista::class)->name('lista');
+
+    Route::get('/crear', ContratoServicioCreate::class)->name('create');
+
+    Route::get('/gestion-hitos', ContratoServicioGestionHitos::class)
+        ->middleware('can:contratos-servicios.gestion-hitos')
+        ->name('gestion-hitos');
+
+
+    Route::get('/{contrato}/gestion-ordenes-pago', ContratoServicioGestionOrdenesPago::class)
+        ->middleware('can:contratos-servicios.gestion-ordenes-pago')
+        ->name('gestion-ordenes-pago');
+
+    Route::get('/{contrato}', ContratoServicioShow::class)->name('show');
+
+    Route::get('/{contrato}/verificar', ContratoServicioVerificar::class)->name('verificar');
+    Route::get('/{contrato}/aprobar', ContratoServicioAprobar::class)->name('aprobar');
+    Route::get('/{contrato}/rechazar', ContratoServicioRechazar::class)->name('rechazar');
+    Route::get('/{contrato}/rescindir', ContratoServicioRescindir::class)->name('rescindir');
+    Route::get('/{contrato}/liquidar', ContratoServicioLiquidar::class)->name('liquidar');
+    Route::get('/{contrato}/asignarpersonal', ContratoServicioAsignarPersonal::class)->name('asignarpersonal');
+});
+// LOGS DEL SISTEMA
+Route::get('/logs-sistema', LogSistemaIndex::class)->name('log-sistema.index');
 // DENUNCIAS
 Route::prefix('denuncias')->group(function () {
     Route::get('/', \App\Livewire\Operacion\Denuncias\Index::class)

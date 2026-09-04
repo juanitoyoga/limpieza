@@ -184,4 +184,33 @@ class User extends Authenticatable
     {
         return $this->hasOne(Vecino::class);
     }
+
+    public function contratista()
+    {
+        return $this->hasOne(Contratista::class);
+    }
+    /**
+     * Devuelve el barrio_id del que este usuario es responsable activo,
+     * según su rol_name (Dirigente o Presidente). Cada usuario tiene un
+     * único rol y es responsable de un único barrio a la vez.
+     *
+     * Retorna null si el usuario no tiene rol de barrio, o si su registro
+     * en la tabla correspondiente (dirigentes/presidentes) no está activo.
+     */
+    public function barrioComoResponsable(): ?int
+    {
+        if ($this->role_name === 'Dirigente') {
+            return \App\Models\Dirigente::where('user_id', $this->id)
+                ->where('is_active', true)
+                ->value('barrio_id');
+        }
+
+        if ($this->role_name === 'Presidente') {
+            return \App\Models\Presidente::where('user_id', $this->id)
+                ->where('is_active', true)
+                ->value('barrio_id');
+        }
+
+        return null;
+    }
 }

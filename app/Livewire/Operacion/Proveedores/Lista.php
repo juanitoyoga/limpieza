@@ -20,6 +20,9 @@ class Lista extends Component
     public bool $confirmingDelete = false;
     public ?int $deleteId = null;
 
+    public int $perPage = 10;
+    public array $opcionesPerPage = [10, 25, 50, 100];
+    // Mantener filtros en la URL
     protected $queryString = ['search', 'filtroEstado'];
 
     public function updatingSearch()
@@ -40,6 +43,8 @@ class Lista extends Component
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
+
+        $this->resetPage();
     }
 
     public function confirmDelete(int $id): void
@@ -61,15 +66,20 @@ class Lista extends Component
     public function render()
     {
         $proveedores = Proveedor::query()
+            ->with(['contactoPrincipal']) // ⭐ mejora: cargar contacto principal
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('razon_social', 'like', "%{$this->search}%")
                         ->orWhere('ruc', 'like', "%{$this->search}%");
                 });
             })
-            ->when($this->filtroEstado, fn($query) => $query->where('estado', $this->filtroEstado))
+            ->when(
+                $this->filtroEstado,
+                fn($query) =>
+                $query->where('is_active', $this->filtroEstado === 'activo')
+            )
             ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate(10);
+            ->paginate($this->perPage);
 
         return view('livewire.operacion.proveedores.lista', [
             'proveedores' => $proveedores,

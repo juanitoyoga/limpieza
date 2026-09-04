@@ -1,65 +1,81 @@
 <?php
+// app/Livewire/Operacion/Ofertas/Verificar.php
 
 namespace App\Livewire\Operacion\Ofertas;
 
-use Livewire\Component;
 use App\Models\Oferta;
 use App\Models\AuditEvent;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use App\Jobs\RegistrarEventoBlockchain;
+use Illuminate\Support\Facades\{Auth, DB, Gate};
+use Livewire\Component;
+use Livewire\Attributes\Layout;
+use App\Livewire\Concerns\ManejaEstadoBloqueado;
 
+#[Layout('layouts.operacion')]
 class Verificar extends Component
 {
-    public Oferta $oferta;
 
-    public $observaciones = '';
+    use ManejaEstadoBloqueado;
+
+    public Oferta $oferta;
+    public bool $documentoRevisado = false;
+    public string $observaciones = '';
+
+    protected $rules = [
+        'documentoRevisado' => 'accepted',
+        'observaciones' => 'nullable|string',
+    ];
+
+    protected $messages = [
+        'documentoRevisado.accepted' => 'Debes confirmar que revisaste el documento físico contra el hash registrado.',
+    ];
 
     public function mount(Oferta $oferta)
     {
-        Gate::authorize('ofertas.verify');
 
         $this->oferta = $oferta;
 
+
         if ($oferta->auth_status !== Oferta::ESTADO_PENDIENTE) {
-            abort(403, 'Solo las ofertas pendientes pueden ser verificadas.');
+            $this->bloquearAcceso(
+                mensaje: 'Esta oferta ya no está en estado Pendiente.',
+                ruta: route('ofertas.show', $oferta),
+                detalles: ['Estado actual' => $oferta->estadoLabel()],
+            );
+            return;
         }
     }
 
-    public function verificar()
+    public function confirmar()
     {
-        DB::transaction(function () {
-            $userId = Auth::id();
+        $this->validate();
 
+        $userId = Auth::id();
+
+        DB::transaction(function () use ($userId) {
             $this->oferta->update([
-                'auth_status'       => Oferta::ESTADO_VERIFICADA,
-                'verificado_por'    => $userId,
+                'auth_status'        => Oferta::ESTADO_VERIFICADA,
+                'verificado_por'     => $userId,
                 'fecha_verificacion' => now(),
-                'observaciones'     => $this->observaciones,
+                'observaciones'      => trim(($this->oferta->observaciones ?? '') . "\n{$this->observaciones}"),
             ]);
 
-            $audit = AuditEvent::logEvent(
-                $this->oferta,
-                $userId,
-                'oferta_verificada',
-                [
-                    'codigo' => $this->oferta->codigo,
-                    'proveedor' => $this->oferta->proveedor_id,
-                    'resolucion' => $this->oferta->resolucion_id,
-                    'observaciones' => $this->observaciones,
-                ]
-            );
+            $evento = AuditEvent::logEvent($this->oferta, $userId, 'oferta_verificada', [
+                'codigo' => $this->oferta->codigo,
+                'documento_hash' => $this->oferta->documento_original_hash,
+            ]);
 
-            DB::afterCommit(fn() => RegistrarEventoBlockchain::dispatch($audit->id));
+            DB::afterCommit(fn() => RegistrarEventoBlockchain::dispatch($evento->id));
         });
 
         session()->flash('message', 'Oferta verificada correctamente.');
+
         return redirect()->route('ofertas.lista');
     }
 
     public function render()
     {
-        return view('livewire.operacion.ofertas.verificar');
+
+        return $this->renderBloqueadoOr('livewire.operacion.ofertas.verificar');
     }
 }

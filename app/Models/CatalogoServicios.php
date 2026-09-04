@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -19,13 +20,12 @@ class CatalogoServicios extends Model
         'codigo',
         'nombre',
         'descripcion',
-        'tipo',
-        'subtipo',
-        'ambito',
-        'frecuencia',
-        'nivel_intervencion',
-        'equipamiento',
-        'unidad_medida',
+        'service_type_id',
+        'service_subtype_id',
+        'service_scope_id',
+        'frequency_id',
+        'intervention_level_id',
+        'unit_id',
         'costo_referencial',
         'orden',
         'estado',
@@ -44,16 +44,20 @@ class CatalogoServicios extends Model
         return $query->where('estado', true);
     }
 
-    public function scopeDeTipo(Builder $query, string $tipo): Builder
+    public function scopeDeTipo(Builder $query, int $serviceTypeId): Builder
     {
-        return $query->where('tipo', $tipo);
+        return $query->where('service_type_id', $serviceTypeId);
     }
 
     // --- Accessors ---
 
     public function getNombreCompletoAttribute(): string
     {
-        return collect([$this->tipo, $this->subtipo, $this->ambito])
+        return collect([
+            $this->serviceType?->name,
+            $this->serviceSubtype?->name,
+            $this->serviceScope?->name,
+        ])
             ->filter()
             ->implode(' - ');
     }
@@ -64,20 +68,63 @@ class CatalogoServicios extends Model
     {
         static::creating(function (self $servicio) {
             if (empty($servicio->codigo)) {
-                $servicio->codigo = static::generarCodigo($servicio->tipo);
+                $servicio->codigo = static::generarCodigo($servicio->serviceType?->code ?? 'SERV');
             }
         });
     }
 
-    protected static function generarCodigo(string $tipo): string
+    protected static function generarCodigo(string $tipoCode): string
     {
-        $prefijo = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $tipo), 0, 4)) ?: 'SERV';
-        $siguiente = static::withTrashed()->where('tipo', $tipo)->count() + 1;
+        $prefijo = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $tipoCode), 0, 4)) ?: 'SERV';
+        $siguiente = static::withTrashed()
+            ->whereHas('serviceType', fn($q) => $q->where('code', $tipoCode))
+            ->count() + 1;
 
         return sprintf('%s-%03d', $prefijo, $siguiente);
     }
 
     // --- Relaciones ---
+
+    public function serviceType(): BelongsTo
+    {
+        return $this->belongsTo(ServiceType::class);
+    }
+
+    public function serviceSubtype(): BelongsTo
+    {
+        return $this->belongsTo(ServiceSubtype::class);
+    }
+
+    public function serviceScope(): BelongsTo
+    {
+        return $this->belongsTo(ServiceScope::class);
+    }
+
+    public function frequency(): BelongsTo
+    {
+        return $this->belongsTo(Frequency::class);
+    }
+
+    public function interventionLevel(): BelongsTo
+    {
+        return $this->belongsTo(InterventionLevel::class);
+    }
+
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class);
+    }
+    /**
+     * El equipamiento ya NO se guarda en catalogo_servicios — se deriva
+     * del subtipo elegido (Equipment <-> ServiceSubtype es la relación
+     * real, definida a nivel de "kit" del subtipo, no por servicio
+     * individual). Este helper evita tener que navegar
+     * $servicio->serviceSubtype->equipment en cada vista.
+     */
+    public function equipoRequerido()
+    {
+        return $this->serviceSubtype?->equipment ?? collect();
+    }
 
     /**
      * Necesaria para poder comprobar, ANTES de intentar borrar, si este servicio

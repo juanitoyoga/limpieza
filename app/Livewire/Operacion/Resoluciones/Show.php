@@ -3,6 +3,8 @@
 namespace App\Livewire\Operacion\Resoluciones;
 
 use App\Models\Resolucion;
+use App\Models\ResolucionParticipante;
+use App\Models\ResolucionServicio;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -43,8 +45,17 @@ class Show extends Component
 
     public function mount(Resolucion $resolucion)
     {
-        $this->resolucion = $resolucion;
+        $this->resolucion = $resolucion->load([
+            'barrio',
+            'serviceType',
+            'participantes',
+            'resolucionServicios',
+            'verificador',
+            'aprobador',
+            'rechazador',
+        ]);
     }
+
 
     protected function rulesParticipantes(): array
     {
@@ -79,16 +90,36 @@ class Show extends Component
             'servicio_costo_unitario' => ['nullable', 'numeric', 'min:0'],
         ];
     }
+    /**
+     * Una vez la resolución fue verificada o aprobada, el número de
+     * participantes y servicios queda fijo (ya se validó contra
+     * numero_firmas / numero_servicios), así que se bloquea su edición.
+     */
+    public function puedeEditarParticipantesServicios(): bool
+    {
+        return $this->resolucion->auth_status === Resolucion::ESTADO_PENDIENTE;
+    }
 
     public function openCreateParticipante(): void
     {
+        if (!$this->puedeEditarParticipantesServicios()) {
+            session()->flash('error', 'No se pueden agregar participantes: la resolución ya fue verificada o aprobada.');
+            return;
+        }
+
         $this->resetParticipanteForm();
         $this->showParticipanteModal = true;
     }
 
     public function openEditParticipante(int $participanteId): void
     {
+        if (!$this->puedeEditarParticipantesServicios()) {
+            session()->flash('error', 'No se pueden editar participantes: la resolución ya fue verificada o aprobada.');
+            return;
+        }
+
         $participante = $this->resolucion->participantes()->findOrFail($participanteId);
+
 
         $this->participanteId = $participante->id;
         $this->participante_user_id = $participante->user_id;
@@ -102,6 +133,10 @@ class Show extends Component
 
     public function saveParticipante(): void
     {
+        if (!$this->puedeEditarParticipantesServicios()) {
+            $this->addError('global', 'No se pueden guardar participantes: la resolución ya fue verificada o aprobada.');
+            return;
+        }
         $data = $this->validate(
             $this->rulesParticipantes(),
             $this->messagesParticipantes()
@@ -124,15 +159,25 @@ class Show extends Component
         session()->flash('message', 'Participante guardado correctamente.');
     }
 
+
     public function openCreateServicio(): void
     {
+        if (!$this->puedeEditarParticipantesServicios()) {
+            session()->flash('error', 'No se pueden agregar servicios: la resolución ya fue verificada o aprobada.');
+            return;
+        }
+
         $this->resetServicioForm();
         $this->showServicioModal = true;
     }
 
     public function openEditServicio(int $servicioId): void
     {
-        $servicio = $this->resolucion->resoluciones_Servicios()->findOrFail($servicioId);
+        if (!$this->puedeEditarParticipantesServicios()) {
+            session()->flash('error', 'No se pueden editar servicios: la resolución ya fue verificada o aprobada.');
+            return;
+        }
+        $servicio = $this->resolucion->resolucionServicios()->findOrFail($servicioId);
 
         $this->servicioId = $servicio->id;
         $this->servicio_catalogo_servicio_id = $servicio->catalogo_servicio_id;
@@ -147,9 +192,13 @@ class Show extends Component
 
     public function saveServicio(): void
     {
+        if (!$this->puedeEditarParticipantesServicios()) {
+            $this->addError('global', 'No se pueden guardar servicios: la resolución ya fue verificada o aprobada.');
+            return;
+        }
         $data = $this->validate($this->rulesServicios());
 
-        $this->resolucion->resoluciones_Servicios()->updateOrCreate(
+        $this->resolucion->resolucionServicios()->updateOrCreate(
             ['id' => $this->servicioId],
             [
                 'catalogo_servicio_id' => $data['servicio_catalogo_servicio_id'],
@@ -172,6 +221,11 @@ class Show extends Component
      */
     public function confirmDelete(int $id, string $type): void
     {
+        if (!$this->puedeEditarParticipantesServicios()) {
+            session()->flash('error', 'No se pueden eliminar registros: la resolución ya fue verificada o aprobada.');
+            return;
+        }
+
         $this->deleteId = $id;
         $this->deleteType = $type;
         $this->confirmingDelete = true;
@@ -183,9 +237,14 @@ class Show extends Component
      */
     public function delete(): void
     {
+        if (!$this->puedeEditarParticipantesServicios()) {
+            session()->flash('error', 'No se pueden eliminar registros: la resolución ya fue verificada o aprobada.');
+            $this->confirmingDelete = false;
+            return;
+        }
         match ($this->deleteType) {
             'participante' => $this->resolucion->participantes()->findOrFail($this->deleteId)->delete(),
-            'servicio' => $this->resolucion->resoluciones_Servicios()->findOrFail($this->deleteId)->delete(),
+            'servicio' => $this->resolucion->resolucionServicios()->findOrFail($this->deleteId)->delete(),
             default => null,
         };
 
@@ -228,8 +287,8 @@ class Show extends Component
     public function render()
     {
         return view('livewire.operacion.resoluciones.show', [
-            'participantes' => $this->resolucion->participantes()->orderBy('orden_firma')->get(),
-            'servicios' => $this->resolucion->resoluciones_Servicios()->get(),
+            'participantes' => $this->resolucion->participantes,
+            'servicios'     => $this->resolucion->resolucionServicios,
         ]);
     }
 }

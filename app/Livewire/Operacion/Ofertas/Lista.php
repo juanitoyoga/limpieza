@@ -6,6 +6,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Oferta;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 
 #[Layout('layouts.operacion')]
 class Lista extends Component
@@ -16,7 +18,28 @@ class Lista extends Component
     public $filtroAuthStatus = '';
     public $sortField = 'id';
     public $sortDirection = 'desc';
+    private const SORTABLES = ['codigo', 'proveedor_id', 'resolucion_id', 'monto_total', 'auth_status', 'id'];
 
+    public function mount()
+    {
+        Gate::authorize('ofertas.ver');
+    }
+
+    public function sortBy(string $field): void
+    {
+        if (!in_array($field, self::SORTABLES, true)) {
+            return;
+        }
+
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
+    }
     public function updatingSearch()
     {
         $this->resetPage();
@@ -27,22 +50,20 @@ class Lista extends Component
         $this->resetPage();
     }
 
-    public function sortBy(string $field): void
-    {
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortField = $field;
-            $this->sortDirection = 'asc';
-        }
-
-        $this->resetPage();
-    }
 
     public function render()
     {
+        $user = Auth::user();
+
         $ofertas = Oferta::query()
             ->with(['proveedor', 'resolucion'])
+            ->when(
+                in_array($user->role_name, ['Dirigente', 'Presidente']),
+                function ($query) use ($user) {
+                    $barrioId = $user->barrioComoResponsable();
+                    $query->whereHas('resolucion', fn($q) => $q->where('barrio_id', $barrioId));
+                }
+            )
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('codigo', 'like', "%{$this->search}%")

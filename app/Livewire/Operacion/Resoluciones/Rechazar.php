@@ -8,13 +8,17 @@ use App\Jobs\RegistrarEventoBlockchain;
 use Illuminate\Support\Facades\{Auth, DB, Gate};
 use Livewire\Component;
 use Livewire\Attributes\Layout;
+use App\Livewire\Concerns\ManejaEstadoBloqueado;
 
 #[Layout('layouts.operacion')]
 class Rechazar extends Component
 {
+    use ManejaEstadoBloqueado;
     public Resolucion $resolucion;
     public $observaciones;
     public $acepta_responsabilidad = false;
+    public int $participantesCount = 0;
+    public int $serviciosCount = 0;
 
     protected $rules = [
         'acepta_responsabilidad' => 'accepted',
@@ -23,13 +27,29 @@ class Rechazar extends Component
 
     public function mount(Resolucion $resolucion)
     {
+        $this->resolucion = $resolucion->load([
+            'barrio',
+            'serviceType.catalogoServicios',   // ⭐ RELACIÓN ANIDADA
+            'participantes',
+            'resolucionServicios.catalogoServicio',  // ⭐ RELACIÓN ANIDADA
+            'verificador',
+            'aprobador',
+            'rechazador',
+        ]);
+
+        $this->refreshConteos();
+
         Gate::authorize('resoluciones.rechazar', $resolucion);
 
         if (!in_array($resolucion->auth_status, [Resolucion::ESTADO_PENDIENTE, Resolucion::ESTADO_VERIFICADA])) {
             abort(403, 'Esta resolución no puede ser rechazada en su estado actual.');
         }
+    }
 
-        $this->resolucion = $resolucion;
+    private function refreshConteos(): void
+    {
+        $this->participantesCount = $this->resolucion->participantes()->count();
+        $this->serviciosCount = $this->resolucion->resolucionServicios()->count();
     }
 
     public function save()
@@ -67,6 +87,6 @@ class Rechazar extends Component
 
     public function render()
     {
-        return view('livewire.operacion.resoluciones.rechazar');
+        return $this->renderBloqueadoOr('livewire.operacion.resoluciones.rechazar');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Livewire\Operacion\CatalogoServicios;
 
 use App\Models\CatalogoServicios;
+use App\Models\ServiceType;
 use Illuminate\Database\QueryException;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -14,16 +15,19 @@ class Index extends Component
     use WithPagination;
 
     public string $search = '';
-    public string $filterTipo = '';
+    public string $filterTipo = ''; // guarda service_type_id como string
     public string $filterEstado = '';
 
     public string $sortField = 'orden';
     public string $sortDirection = 'asc';
 
+    public int $perPage = 10;
+    public array $opcionesPerPage = [10, 25, 50, 100];
+
     public bool $confirmingDelete = false;
     public ?int $deleteId = null;
 
-    protected $queryString = ['search', 'filterTipo', 'filterEstado'];
+    protected $queryString = ['search', 'filterTipo', 'filterEstado', 'perPage'];
 
     public function updatingSearch(): void
     {
@@ -36,6 +40,11 @@ class Index extends Component
     }
 
     public function updatingFilterEstado(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPerPage(): void
     {
         $this->resetPage();
     }
@@ -97,27 +106,24 @@ class Index extends Component
     public function render()
     {
         $items = CatalogoServicios::query()
+            ->with(['serviceType', 'serviceSubtype', 'serviceScope', 'frequency'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('codigo', 'like', "%{$this->search}%")
                         ->orWhere('nombre', 'like', "%{$this->search}%")
-                        ->orWhere('tipo', 'like', "%{$this->search}%")
-                        ->orWhere('subtipo', 'like', "%{$this->search}%")
-                        ->orWhere('ambito', 'like', "%{$this->search}%");
+                        ->orWhereHas('serviceType', fn($qt) => $qt->where('name', 'like', "%{$this->search}%"))
+                        ->orWhereHas('serviceSubtype', fn($qs) => $qs->where('name', 'like', "%{$this->search}%"))
+                        ->orWhereHas('serviceScope', fn($qa) => $qa->where('name', 'like', "%{$this->search}%"));
                 });
             })
-            ->when($this->filterTipo, fn($query) => $query->where('tipo', $this->filterTipo))
+            ->when($this->filterTipo, fn($query) => $query->where('service_type_id', $this->filterTipo))
             ->when($this->filterEstado !== '', fn($query) => $query->where('estado', $this->filterEstado === 'activo'))
             ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate(10);
+            ->paginate($this->perPage);
 
         return view('livewire.operacion.catalogo-servicios.index', [
             'items' => $items,
-            'tiposDisponibles' => CatalogoServicios::query()
-                ->select('tipo')
-                ->distinct()
-                ->orderBy('tipo')
-                ->pluck('tipo'),
+            'tiposDisponibles' => ServiceType::where('active', true)->orderBy('name')->get(),
         ]);
     }
 }

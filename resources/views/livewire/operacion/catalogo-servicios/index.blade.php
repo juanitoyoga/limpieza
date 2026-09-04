@@ -18,8 +18,6 @@
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4">
 
         <div class="flex flex-wrap items-end gap-3">
-            {{-- Antes no existía ningún input conectado a $search, aunque toda la
-                 lógica de búsqueda ya estaba implementada en Index.php --}}
             <div class="flex flex-col">
                 <label class="text-sm text-gray-700 mb-1">Buscar</label>
                 <input type="text" wire:model.live.debounce.300ms="search"
@@ -32,7 +30,7 @@
                 <select wire:model.live="filterTipo" class="border rounded px-3 py-2 w-48">
                     <option value="">Todos</option>
                     @foreach ($tiposDisponibles as $t)
-                    <option value="{{ $t }}">{{ $t }}</option>
+                    <option value="{{ $t->id }}">{{ $t->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -45,6 +43,16 @@
                     <option value="inactivo">Inactivo</option>
                 </select>
             </div>
+
+            <div class="flex flex-col">
+                <label class="text-sm text-gray-700 mb-1">Filas por página</label>
+                <select wire:model.live="perPage" class="border rounded px-3 py-2 w-28">
+                    @foreach ($opcionesPerPage as $opcion)
+                    <option value="{{ $opcion }}">{{ $opcion }}</option>
+                    @endforeach
+                </select>
+            </div>
+
             <div class="flex flex-col">
                 <label class="text-sm text-gray-700 mb-1">&nbsp;</label>
                 <a href="{{ route('catalogo-servicios.create') }}"
@@ -67,9 +75,9 @@
                     Nombre
                     @if ($sortField === 'nombre') {{ $sortDirection === 'asc' ? '↑' : '↓' }} @endif
                 </th>
-                <th class="p-2 text-left cursor-pointer" wire:click="sortBy('tipo')">
+                <th class="p-2 text-left cursor-pointer" wire:click="sortBy('service_type_id')">
                     Tipo
-                    @if ($sortField === 'tipo') {{ $sortDirection === 'asc' ? '↑' : '↓' }} @endif
+                    @if ($sortField === 'service_type_id') {{ $sortDirection === 'asc' ? '↑' : '↓' }} @endif
                 </th>
                 <th class="p-2 text-left">Subtipo</th>
                 <th class="p-2 text-left">Ámbito</th>
@@ -85,10 +93,10 @@
             <tr class="border-t">
                 <td class="p-2">{{ $item->codigo }}</td>
                 <td class="p-2">{{ $item->nombre }}</td>
-                <td class="p-2">{{ $item->tipo }}</td>
-                <td class="p-2">{{ $item->subtipo ?? '—' }}</td>
-                <td class="p-2">{{ $item->ambito ?? '—' }}</td>
-                <td class="p-2">{{ $item->frecuencia ?? '—' }}</td>
+                <td class="p-2">{{ $item->serviceType?->name ?? '—' }}</td>
+                <td class="p-2">{{ $item->serviceSubtype?->name ?? '—' }}</td>
+                <td class="p-2">{{ $item->serviceScope?->name ?? '—' }}</td>
+                <td class="p-2">{{ $item->frequency?->name ?? '—' }}</td>
                 <td class="p-2">
                     {{ $item->costo_referencial !== null ? number_format($item->costo_referencial, 2) : '—' }}
                 </td>

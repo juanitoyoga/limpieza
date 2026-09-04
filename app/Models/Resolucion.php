@@ -20,12 +20,13 @@ class Resolucion extends Model
         'barrio_id',
         'titulo',
         'descripcion',
-        'tipo',
+        'service_type_id',
         'fecha_resolucion',
         'documento_original_path',
         'documento_original_hash',
         'documento_original_mime',
         'numero_firmas',
+        'numero_servicios',
         'evento_json',
         'tx_hash',
         'tx_block',
@@ -47,6 +48,7 @@ class Resolucion extends Model
         'evento_json'             => 'array',
         'blockchain_timestamp'    => 'datetime',
         'numero_firmas'           => 'integer',
+        'numero_servicios'        => 'integer',
         'blockchain_block_number' => 'integer',
         'fecha_verificacion'      => 'datetime',
         'fecha_aprobacion'        => 'datetime',
@@ -87,6 +89,11 @@ class Resolucion extends Model
     public function resolucionServicios(): HasMany
     {
         return $this->hasMany(ResolucionServicio::class)->orderBy('catalogo_servicio_id');
+    }
+
+    public function serviceType(): BelongsTo
+    {
+        return $this->belongsTo(ServiceType::class);
     }
 
     public function verificador(): BelongsTo

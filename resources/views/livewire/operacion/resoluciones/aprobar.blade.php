@@ -40,7 +40,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2 text-gray-500">Tipo</label>
-                            <input type="text" value="{{ $resolucion->tipo }}" readonly
+                            <input type="text" value="{{ $resolucion->serviceType->name ?? '—' }}" readonly
                                 class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-600">
                         </div>
                         <div>
@@ -85,7 +85,53 @@
                             @endif
                         </div>
                     </div>
+                    {{-- Estado de conteos: firmas y servicios --}}
+                    <div class="p-4 rounded-xl border {{ $participantesCount === (int) $resolucion->numero_firmas && $serviciosCount === (int) $resolucion->numero_servicios ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' }}">
+                        <p class="text-sm font-semibold mb-2 {{ $participantesCount === (int) $resolucion->numero_firmas && $serviciosCount === (int) $resolucion->numero_servicios ? 'text-green-800' : 'text-red-800' }}">
+                            <i class="fas fa-list-check mr-1"></i> Estado de registros
+                        </p>
+                        <ul class="text-sm space-y-1">
+                            <li class="{{ $participantesCount === (int) $resolucion->numero_firmas ? 'text-green-700' : 'text-red-700' }}">
+                                Participantes: {{ $participantesCount }} / {{ $resolucion->numero_firmas ?? '—' }}
+                            </li>
+                            <li class="{{ $serviciosCount === (int) $resolucion->numero_servicios ? 'text-green-700' : 'text-red-700' }}">
+                                Servicios: {{ $serviciosCount }} / {{ $resolucion->numero_servicios ?? '—' }}
+                            </li>
+                        </ul>
+                        @if(!($participantesCount === (int) $resolucion->numero_firmas && $serviciosCount === (int) $resolucion->numero_servicios))
+                        <p class="text-xs text-red-600 mt-2">Complete los registros faltantes en el detalle de la resolución antes de verificar.</p>
+                        @endif
+                    </div>
+                    {{-- Participantes / Firmantes --}}
+                    @if($resolucion->participantes->isNotEmpty())
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-500">Participantes de la reunión barrial</label>
+                        <ul class="space-y-1 text-sm text-gray-700">
+                            @foreach($resolucion->participantes as $participante)
+                            <li class="flex justify-between border-b border-gray-100 py-1">
+                                <span>{{ $participante->nombre_firmante }} @if($participante->cargo)<span class="text-gray-400">— {{ $participante->cargo }}</span>@endif</span>
+                                <span class="text-gray-400 text-xs">Orden {{ $participante->orden_firma }}</span>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
 
+
+                    {{-- Servicios --}}
+                    @if($resolucion->resolucionServicios->isNotEmpty())
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-500">Servicios</label>
+                        <ul class="space-y-1 text-sm text-gray-700">
+                            @foreach($resolucion->resolucionServicios as $servicio)
+                            <li class="flex justify-between border-b border-gray-100 py-1">
+                                <span>{{ $servicio->catalogoServicio->descripcion ?? '—' }}</span>
+                                <span class="text-gray-400 text-xs">Cant. {{ $servicio->cantidad }}</span>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
                     <hr class="border-gray-200">
 
                     <div>

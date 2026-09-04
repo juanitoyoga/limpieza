@@ -5,6 +5,7 @@ namespace App\Livewire\Operacion\Resoluciones;
 use App\Models\Resolucion;
 use App\Models\AuditEvent;
 use App\Jobs\RegistrarEventoBlockchain;
+use App\Livewire\Concerns\ManejaEstadoBloqueado;
 use Illuminate\Support\Facades\{Auth, DB, Gate};
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -12,9 +13,13 @@ use Livewire\Attributes\Layout;
 #[Layout('layouts.operacion')]
 class Aprobar extends Component
 {
+    use ManejaEstadoBloqueado;
+
     public Resolucion $resolucion;
     public $observaciones;
     public $acepta_responsabilidad = false;
+    public int $participantesCount = 0;
+    public int $serviciosCount = 0;
 
     protected $rules = [
         'acepta_responsabilidad' => 'accepted',
@@ -23,17 +28,102 @@ class Aprobar extends Component
 
     public function mount(Resolucion $resolucion)
     {
-        Gate::authorize('resoluciones.aprobar', $resolucion);
 
-        if ($resolucion->auth_status !== Resolucion::ESTADO_VERIFICADA) {
-            abort(403, 'Esta resolución no está verificada, no puede aprobarse todavía.');
+        $this->resolucion = $resolucion->load([
+            'barrio',
+            'serviceType.catalogoServicios',   // ⭐ RELACIÓN ANIDADA
+            'participantes',
+            'resolucionServicios.catalogoServicio',  // ⭐ RELACIÓN ANIDADA
+            'verificador',
+            'aprobador',
+            'rechazador',
+        ]);
+
+        $this->refreshConteos();
+        // Detalles base, presentes en cualquier tipo de bloqueo relacionado
+        // con esta resolución.
+        $detallesBase = [
+            'Resolución'       => $resolucion->codigo,
+            'Título'           => $resolucion->titulo,
+            'Fecha de emisión' => $resolucion->fecha_resolucion?->format('d/m/Y') ?? '—',
+            'Estado actual'    => $resolucion->estadoLabel(),
+        ];
+
+        $check = Gate::inspect('resoluciones.aprobar', $resolucion);
+        if (! $check->allowed()) {
+            $this->bloquearAcceso(
+                mensaje: $check->message() ?: 'No tienes permisos para aprobar esta resolución.',
+                ruta: route('resoluciones.lista'),
+                detalles: $detallesBase,
+                titulo: 'Sin permisos',
+                nivel: 'warning'
+            );
+            return;
         }
 
-        $this->resolucion = $resolucion;
+        if ($resolucion->auth_status !== Resolucion::ESTADO_VERIFICADA) {
+            $this->bloquearAcceso(
+                mensaje: 'Esta resolución no está verificada, no puede aprobarse todavía.',
+                ruta: route('resoluciones.lista'),
+                detalles: $detallesBase + ['Estado requerido' => Resolucion::ESTADO_VERIFICADA],
+                titulo: 'Estado incorrecto',
+                nivel: 'warning'
+            );
+            return;
+        }
+
+        $participantesCount = $resolucion->participantes()->count();
+        $serviciosCount = $resolucion->resolucionServicios()->count();
+
+        if (
+            is_null($resolucion->numero_firmas)
+            || is_null($resolucion->numero_servicios)
+            || $participantesCount !== (int) $resolucion->numero_firmas
+            || $serviciosCount !== (int) $resolucion->numero_servicios
+        ) {
+            $this->bloquearAcceso(
+                mensaje: 'Los registros de participantes o servicios no coinciden con lo declarado en la resolución.',
+                ruta: route('resoluciones.lista'),
+                detalles: $detallesBase + [
+                    'Firmas declaradas'        => $resolucion->numero_firmas ?? '—',
+                    'Participantes ingresados' => $participantesCount,
+                    'Servicios declarados'     => $resolucion->numero_servicios ?? '—',
+                    'Servicios ingresados'     => $serviciosCount,
+                ],
+                titulo: 'Datos inconsistentes',
+                nivel: 'error'
+            );
+            return;
+        }
+    }
+    private function refreshConteos(): void
+    {
+        $this->participantesCount = $this->resolucion->participantes()->count();
+        $this->serviciosCount = $this->resolucion->resolucionServicios()->count();
     }
 
     public function save()
     {
+        // Re-validación OBLIGATORIA: mount() solo corrió una vez al cargar
+        // la página, así que estas comprobaciones son la barrera real de
+        // seguridad — no basta con haber marcado $bloqueado en mount().
+        Gate::authorize('resoluciones.aprobar', $this->resolucion);
+
+        if ($this->resolucion->auth_status !== Resolucion::ESTADO_VERIFICADA) {
+            $this->addError('global', 'Esta resolución ya no está en estado verificado.');
+            return;
+        }
+
+        $this->refreshConteos();
+
+        if (
+            $this->participantesCount !== (int) $this->resolucion->numero_firmas
+            || $this->serviciosCount !== (int) $this->resolucion->numero_servicios
+        ) {
+            $this->addError('global', 'Los registros de esta resolución cambiaron y ya no son consistentes.');
+            return;
+        }
+
         $this->validate();
 
         $user = Auth::user();
@@ -72,6 +162,6 @@ class Aprobar extends Component
 
     public function render()
     {
-        return view('livewire.operacion.resoluciones.aprobar');
+        return $this->renderBloqueadoOr('livewire.operacion.resoluciones.aprobar');
     }
 }

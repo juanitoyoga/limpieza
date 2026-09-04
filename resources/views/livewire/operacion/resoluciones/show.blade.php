@@ -22,7 +22,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4">
-            <div><span class="text-gray-500">Tipo:</span> {{ $resolucion->tipo }}</div>
+            <div><span class="text-gray-500">Tipo:</span> {{ $resolucion->serviceType->name ?? '—' }}</div>
             <div><span class="text-gray-500">Fecha:</span> {{ $resolucion->fecha_resolucion?->format('d/m/Y') ?? '—' }}</div>
             <div><span class="text-gray-500">Estado Auth:</span> {{ $resolucion->auth_status }}</div>
             <div><span class="text-gray-500">Barrio ID:</span> {{ $resolucion->barrio_id }}</div>
@@ -46,18 +46,18 @@
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold">Gestión de Sección</h3>
 
+            @if($this->puedeEditarParticipantesServicios())
             <div class="flex gap-2">
-                <button wire:click="openCreateParticipante"
-                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm">
-                    + Agregar participante
-                </button>
-
-                <button wire:click="openCreateServicio"
-                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm">
-                    + Agregar servicio
-                </button>
+                <button wire:click="openCreateParticipante" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50">+ Participante</button>
+                <button wire:click="openCreateServicio" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50">+ Servicio</button>
             </div>
+            @else
+            <span class="text-xs text-gray-500 italic">
+                Bloqueado — la resolución está {{ strtolower($resolucion->estadoLabel()) }}
+            </span>
+            @endif
         </div>
+
 
         {{-- Participantes --}}
         <div class="mb-6">
@@ -80,18 +80,19 @@
                         <td class="p-3">{{ $participante->documento_identidad }}</td>
                         <td class="p-3">{{ $participante->cargo ?? '—' }}</td>
                         <td class="p-3 text-right space-x-2">
+                            @if($this->puedeEditarParticipantesServicios())
                             <button wire:click="openEditParticipante({{ $participante->id }})"
                                 title="Editar"
                                 class="text-blue-500 hover:text-blue-800 transition">
                                 <i class="fas fa-pen"></i>
                             </button>
-                            {{-- Antes: confirmDelete($id) sin tipo, causaba que borrar un
-                                 servicio intentara buscar ese ID entre los participantes --}}
+                            {{-- Antes: confirmDelete($id) sin tipo, causaba que borrar un servicio intentara buscar ese ID entre los participantes --}}
                             <button wire:click="confirmDelete({{ $participante->id }}, 'participante')"
                                 title="Eliminar"
                                 class="text-red-500 hover:text-red-800 transition">
                                 <i class="fas fa-trash"></i>
                             </button>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -130,6 +131,7 @@
                             ${{ number_format((float) $servicio->costo_unitario, 2) }}
                         </td>
                         <td class="p-3 text-right space-x-2">
+                            @if($this->puedeEditarParticipantesServicios())
                             <button wire:click="openEditServicio({{ $servicio->id }})"
                                 title="Editar"
                                 class="text-blue-500 hover:text-blue-800 transition">
@@ -140,6 +142,7 @@
                                 class="text-red-500 hover:text-red-800 transition">
                                 <i class="fas fa-trash"></i>
                             </button>
+                            @endif
                         </td>
                     </tr>
                     @empty

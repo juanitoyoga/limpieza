@@ -4,7 +4,7 @@ namespace App\Livewire\Operacion\Resoluciones;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Resolucion;
+use App\Models\{Resolucion, ServiceType};
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.operacion')]
@@ -46,11 +46,12 @@ class Lista extends Component
     public function render()
     {
         $resoluciones = Resolucion::query()
+            ->with(['barrio', 'serviceType'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('codigo', 'like', "%{$this->search}%")
                         ->orWhere('titulo', 'like', "%{$this->search}%")
-                        ->orWhere('tipo', 'like', "%{$this->search}%");
+                        ->orWhere('service_type_id  ', 'like', "%{$this->search}%");
                 });
             })
             ->when($this->filtroAuthStatus, fn($q) => $q->where('auth_status', $this->filtroAuthStatus))

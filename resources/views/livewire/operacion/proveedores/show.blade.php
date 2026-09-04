@@ -19,15 +19,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div><span class="text-gray-500">RUC:</span> {{ $proveedor->ruc }}</div>
-            <div><span class="text-gray-500">Tipo de servicio:</span> {{ $proveedor->tipo_servicio ?? '—' }}</div>
-            <div><span class="text-gray-500">Representante legal:</span> {{ $proveedor->representante_legal ?? '—' }}</div>
+            <div><span class="text-gray-500">Actividad:</span> {{ $proveedor->actividad ?? '—' }}</div>
+            <div><span class="text-gray-500">Nombre Comercial:</span> {{ $proveedor->nombre_comercial ?? '—' }}</div>
             <div><span class="text-gray-500">Email:</span> {{ $proveedor->email ?? '—' }}</div>
             <div><span class="text-gray-500">Teléfono:</span> {{ $proveedor->telefono ?? '—' }}</div>
-            <div>
-                <span class="px-2 py-1 rounded text-white text-xs {{ $proveedor->estadoColor() }}">
-                    {{ $proveedor->estadoLabel() }}
-                </span>
-            </div>
+            <div>{{ $proveedor->direccion ?? '—' }}</div>
         </div>
     </div>
 
@@ -49,31 +45,43 @@
                     <th class="p-3">Teléfono</th>
                     <th class="p-3">Email</th>
                     <th class="p-3">Principal</th>
+                    <th class="p-3">App</th>
                     <th class="p-3 text-right">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($contactos as $contacto)
                 <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3">{{ $contacto->nombre }}</td>
+                    <td class="p-3">{{ $contacto->nombre_completo }}</td>
                     <td class="p-3">{{ $contacto->cargo ?? '—' }}</td>
-                    <td class="p-3">{{ $contacto->telefono ?? '—' }}</td>
+                    <td class="p-3">{{ $contacto->phone ?? '—' }}</td>
                     <td class="p-3">{{ $contacto->email ?? '—' }}</td>
                     <td class="p-3">
                         @if($contacto->es_principal)
                         <span class="px-2 py-1 rounded bg-blue-500 text-white text-xs">Principal</span>
                         @endif
                     </td>
+                    <td class="p-3">
+                        @if($contacto->usa_app && $contacto->contratista)
+                        <span class="px-2 py-1 rounded bg-green-500 text-white text-xs">Contratista</span>
+                        @elseif($contacto->usa_app)
+                        <span class="px-2 py-1 rounded bg-yellow-500 text-white text-xs">Pendiente</span>
+                        @endif
+                    </td>
                     <td class="p-3 text-right space-x-2">
                         <button wire:click="openEditContacto({{ $contacto->id }})"
-                            class="text-blue-600 hover:underline">Editar</button>
+                            title="Editar"
+                            class="text-gray-500 hover:text-gray-800 transition">
+                            <i class="fas fa-eye"></i></button>
                         <button wire:click="confirmDelete({{ $contacto->id }})"
-                            class="text-red-600 hover:underline">Eliminar</button>
+                            title="Eliminar"
+                            class="text-red-600 hover:text-red-800 transition">
+                            <i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="p-6 text-center text-gray-500">No hay contactos registrados.</td>
+                    <td colspan="7" class="p-6 text-center text-gray-500">No hay contactos registrados.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -89,10 +97,17 @@
             </h3>
 
             <form wire:submit.prevent="saveContacto" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                    <input type="text" wire:model="nombre" class="w-full border px-4 py-2 rounded">
-                    @error('nombre') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
+                        <input type="text" wire:model="first_name" class="w-full border px-4 py-2 rounded">
+                        @error('first_name') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+                        <input type="text" wire:model="last_name" class="w-full border px-4 py-2 rounded">
+                        @error('last_name') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
                 <div>
@@ -105,8 +120,8 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                        <input type="text" wire:model="telefono" class="w-full border px-4 py-2 rounded">
-                        @error('telefono') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                        <input type="text" wire:model="phone" class="w-full border px-4 py-2 rounded">
+                        @error('phone') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
@@ -120,6 +135,58 @@
                     <input type="checkbox" wire:model="es_principal" id="es_principal" class="rounded">
                     <label for="es_principal" class="text-sm text-gray-700">Marcar como contacto principal</label>
                 </div>
+
+                <hr class="my-2">
+
+                <div>
+                    <div class="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            wire:model.live="usa_app"
+                            id="usa_app"
+                            class="rounded"
+                            @if($yaGenerado) disabled @endif>
+                        <label for="usa_app" class="text-sm text-gray-700 font-medium">
+                            Dar acceso a la app móvil (rol Contratista)
+                        </label>
+                    </div>
+
+                    @if($yaGenerado)
+                    <p class="text-xs text-green-700 mt-1">
+                        ✓ Este contacto ya tiene una cuenta generada. Para revocar el acceso,
+                        usa la pantalla de sesiones del usuario en vez de desmarcar aquí.
+                    </p>
+                    @elseif($usa_app)
+                    <p class="text-xs text-gray-500 mt-1">
+                        Se creará un usuario automáticamente y se enviará la contraseña
+                        temporal al email indicado arriba.
+                    </p>
+                    @endif
+                </div>
+
+                @if($usa_app && !$yaGenerado)
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Tipo ID <span class="text-red-500">*</span>
+                        </label>
+                        <select wire:model="tipo_id" class="w-full border px-4 py-2 rounded">
+                            <option value="CEDULA">Cédula</option>
+                            <option value="RUC">RUC</option>
+                            <option value="PASAPORTE">Pasaporte</option>
+                        </select>
+                        @error('tipo_id') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Número <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" wire:model="nro_id" maxlength="20" class="w-full border px-4 py-2 rounded">
+                        @error('nro_id') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 -mt-2">Requerido para generar la cuenta de usuario.</p>
+                @endif
 
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" wire:click="$set('showContactoModal', false)"

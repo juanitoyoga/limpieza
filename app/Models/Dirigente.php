@@ -98,7 +98,23 @@ class Dirigente extends Model
         'timezone'  => 'America/Guayaquil',
         'language'  => 'es',
     ];
+    protected static function boot()
+    {
+        parent::boot();
 
+        static::creating(function ($dirigente) {
+            // Ya no se valida "solo un dirigente por barrio".
+            // Se valida que el mismo usuario no esté duplicado como dirigente activo del mismo barrio.
+            $duplicado = self::where('barrio_id', $dirigente->barrio_id)
+                ->where('user_id', $dirigente->user_id)
+                ->where('is_active', true)
+                ->exists();
+
+            if ($duplicado) {
+                throw new \Exception('Este usuario ya es dirigente activo de este barrio.');
+            }
+        });
+    }
     public function barrio(): BelongsTo
     {
         return $this->belongsTo(Barrio::class, 'barrio_id');
@@ -113,7 +129,10 @@ class Dirigente extends Model
     {
         return $this->belongsTo(Nomination::class);
     }
-
+    public function scopeDistintoDe($query, int $userId)
+    {
+        return $query->where('user_id', '!=', $userId);
+    }
     public function scopeActivos($query)
     {
         return $query->where('is_active', true);
@@ -209,20 +228,5 @@ class Dirigente extends Model
         }
 
         return $this->phone;
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($dirigente) {
-            $existeDirigente = self::where('barrio_id', $dirigente->barrio_id)
-                ->where('is_active', true)
-                ->exists();
-
-            if ($existeDirigente) {
-                throw new \Exception('Ya existe un dirigente activo para este barrio.');
-            }
-        });
     }
 }

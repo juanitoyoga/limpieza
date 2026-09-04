@@ -49,9 +49,18 @@ class Create extends Component
     {
         Gate::authorize('ofertas.create');
 
-        $this->proveedores = Proveedor::orderBy('nombre')->get();
-        $this->resoluciones = Resolucion::orderBy('codigo')->get();
+        $user = Auth::user();
+        $barrioId = $user->barrioComoResponsable();
+
+        $this->proveedores = Proveedor::activos()->orderBy('razon_social')->get();
+
+        $this->resoluciones = Resolucion::query()
+            ->when($barrioId, fn($q) => $q->where('barrio_id', $barrioId))
+            ->when(!$barrioId, fn($q) => $q->whereRaw('1 = 0')) // sin barrio asignado = ninguna resolución visible
+            ->orderBy('codigo')
+            ->get();
     }
+
 
     public function save()
     {
@@ -75,10 +84,12 @@ class Create extends Component
                 ]);
 
                 // Documento PDF
-                $directory = 'ofertas/' . date('Y/m');
+
+                $directory = date('Y/m'); // antes: 'ofertas/' . date('Y/m')
                 $filename = "{$oferta->codigo}.pdf";
 
                 $path = $this->documento_pdf->storeAs($directory, $filename, 'ofertas');
+
                 $fullPath = Storage::disk('ofertas')->path($path);
                 $hash = hash_file('sha256', $fullPath);
                 $mime = $this->documento_pdf->getMimeType();

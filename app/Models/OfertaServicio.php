@@ -31,12 +31,22 @@ class OfertaServicio extends Model
     ------------------------------------------*/
     protected static function booted(): void
     {
+        // dentro de booted(), antes del saving que calcula subtotal
+
         static::saving(function (OfertaServicio $item) {
-            $item->subtotal = round(
-                $item->cantidad * $item->costo_unitario,
-                2
-            );
+            if ($item->resolucion_servicio_id) {
+                $solicitado = ResolucionServicio::find($item->resolucion_servicio_id)?->cantidad;
+
+                if (!is_null($solicitado) && $item->cantidad > $solicitado) {
+                    throw new \DomainException(
+                        "La cantidad ({$item->cantidad}) no puede superar lo solicitado en la resolución ({$solicitado})."
+                    );
+                }
+            }
+
+            $item->subtotal = round($item->cantidad * $item->costo_unitario, 2);
         });
+
 
         static::saved(function (OfertaServicio $item) {
             $item->oferta?->recalcularMontoTotal();

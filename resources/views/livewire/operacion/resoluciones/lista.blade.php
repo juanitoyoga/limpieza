@@ -64,7 +64,7 @@
             <tr class="border-b hover:bg-gray-50">
                 <td class="p-3 font-semibold">{{ $resolucion->codigo }}</td>
                 <td class="p-3">{{ $resolucion->titulo }}</td>
-                <td class="p-3">{{ $resolucion->tipo }}</td>
+                <td class="p-3">{{ $resolucion->serviceType->name ?? '—' }}</td>
                 <td class="p-3">{{ $resolucion->fecha_resolucion?->format('d/m/Y') ?? '—' }}</td>
                 <td class="p-3">
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium text-white shadow-xs {{ $resolucion->estadoColor() }}">

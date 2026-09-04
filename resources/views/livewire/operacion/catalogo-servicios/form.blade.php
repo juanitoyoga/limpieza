@@ -39,72 +39,89 @@
 
         <div>
             <label class="block mb-1">Tipo *</label>
-            <select wire:model="tipo" class="border rounded px-3 py-2 w-full">
+            <select wire:model.live="service_type_id" class="border rounded px-3 py-2 w-full">
                 <option value="">Seleccione...</option>
-                @foreach($tipos as $t)
-                <option value="{{ $t }}">{{ $t }}</option>
+                @foreach($tiposDisponibles as $t)
+                <option value="{{ $t->id }}">{{ $t->name }}</option>
                 @endforeach
             </select>
-            @error('tipo') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+            @error('service_type_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
 
         <div>
-            <label class="block mb-1">Subtipo</label>
-            <select wire:model="subtipo" class="border rounded px-3 py-2 w-full">
+            <label class="block mb-1">
+                Subtipo
+                @unless($service_type_id)
+                <span class="text-xs text-gray-400">(elige un tipo primero)</span>
+                @endunless
+            </label>
+            <select wire:model.live="service_subtype_id" class="border rounded px-3 py-2 w-full"
+                @unless($service_type_id) disabled @endunless>
                 <option value="">Seleccione...</option>
-                @foreach($subtipos as $s)
-                <option value="{{ $s }}">{{ $s }}</option>
+                @foreach($subtiposDisponibles as $s)
+                <option value="{{ $s->id }}">{{ $s->name }}</option>
                 @endforeach
             </select>
+            @error('service_subtype_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
+
+        {{-- 🆕 Informativo, no editable: el equipo viene del subtipo elegido --}}
+        @if($service_subtype_id)
+        <div class="bg-blue-50 border border-blue-200 rounded px-4 py-3">
+            <p class="text-sm font-medium text-blue-900 mb-1">Equipo requerido por este subtipo:</p>
+            @forelse($equipoDelSubtipo as $equipo)
+            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-1 mb-1">
+                {{ $equipo->name }}
+                @if($equipo->pivot->required)
+                <i class="fas fa-asterisk text-[8px] ml-1" title="Requerido"></i>
+                @endif
+            </span>
+            @empty
+            <p class="text-xs text-gray-500">Este subtipo no tiene equipo configurado todavía.</p>
+            @endforelse
+        </div>
+        @endif
 
         <div>
             <label class="block mb-1">Ámbito</label>
-            <select wire:model="ambito" class="border rounded px-3 py-2 w-full">
+            <select wire:model="service_scope_id" class="border rounded px-3 py-2 w-full">
                 <option value="">Seleccione...</option>
-                @foreach($ambitos as $a)
-                <option value="{{ $a }}">{{ $a }}</option>
+                @foreach($ambitosDisponibles as $a)
+                <option value="{{ $a->id }}">{{ $a->name }}</option>
                 @endforeach
             </select>
+            @error('service_scope_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
 
         <div>
             <label class="block mb-1">Frecuencia</label>
-            <select wire:model="frecuencia" class="border rounded px-3 py-2 w-full">
+            <select wire:model="frequency_id" class="border rounded px-3 py-2 w-full">
                 <option value="">Seleccione...</option>
-                @foreach($frecuencias as $f)
-                <option value="{{ $f }}">{{ $f }}</option>
+                @foreach($frecuenciasDisponibles as $f)
+                <option value="{{ $f->id }}">{{ $f->name }}</option>
                 @endforeach
             </select>
+            @error('frequency_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
 
         <div>
             <label class="block mb-1">Nivel de intervención</label>
-            <select wire:model="nivel_intervencion" class="border rounded px-3 py-2 w-full">
+            <select wire:model="intervention_level_id" class="border rounded px-3 py-2 w-full">
                 <option value="">Seleccione...</option>
-                @foreach($niveles as $n)
-                <option value="{{ $n }}">{{ $n }}</option>
+                @foreach($nivelesDisponibles as $n)
+                <option value="{{ $n->id }}">{{ $n->name }}</option>
                 @endforeach
             </select>
-        </div>
-
-        <div>
-            <label class="block mb-1">Equipamiento</label>
-            <select wire:model="equipamiento" class="border rounded px-3 py-2 w-full">
-                <option value="">Seleccione...</option>
-                @foreach($equipos as $e)
-                <option value="{{ $e }}">{{ $e }}</option>
-                @endforeach
-            </select>
+            @error('intervention_level_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block mb-1">Unidad de medida</label>
-                <select wire:model="unidad_medida" class="border rounded px-3 py-2 w-full">
+                <select wire:model="unit_id" class="border rounded px-3 py-2 w-full">
                     <option value="">Seleccione...</option>
-                    @foreach($unidades as $u)
-                    <option value="{{ $u }}">{{ $u }}</option>
+                    @foreach($unidadesDisponibles as $u)
+                    <option value="{{ $u->id }}">{{ $u->name }}</option>
                     @endforeach
                 </select>
             </div>

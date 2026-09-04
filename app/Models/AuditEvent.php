@@ -71,7 +71,33 @@ class AuditEvent extends Model
     const EVENT_DOCUMENT_UPLOADED = 'PDF cargado';
 
     const EVENT_BLOCKCHAIN_REGISTERED = 'Proceso_Blockchain_Registrado';
+    // Agregar a las const, junto a las demás:
+    const EVENT_OFERTA_CREADA               = 'oferta_creada';
+    const EVENT_OFERTA_DOCUMENTO_SUBIDO     = 'oferta_documento_subido';
+    const EVENT_OFERTA_VERIFICADA           = 'oferta_verificada';
+    const EVENT_OFERTA_APROBADA             = 'oferta_aprobada';
+    const EVENT_OFERTA_RECHAZADA            = 'oferta_rechazada';
+    const EVENT_OFERTA_RECHAZADA_AUTOMATICA = 'oferta_rechazada_automatica';
+    // Agregar a las const, junto a las de Oferta:
+    const EVENT_CONTRATO_SERVICIO_CREADO      = 'contrato_servicio_creado';
+    const EVENT_CONTRATO_SERVICIO_VERIFICADO  = 'contrato_servicio_verificado';
+    const EVENT_CONTRATO_SERVICIO_APROBADO    = 'contrato_servicio_aprobado';
+    const EVENT_CONTRATO_SERVICIO_RECHAZADO   = 'contrato_servicio_rechazado';
+    const EVENT_CONTRATO_SERVICIO_RESCINDIDO  = 'contrato_servicio_rescindido';
+    const EVENT_CONTRATO_SERVICIO_LIQUIDADO   = 'contrato_servicio_liquidado';
 
+    // Hitos (EvidenciaHito no tiene evento propio; sus hashes viajan en 'details')
+    const EVENT_HITO_VERIFICADO = 'hito_verificado';
+    const EVENT_HITO_APROBADO   = 'hito_aprobado';
+
+    // MovimientoServicio
+    const EVENT_MOVIMIENTO_SERVICIO_TERMINADO = 'movimiento_servicio_terminado';
+
+    // OrdenPago
+    const EVENT_ORDEN_PAGO_GENERADA   = 'orden_pago_generada';
+    const EVENT_ORDEN_PAGO_VERIFICADA = 'orden_pago_verificada';
+    const EVENT_ORDEN_PAGO_APROBADA   = 'orden_pago_aprobada';
+    const EVENT_ORDEN_PAGO_RECHAZADA  = 'orden_pago_rechazada';
 
     /**
      * Relación polimórfica — puede ser Nomination, Contrato, Obra, Fondo, etc.
@@ -264,6 +290,27 @@ class AuditEvent extends Model
             self::EVENT_ASSIGNMENT_COMPLETED => 'Asignación Completada',
             self::EVENT_DOCUMENT_UPLOADED => 'PDF cargado',
             self::EVENT_STATUS_CHANGED => 'Estado Cambiado',
+            // Agregar los case dentro de getEventTypeNameAttribute():
+            self::EVENT_OFERTA_CREADA               => 'Oferta Creada',
+            self::EVENT_OFERTA_DOCUMENTO_SUBIDO     => 'Documento de Oferta Subido',
+            self::EVENT_OFERTA_VERIFICADA           => 'Oferta Verificada',
+            self::EVENT_OFERTA_APROBADA             => 'Oferta Aprobada',
+            self::EVENT_OFERTA_RECHAZADA            => 'Oferta Rechazada',
+            self::EVENT_OFERTA_RECHAZADA_AUTOMATICA => 'Oferta Rechazada (competidora)',
+            // Agregar los case dentro de getEventTypeNameAttribute():
+            self::EVENT_CONTRATO_SERVICIO_CREADO      => 'Contrato de Servicio Creado',
+            self::EVENT_CONTRATO_SERVICIO_VERIFICADO  => 'Contrato de Servicio Verificado',
+            self::EVENT_CONTRATO_SERVICIO_APROBADO    => 'Contrato de Servicio Aprobado',
+            self::EVENT_CONTRATO_SERVICIO_RECHAZADO   => 'Contrato de Servicio Rechazado',
+            self::EVENT_CONTRATO_SERVICIO_RESCINDIDO  => 'Contrato de Servicio Rescindido',
+            self::EVENT_CONTRATO_SERVICIO_LIQUIDADO   => 'Contrato de Servicio Liquidado',
+            self::EVENT_HITO_VERIFICADO               => 'Hito Verificado',
+            self::EVENT_HITO_APROBADO                 => 'Hito Aprobado',
+            self::EVENT_MOVIMIENTO_SERVICIO_TERMINADO => 'Servicio Terminado',
+            self::EVENT_ORDEN_PAGO_GENERADA           => 'Orden de Pago Generada',
+            self::EVENT_ORDEN_PAGO_VERIFICADA         => 'Orden de Pago Verificada',
+            self::EVENT_ORDEN_PAGO_APROBADA           => 'Orden de Pago Aprobada',
+            self::EVENT_ORDEN_PAGO_RECHAZADA          => 'Orden de Pago Rechazada',
             default => 'Evento Desconocido'
         };
     }
@@ -281,6 +328,26 @@ class AuditEvent extends Model
             self::EVENT_ASSIGNMENT_CREATED, self::EVENT_ASSIGNMENT_COMPLETED => 'assignment',
             self::EVENT_DOCUMENT_UPLOADED => 'document uploaded',
             self::EVENT_STATUS_CHANGED => 'status',
+            // Agregar los case dentro de getEventCategoryAttribute():
+            self::EVENT_OFERTA_CREADA               => 'oferta',
+            self::EVENT_OFERTA_DOCUMENTO_SUBIDO     => 'oferta',
+            self::EVENT_OFERTA_VERIFICADA           => 'oferta',
+            self::EVENT_OFERTA_APROBADA             => 'oferta',
+            self::EVENT_OFERTA_RECHAZADA            => 'oferta',
+            self::EVENT_OFERTA_RECHAZADA_AUTOMATICA => 'oferta',
+            self::EVENT_CONTRATO_SERVICIO_CREADO      => 'contrato_servicio',
+            self::EVENT_CONTRATO_SERVICIO_VERIFICADO  => 'contrato_servicio',
+            self::EVENT_CONTRATO_SERVICIO_APROBADO    => 'contrato_servicio',
+            self::EVENT_CONTRATO_SERVICIO_RECHAZADO   => 'contrato_servicio',
+            self::EVENT_CONTRATO_SERVICIO_RESCINDIDO  => 'contrato_servicio',
+            self::EVENT_CONTRATO_SERVICIO_LIQUIDADO   => 'contrato_servicio',
+            self::EVENT_HITO_VERIFICADO               => 'hito',
+            self::EVENT_HITO_APROBADO                 => 'hito',
+            self::EVENT_MOVIMIENTO_SERVICIO_TERMINADO => 'movimiento_servicio',
+            self::EVENT_ORDEN_PAGO_GENERADA           => 'orden_pago',
+            self::EVENT_ORDEN_PAGO_VERIFICADA         => 'orden_pago',
+            self::EVENT_ORDEN_PAGO_APROBADA           => 'orden_pago',
+            self::EVENT_ORDEN_PAGO_RECHAZADA          => 'orden_pago',
             default => 'other'
         };
     }
@@ -300,6 +367,26 @@ class AuditEvent extends Model
             self::EVENT_ASSIGNMENT_COMPLETED => '🏁',
             self::EVENT_DOCUMENT_UPLOADED => '✅',
             self::EVENT_STATUS_CHANGED => '🔄',
+            // Agregar los case dentro de getEventIconAttribute():
+            self::EVENT_OFERTA_CREADA               => '📝',
+            self::EVENT_OFERTA_DOCUMENTO_SUBIDO     => '📎',
+            self::EVENT_OFERTA_VERIFICADA           => '🔍',
+            self::EVENT_OFERTA_APROBADA             => '✅',
+            self::EVENT_OFERTA_RECHAZADA            => '❌',
+            self::EVENT_OFERTA_RECHAZADA_AUTOMATICA => '⚖️',
+            self::EVENT_CONTRATO_SERVICIO_CREADO      => '📝',
+            self::EVENT_CONTRATO_SERVICIO_VERIFICADO  => '🔍',
+            self::EVENT_CONTRATO_SERVICIO_APROBADO    => '✅',
+            self::EVENT_CONTRATO_SERVICIO_RECHAZADO   => '❌',
+            self::EVENT_CONTRATO_SERVICIO_RESCINDIDO  => '🗑️',
+            self::EVENT_CONTRATO_SERVICIO_LIQUIDADO   => '💰',
+            self::EVENT_HITO_VERIFICADO               => '🔍',
+            self::EVENT_HITO_APROBADO                 => '✅',
+            self::EVENT_MOVIMIENTO_SERVICIO_TERMINADO => '🏁',
+            self::EVENT_ORDEN_PAGO_GENERADA           => '📝',
+            self::EVENT_ORDEN_PAGO_VERIFICADA         => '🔍',
+            self::EVENT_ORDEN_PAGO_APROBADA           => '✅',
+            self::EVENT_ORDEN_PAGO_RECHAZADA          => '❌',
             default => '📋'
         };
     }

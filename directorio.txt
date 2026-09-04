@@ -13,6 +13,7 @@
 │   ├── Console
 │   │   └── Commands
 │   │       ├── CheckUtf8Command.php
+│   │       ├── PagoMultaCommand.php
 │   │       └── VencerNotificacionesExpiradas.php
 │   ├── Contracts
 │   │   └── PredioServiceInterface.php
@@ -23,7 +24,8 @@
 │   │   └── NominationEstado.php
 │   ├── Events
 │   │   ├── ContratoDocumentoGenerado.php
-│   │   └── DenunciaRequiereJustificacion.php
+│   │   ├── DenunciaRequiereJustificacion.php
+│   │   └── MultaPagada.php
 │   ├── Exceptions
 │   │   ├── DatabaseAuthException.php
 │   │   ├── DatabaseConnectionException.php
@@ -52,15 +54,22 @@
 │   │   │   ├── BarrioAtributoController.php
 │   │   │   ├── BarrioController.php
 │   │   │   ├── CatalogoController.php
+│   │   │   ├── CatalogoServiciosController.php
 │   │   │   ├── ConsultaController.php
 │   │   │   ├── Controller.php
 │   │   │   ├── DenunciaController.php
 │   │   │   ├── DepartamentoController.php
 │   │   │   ├── EvidenceController.php
 │   │   │   ├── EvidenciaController.php
+│   │   │   ├── IngresoContableMultaController.php
 │   │   │   ├── MetricaController.php
 │   │   │   ├── MultaController.php
 │   │   │   ├── NotificacionController.php
+│   │   │   ├── OfertaController.php
+│   │   │   ├── ResolucionController.php
+│   │   │   ├── ResolucionParticipanteController.php
+│   │   │   ├── ResolucionServicioController.php
+│   │   │   ├── TipoServicioController.php
 │   │   │   ├── VecinoController.php
 │   │   │   └── Web3Controller.php
 │   │   ├── Requests
@@ -68,10 +77,24 @@
 │   │   │   │   └── StoreVecinoRequest.php
 │   │   │   ├── Auth
 │   │   │   │   └── LoginRequest.php
+│   │   │   ├── StoreCatalogoServiciosRequest.php
 │   │   │   ├── StoreDenunciaRequest.php
 │   │   │   ├── StoreEvidenceRequest.php
+│   │   │   ├── StoreIngresoContableMultaRequest.php
 │   │   │   ├── StoreNotificacionEvidenciaRequest.php
-│   │   │   └── UpdateNotificacionRequest.php
+│   │   │   ├── StoreOfertaRequest.php
+│   │   │   ├── StoreResolucionParticipanteRequest.php
+│   │   │   ├── StoreResolucionRequest.php
+│   │   │   ├── StoreResolucionServicioRequest.php
+│   │   │   ├── StoreTipoServicioRequest.php
+│   │   │   ├── UpdateCatalogoServiciosRequest.php
+│   │   │   ├── UpdateIngresoContableMultaRequest.php
+│   │   │   ├── UpdateNotificacionRequest.php
+│   │   │   ├── UpdateOfertaRequest.php
+│   │   │   ├── UpdateResolucionParticipanteRequest.php
+│   │   │   ├── UpdateResolucionRequest.php
+│   │   │   ├── UpdateResolucionServicioRequest.php
+│   │   │   └── UpdateTipoServicioRequest.php
 │   │   ├── Resources
 │   │   │   ├── BarrioResource.php
 │   │   │   ├── DenunciaResource.php
@@ -84,6 +107,7 @@
 │   │       └── LoginResponse.php
 │   ├── Jobs
 │   │   ├── EnviarNotificacionJob.php
+│   │   ├── PagoMultaJob.php
 │   │   └── RegistrarEventoBlockchain.php
 │   ├── Listeners
 │   │   ├── GenerarNotificacionJustificacion.php
@@ -168,6 +192,9 @@
 │   │   │   │   ├── Show.php
 │   │   │   │   ├── Store.php
 │   │   │   │   └── Update.php
+│   │   │   ├── CatalogoServicios
+│   │   │   │   ├── Form.php
+│   │   │   │   └── Index.php
 │   │   │   ├── Denuncias
 │   │   │   │   ├── Index.php
 │   │   │   │   ├── Lista.php
@@ -189,6 +216,28 @@
 │   │   │   │   ├── Index.php
 │   │   │   │   ├── Lista.php
 │   │   │   │   └── Show.php
+│   │   │   ├── Ofertas
+│   │   │   │   ├── Aprobar.php
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Lista.php
+│   │   │   │   ├── Rechazar.php
+│   │   │   │   ├── Servicios.php
+│   │   │   │   ├── Show.php
+│   │   │   │   └── Verificar.php
+│   │   │   ├── Proveedores
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Lista.php
+│   │   │   │   └── Show.php
+│   │   │   ├── Resoluciones
+│   │   │   │   ├── Aprobar.php
+│   │   │   │   ├── Create.php
+│   │   │   │   ├── Edit.php
+│   │   │   │   ├── Lista.php
+│   │   │   │   ├── Rechazar.php
+│   │   │   │   ├── Show.php
+│   │   │   │   └── Verificar.php
 │   │   │   ├── Simple.php
 │   │   │   └── Verifications
 │   │   │       ├── Create.php
@@ -218,10 +267,13 @@
 │   │   ├── CacheLock.php
 │   │   ├── Cache.php
 │   │   ├── Catalogo.php
+│   │   ├── CatalogoServicios.php
 │   │   ├── CatalogoVecino.php
+│   │   ├── Contacto.php
 │   │   ├── ContainerMedia.php
 │   │   ├── ContainerNews.php
 │   │   ├── Container.php
+│   │   ├── ContratoObra.php
 │   │   ├── Contrato.php
 │   │   ├── Denuncia.php
 │   │   ├── Departamento.php
@@ -229,6 +281,7 @@
 │   │   ├── Evidence.php
 │   │   ├── Evidencia.php
 │   │   ├── Funcionario.php
+│   │   ├── IngresoContableMulta.php
 │   │   ├── JobBatch.php
 │   │   ├── Job.php
 │   │   ├── MenuItem.php
@@ -239,10 +292,16 @@
 │   │   ├── Nomination.php
 │   │   ├── Notificacion.php
 │   │   ├── Notification.php
+│   │   ├── Oferta.php
+│   │   ├── OfertaServicio.php
 │   │   ├── Ordenanza332.php
 │   │   ├── Permission.php
 │   │   ├── PorcentajeMultas.php
 │   │   ├── Presidente.php
+│   │   ├── Proveedor.php
+│   │   ├── ResolucionParticipante.php
+│   │   ├── Resolucion.php
+│   │   ├── ResolucionServicio.php
 │   │   ├── RoleHasPermission.php
 │   │   ├── Role.php
 │   │   ├── SalarioMinimo.php
@@ -253,8 +312,15 @@
 │   │   ├── Vecino.php
 │   │   └── Verification.php
 │   ├── Policies
+│   │   ├── CatalogoServiciosPolicy.php
 │   │   ├── ContratoPolicy.php
-│   │   └── NotificacionPolicy.php
+│   │   ├── IngresoContableMultaPolicy.php
+│   │   ├── NotificacionPolicy.php
+│   │   ├── OfertaPolicy.php
+│   │   ├── ResolucionParticipantePolicy.php
+│   │   ├── ResolucionPolicy.php
+│   │   ├── ResolucionServicioPolicy.php
+│   │   └── TipoServicioPolicy.php
 │   ├── Providers
 │   │   ├── AppServiceProvider.php
 │   │   ├── AuthServiceProvider.php
@@ -271,6 +337,7 @@
 │   │   ├── CombinadorHashEvidencias.php
 │   │   ├── Contracts
 │   │   │   └── RoleMenuServiceInterface.php
+│   │   ├── DistribucionContableService.php
 │   │   ├── DmqPredioService.php
 │   │   ├── GenerarDocumentoContrato.php
 │   │   ├── GenerarDocumentoNominacion.php
@@ -279,6 +346,7 @@
 │   │   ├── GeoService.php
 │   │   ├── MenuItemService.php
 │   │   ├── MenuService.php
+│   │   ├── PagoMultaService.php
 │   │   ├── QrCodeService.php
 │   │   ├── RequiereEvidenciaParaTransicion.php
 │   │   └── RoleMenuService.php
@@ -386,12 +454,21 @@
 ├── database
 │   ├── factories
 │   │   ├── BarrioAtributoFactory.php
+│   │   ├── CatalogoServiciosFactory.php
 │   │   ├── ContratoFactory.php
+│   │   ├── ContratoObraFactory.php
 │   │   ├── DepartamentoFactory.php
 │   │   ├── EvidenceFactory.php
 │   │   ├── EvidenciaFactory.php
+│   │   ├── IngresoContableMultaFactory.php
 │   │   ├── MultaFactory.php
 │   │   ├── NotificacionFactory.php
+│   │   ├── OfertaFactory.php
+│   │   ├── OfertaServicioFactory.php
+│   │   ├── ProveedorFactory.php
+│   │   ├── ResolucionFactory.php
+│   │   ├── ResolucionParticipanteFactory.php
+│   │   ├── ResolucionServicioFactory.php
 │   │   └── UserFactory.php
 │   ├── migrations
 │   │   ├── 0001_01_01_000000_create_users_table.php
@@ -428,20 +505,38 @@
 │   │   ├── 2026_05_04_232659_create_evidence_table.php
 │   │   ├── 2026_05_17_162328_cambio_vecinos_table.php
 │   │   ├── 2026_06_15_020114_create_denuncia_table.php
-│   │   └── 2026_07_18_064607_create_evidencia_table.php
+│   │   ├── 2026_07_18_064607_create_evidencia_table.php
+│   │   ├── 2026_07_29_130931_create_catalogo_servicios_table.php
+│   │   ├── 2026_07_29_171525_create_resolucions_table.php
+│   │   ├── 2026_07_29_171559_create_resolucion_participantes_table.php
+│   │   ├── 2026_07_29_230534_add_flujo_firma_to_resoluciones_table.php
+│   │   ├── 2026_07_30_124736_create_resolucion_servicios_table.php
+│   │   ├── 2026_07_31_083429_create_ofertas_table.php
+│   │   ├── 2026_07_31_085024_create_oferta_servicios_table.php
+│   │   ├── 2026_07_31_134610_2026-07-30-14-45_add_campos_ofertas_table.php
+│   │   └── 2026_08_01_035021_ajustes_ofertas_monto_total_y_unicidad.php
 │   └── seeders
+│       ├── CatalogoServiciosSeeder.php
 │       ├── ContratoSeeder.php
 │       ├── DatabaseSeeder.php
 │       ├── DenunciaSeeder.php
 │       ├── DirigenteSeeder.php
 │       ├── FuncionarioSeeder.php
+│       ├── IngresoContableMultaSeeder.php
 │       ├── NominationSeeder.php
 │       ├── NotificacionSeeder.php
+│       ├── OfertaSeeder.php
+│       ├── OfertaServicioSeeder.php
 │       ├── PorcentajeMultasSeeder.php
 │       ├── PresidenteSeeder.php
+│       ├── ResolucionParticipanteSeeder.php
+│       ├── ResolucionSeeder.php
+│       ├── ResolucionServicioSeeder.php
 │       ├── SupervisorSeeder.php
+│       ├── TipoServicioSeeder.php
 │       ├── UserSeeder.php
 │       └── VecinoSeeder.php
+├── directorio.txt
 ├── limpiaturincon.txt
 ├── package.json
 ├── package-lock.json
@@ -1131,6 +1226,9 @@
 │       │   │   │   ├── show.blade.php
 │       │   │   │   ├── store.blade.php
 │       │   │   │   └── update.blade.php
+│       │   │   ├── catalogo-servicios
+│       │   │   │   ├── form.blade.php
+│       │   │   │   └── index.blade.php
 │       │   │   ├── denuncias
 │       │   │   │   ├── index.blade.php
 │       │   │   │   ├── lista.blade.php
@@ -1151,6 +1249,29 @@
 │       │   │   │   ├── index.blade.php
 │       │   │   │   ├── lista.blade.php
 │       │   │   │   └── show.blade.php
+│       │   │   ├── ofertas
+│       │   │   │   ├── aprobar.blade.php
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── form.blade.php
+│       │   │   │   ├── lista.blade.php
+│       │   │   │   ├── rechazar.blade.php
+│       │   │   │   ├── servicios.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   └── verificar.blade.php
+│       │   │   ├── proveedores
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── lista.blade.php
+│       │   │   │   └── show.blade.php
+│       │   │   ├── resoluciones
+│       │   │   │   ├── aprobar.blade.php
+│       │   │   │   ├── create.blade.php
+│       │   │   │   ├── edit.blade.php
+│       │   │   │   ├── lista.blade.php
+│       │   │   │   ├── rechazar.blade.php
+│       │   │   │   ├── show.blade.php
+│       │   │   │   └── verificar.blade.php
 │       │   │   ├── simple.blade.php
 │       │   │   └── verifications
 │       │   │       ├── create.blade.php
@@ -1211,6 +1332,7 @@
 │       ├── pdf
 │       │   ├── nomination_aprobada.blade.php
 │       │   ├── nomination_propuesta.blade.php
+│       │   ├── nomination_rechazada.blade.php
 │       │   └── nomination_verificada.blade.php
 │       ├── policy.blade.php
 │       ├── profile
@@ -1262,4 +1384,4 @@
 │       └── ExampleTest.php
 └── vite.config.js
 
-187 directories, 1076 files
+195 directories, 1190 files

@@ -74,7 +74,8 @@
                                     <p class="text-xs text-blue-700 dark:text-blue-400">Verifique la validez legal del archivo</p>
                                 </div>
                             </div>
-                            <a href="{{ route('ver.documento', ['path' => base64_encode($details['pdf'])]) }}"
+                            <a href="{{ route('ver.documento', ['disco' => 'nominations', 'path' => base64_encode($details['pdf'])]) }}"
+
                                 target="_blank"
                                 class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-md">
                                 <i class="fas fa-external-link-alt mr-2"></i> ABRIR PDF

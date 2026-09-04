@@ -19,14 +19,15 @@ class Proveedor extends Model
     protected $fillable = [
         'razon_social',
         'ruc',
-        'representante_legal',
-        'tipo_servicio',
+        'nombre_comercial',
+        'actividad',
         'email',
         'telefono',
         'direccion',
         'cuenta_bancaria',
         'banco',
-        'estado',
+        'canton',
+        'is_active',
     ];
 
     public function contratosObra()
@@ -41,12 +42,12 @@ class Proveedor extends Model
 
     public function estaActivo(): bool
     {
-        return $this->estado === self::ESTADO_ACTIVO;
+        return $this->is_active === true;
     }
 
     public function estadoLabel(): string
     {
-        return match ($this->estado) {
+        return match ($this->is_active) {
             self::ESTADO_ACTIVO   => 'Activo',
             self::ESTADO_INACTIVO => 'Inactivo',
             default               => 'Desconocido',
@@ -55,7 +56,7 @@ class Proveedor extends Model
 
     public function estadoColor(): string
     {
-        return match ($this->estado) {
+        return match ($this->is_active) {
             self::ESTADO_ACTIVO   => 'bg-green-500',
             self::ESTADO_INACTIVO => 'bg-gray-500',
             default               => 'bg-gray-400',
@@ -64,16 +65,21 @@ class Proveedor extends Model
 
     public function scopeActivos($query)
     {
-        return $query->where('estado', self::ESTADO_ACTIVO);
+        return $query->where('is_active', true);
     }
 
     public function contactos()
     {
-        return $this->morphMany(Contacto::class, 'contactable');
+        return $this->hasMany(Contacto::class);
     }
 
     public function contactoPrincipal()
     {
-        return $this->morphOne(Contacto::class, 'contactable')->where('es_principal', true);
+        return $this->hasOne(Contacto::class)->where('es_principal', true);
+    }
+
+    public function contratistas()
+    {
+        return $this->hasMany(Contratista::class);
     }
 }

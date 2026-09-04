@@ -1,20 +1,14 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Contrato;
-use App\Models\AuditEvent;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CatalogoController;
-use App\Http\Controllers\DenunciaController;
-use App\Http\Controllers\EvidenceController;
-use App\Http\Controllers\MetricaController;
-use App\Http\Controllers\VecinoController;
-use App\Http\Controllers\BarrioController;
-use App\Http\Controllers\MultaController;
-use App\Http\Controllers\Api\ContravencionController;
-use App\Http\Controllers\NotificacionController;
+
+use Illuminate\Support\Facades\{Route, Auth};
+
+use App\Models\{Contrato, AuditEvent};
+
+use App\Http\Controllers\{AuthController, CatalogoController, DenunciaController, EvidenceController, MetricaController, VecinoController, BarrioController, MultaController, NotificacionController};
+
+use App\Http\Controllers\Api\{ContravencionController, ContratoServicioContratistaController, HitoSyncController, MediaUploadController, EvidenciaSyncController};
 
 
 /*
@@ -52,6 +46,33 @@ Route::get('/catalogos', [CatalogoController::class, 'index'])
 // Ruta de sincronización con el nombre que está buscando tu sistema
 Route::get('/catalogos', [CatalogoController::class, 'sync'])
     ->name('catalogos.sync');
+
+
+/*
+|--------------------------------------------------------------------------
+| Rutas de hitos y sync desde app móvil
+|--------------------------------------------------------------------------
+| Agregar dentro del grupo con middleware auth:sanctum (o el que uses
+| para autenticar la app móvil) en routes/api.php
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    // Contratista: navegación contrato -> servicios antes de capturar hitos
+    Route::get('mis-contratos-servicios', [ContratoServicioContratistaController::class, 'index']);
+    Route::get('contratos-servicios/{contrato}/detalles', [ContratoServicioContratistaController::class, 'detalles']);
+
+    // Paso 1: subir archivo binario (idempotente por uuid)
+    Route::post('media-uploads', [MediaUploadController::class, 'store']);
+
+    // Paso 2: sync batch de metadatos de hitos + evidencias
+    Route::post('sync/hitos', [HitoSyncController::class, 'sync']);
+
+    Route::post('/sync/evidencias', [EvidenciaSyncController::class, 'sync']);
+    // Acciones de Dirigente / Presidente (panel o app móvil)
+    Route::post('hitos/{hito}/verificar', [HitoSyncController::class, 'verificar']);
+    Route::post('hitos/{hito}/aprobar', [HitoSyncController::class, 'aprobar']);
+});
 
 // --- RUTAS PROTEGIDAS (Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {

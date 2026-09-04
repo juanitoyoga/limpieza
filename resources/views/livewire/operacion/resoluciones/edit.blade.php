@@ -36,8 +36,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                <input type="text" wire:model="tipo" class="w-full border px-4 py-2 rounded">
-                @error('tipo') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                <input type="text" wire:model="service_type_id" class="w-full border px-4 py-2 rounded">
+                @error('service_type_id') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
             </div>
 
             <div>

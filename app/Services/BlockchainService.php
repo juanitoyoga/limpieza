@@ -28,9 +28,89 @@ class BlockchainService
     /**
      * Publica un evento en el smart contract AuditoriaEventos.
      *
-     * @param  int    $tipoEvento    Código numérico por dominio (ver config/blockchain.php):
-     *                               1-9 Denuncias · 11-19 Multas · 21-29 Contratos ·
-     *                               31-39 Nominaciones · 41-49 Notificaciones
+     * @param  int    $tipoEvento   
+     * 
+     * |--------------------------------------------------------------------------
+     * | Mapeo Blockchain - AuditEvent::event_type → tipoEvento (uint8)
+     * |--------------------------------------------------------------------------
+     * | Fuente original: config/blockchain.php ['tipo_evento_map']
+     * | Uso: config('blockchain.tipo_evento_map')['denuncia_pendiente'] // 1
+     * |
+     * | ESTRUCTURA POR DECENAS (coincide con el contrato Solidity):
+     * |
+     * | -- Denuncias (1-9) --
+     * | 'denuncia_pendiente'           => 1
+     * | 'denuncia_verificada'          => 2
+     * | 'denuncia_aprobada'            => 3
+     * | 'denuncia_rechazada'           => 4
+     * | 'denuncia_expirada'            => 5
+     * |
+     * | -- Multas (10-19) --
+     * | 'multa_emitida'                => 11
+     * | 'multa_pagada'                 => 12
+     * | 'multa_anulada'                => 13
+     * | 'multa_impugnada'              => 14
+     * |
+     * | -- Contratos (20-29) [módulo en desarrollo] --
+     * | 'contrato_pendiente'           => 21
+     * | 'contrato_verificado'          => 22
+     * | 'contrato_aprobado'            => 23
+     * | 'contrato_rechazado'           => 24
+     * |
+     * | -- Nominaciones (30-39) --
+     * | 'nominacion_pendiente'         => 31
+     * | 'nominacion_verificada'        => 32
+     * | 'nominacion_aprobada'          => 33
+     * | 'nominacion_rechazada'         => 34
+     * |
+     * | -- Pagos (40-49) --
+     * | 'pago_registrado'              => 41
+     * | 'pago_confirmado'              => 42
+     * | 'pago_contabilizado'           => 43
+     * |
+     * | -- Distribucion (50-59) --
+     * | 'distribucion_registrada'      => 51
+     * | 'distribucion_confirmada'      => 52
+     * | 'distribucion_contabilizada'   => 53
+     * |
+     * | -- Obras (60-69) --
+     * | 'obra_propuesta'               => 61
+     * | 'obra_aprobada'                => 62
+     * | 'obra_rechazada'               => 63
+     * |
+     * | -- Ejecutorias (70-79) --
+     * | 'ejecutoria_emitida'           => 71
+     * | 'ejecutoria_pendiente'         => 72
+     * | 'ejecutoria_verificada'        => 73
+     * | 'ejecutoria_aprobada'          => 74
+     * | 'ejecutoria_rechazada'         => 75
+     * |
+     * | -- Resoluciones (80-89) --
+     * | 'resolucion_pendiente'         => 80
+     * | 'resolucion_creada'            => 81
+     * | 'resolucion_verificada'        => 82
+     * | 'resolucion_aprobada'          => 83
+     * | 'resolucion_rechazada'         => 84
+     * | 'resolucion_anulada'           => 85
+     * | 'resolucion_ejecutada'         => 86
+     * |
+     * | -- Ofertas (90-99) --
+     * | 'oferta_creada'                => 90
+     * | 'oferta_documento_subido'      => 91
+     * | 'oferta_verificada'            => 92
+     * | 'oferta_aprobada'              => 93
+     * | 'oferta_rechazada'             => 94
+     * | 'oferta_rechazada_automatica'  => 95
+     * |
+     * | -- ContratoServicio (100+) --
+     * | 'contrato_servicio_creado'     => 100
+     * | 'contrato_servicio_verificado' => 101
+     * | 'contrato_servicio_aprobado'   => 102
+     * | 'contrato_servicio_rechazado'  => 103
+     * | 'contrato_servicio_rescindido' => 104
+     * | 'contrato_servicio_liquidado'  => 105
+     * |--------------------------------------------------------------------------
+ 
      * @param  int    $referenciaId  ID del registro (denuncia, contrato, etc.)
      * @param  string $dataHash      SHA-256 hex (con o sin prefijo 0x), 64 chars
      *
